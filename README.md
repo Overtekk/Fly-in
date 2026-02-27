@@ -101,8 +101,7 @@ connection: tunnelB-goal
 |:-----:|:---:|:--------:|
 |zone=\<type>|default: normal|Define a zone type|
 |color=\<value>|default: none|Define a color for the zone|
-|max_drones=\<number>|default: 1|aximum drones that can occupy this
-zone simultaneously|
+|max_drones=\<number>|default: 1|aximum drones that can occupy this zone simultaneously|
 
 ### Zone types:
 |Value|Definition|
@@ -128,10 +127,12 @@ Optional metadata:
 |:-----:|:---:|:--------:|
 |max_link_capacity=\<number>|default: 1|Maximum drones that can traverse this connection simultaneously|
 
-- Comments start with a `#` and are ignored.
+- The first line must define the number of drones and must be positive integers.
 - Start end and zone must be unique.
-- Zones coordinates will always be positive integers.
 - A connection between entry and exit must exist.
+- Each zone must have a unique name and have positive integers.
+- Connections must link only previously defined zones using connections. The same connection must not appear more than once.
+- Comments start with a `#` and are ignored.
 
 ---
 ## 💡 Instructions
@@ -159,6 +160,19 @@ todo
 
 ## 📚 Resources
 
-todo
+### Colors:
+- https://gist.github.com/rene-d/9e584a7dd2935d0f461904b9f2950007
+
+<br>
+
+### Pydantic:
+- https://docs.pydantic.dev/latest/concepts/fields/#default-values
+
+<br>
+
+### Python docs :
+#### Re-syntax:
+- https://docs.python.org/3/library/re.html
+- https://www.geeksforgeeks.org/python/re-match-in-python/
 
 ---
