@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 17:33:05 by roandrie        #+#    #+#               #
-#  Updated: 2026/02/27 12:32:49 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/01 19:06:26 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -68,8 +68,8 @@ class Maps():
         except MapError as e:
             self.invalid_maps_dict[category].append((file_path.stem, str(e)))
         # Catch weird errors
-        except Exception as e:
-            raise MapError(f"Error processing {file_path}: {e}")
+        # except Exception as e:
+        #     raise MapError(f"Error processing {file_path}: {e}")
 
     def _cleanup_dictionaries(self) -> None:
         """
@@ -130,8 +130,8 @@ class Maps():
         except PermissionError:
             raise MapError("Permission denied: Cannot read directory "
                            f"'{self.root}'. Check your permission.")
-        except Exception as e:
-            raise MapError(f"Unexpected error of type {e}")
+        # except Exception as e:
+        #     raise MapError(f"Unexpected error of type {e}")
 
     def get_maps_list(self) -> None:
         """
@@ -166,10 +166,6 @@ class MapModel(BaseModel):
         }
         # Valid first key and can be duplicate
         list_key: Set[str] = {"hub", "connection"}
-        # Valid metadata for zone
-        valid_zone_metadata = {"zone", "color", "max_drones"}
-        # Valid zone type
-        valid_zone_type = {"normal", "blocked", "restricted", "priority"}
         # Valid metadata for connection
         valid_connection_metadata = {"max_link_capacity"}
         # Raw config with all maps informations
@@ -217,7 +213,22 @@ class MapModel(BaseModel):
                                            "the first line.")
 
                     if key in ["start_hub", "hub", "end_hub"]:
-                        zone_data = re.match("", value)
+                        zone_data = re.findall(r"\[[^\]]*\]|\S+", value)
+                        if len(zone_data) in [3, 4]:
+                            if cls._check_zone_name(zone_data[0]) is False:
+                                errors_list.append(f"Line {i}: error in zone name ('{zone_data[0]}'). Check that is a valid string, with no space and '-'.")
+                            if cls._check_zone_coords(zone_data[1]) is False:
+                                errors_list.append(f"Line {i}: error in zone coordinates ('{zone_data[1]}). Check that is a valid positive int.")
+                            if cls._check_zone_coords(zone_data[2]) is False:
+                                errors_list.append(f"Line {i}: error in zone coordinates ('{zone_data[2]}). Check that is a valid positive int.")
+                            if len(zone_data) == 4:
+                                if cls._check_zone_metada(zone_data[3]) is False:
+                                    errors_list.append(f"Line {i}: error in zone metadata.")
+                        else:
+                            if len(zone_data) < 3:
+                                errors_list.append(f"Line {i}: Missing datas for zone. Valid syntax: <name>(str) <x>(int) <y>(int) <metadata> (metadata is optional).")
+                            else:
+                                errors_list.append(f"Line {i}: Too much datas for zone. Valid syntax: <name>(str) <x>(int) <y>(int) <metadata> (metadata is optional).")
 
                     # Constructing data
                     if key in list_key:
@@ -237,8 +248,8 @@ class MapModel(BaseModel):
             raise MapError(f"File not found: {file}")
         except PermissionError:
             raise MapError(f"Can't read file, check permissions: {file}")
-        except Exception as e:
-            raise MapError(f"Critical error reading file {file.name}: {e}")
+        # except Exception as e:
+        #     raise MapError(f"Critical error reading file {file.name}: {e}")
 
         print(raw_config)
 
@@ -273,6 +284,23 @@ class MapModel(BaseModel):
 
     @staticmethod
     def _check_zone_name(zone_name: str) -> bool:
-        if zone_name.find(" ") or zone_name.find("-"):
+        if " " in zone_name or "-" in zone_name or not isinstance(zone_name, str):
             return False
         return True
+
+    @staticmethod
+    def _check_zone_coords(coords: int) -> bool:
+        try:
+            int(coords)
+            return True
+        except ValueError:
+            return False
+
+    @staticmethod
+    def _check_zone_metada(metada: str) -> bool:
+        # Valid metadata for zone
+        valid_zone_metadata = {"zone", "color", "max_drones"}
+        # Valid zone type
+        valid_zone_type = {"normal", "blocked", "restricted", "priority"}
+
+
