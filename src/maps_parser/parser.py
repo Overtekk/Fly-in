@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 17:33:05 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/02 16:02:49 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/02 22:02:39 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -21,9 +21,9 @@ but all data errors are stocked to fix it later.
 import re
 
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Self, Set
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, model_validator
 
 from src.utils.ui import COLORS
 from src.utils.custom_errors import MapError
@@ -319,6 +319,10 @@ class MapModel(BaseModel):
             map = cls(**raw_config)
         except ValidationError as e:
             for error in e.errors():
+                if not error['loc']:
+                    errors_list.append(error['msg'])
+                    continue
+
                 field_name = str(error['loc'][0])
                 msg = error['msg']
 
@@ -343,6 +347,32 @@ class MapModel(BaseModel):
             raise MapError("\n".join(errors_list))
 
         return map
+
+    @model_validator(mode='after')
+    def validate_coords(self) -> Self:
+        seen_coords: set[tuple[int, int]] = set()
+
+        all_zones = [self.start_hub, self.end_hub] + self.hub
+
+        for zone in all_zones:
+            parts = zone.split()
+
+            if len(parts) < 3:
+                continue
+
+            try:
+                x = int(parts[1])
+                y = int(parts[2])
+                curr_coords = (x, y)
+            except ValueError:
+                continue
+
+            if curr_coords in seen_coords:
+                raise ValueError(f"Duplicate coordinates: {curr_coords} "
+                                 f"for zone '{parts[0]}'")
+            seen_coords.add(curr_coords)
+
+        return self
 
     @staticmethod
     def _check_valid_zones(valid_zones: str) -> bool:
