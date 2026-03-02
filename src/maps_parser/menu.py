@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 18:48:26 by roandrie        #+#    #+#               #
-#  Updated: 2026/02/27 10:46:19 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/02 16:01:16 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -114,7 +114,7 @@ def print_menu(maps: Maps) -> str | int:
 
             if maps.invalid_maps_dict:
                 print(f"\n{COLORS.BOLD}{COLORS.LIGHT_BLUE}{len(category) + 1}"
-                    f": Invalid maps{COLORS.END}")
+                      f": Invalid maps{COLORS.END}")
 
             print(f"\n{COLORS.BOLD}{COLORS.LIGHT_WHITE}0: Leave{COLORS.END}")
 
@@ -140,10 +140,10 @@ def print_menu(maps: Maps) -> str | int:
 
         # Show invalid maps
         elif curr_category == "invalid":
-            maps_list = [map for list in maps.invalid_maps_dict.values()
-                         for map in list]
+            invalid_list = [map for list in maps.invalid_maps_dict.values()
+                            for map in list]
 
-            for i, (name, error) in enumerate(maps_list, 1):
+            for i, (name, error) in enumerate(invalid_list, 1):
                 print(f"{COLORS.BOLD}{COLORS.LIGHT_BLUE}{i}: {COLORS.ITALIC}"
                       f"{name}{COLORS.END}")
 
@@ -153,7 +153,7 @@ def print_menu(maps: Maps) -> str | int:
                 user_input = input(f"\n{COLORS.ITALIC}Choice: {COLORS.END}")
                 try:
                     choice = int(user_input)
-                    if 0 <= choice <= len(maps_list):
+                    if 0 <= choice <= len(invalid_list):
                         break
                     else:
                         raise ValueError
@@ -164,9 +164,9 @@ def print_menu(maps: Maps) -> str | int:
             if choice == 0:
                 curr_category = None
             else:
-                selected_map = maps_list[choice - 1]
-                print(f"\n{COLORS.RED}{COLORS.BOLD}Error in '{selected_map[0]}'"
-                      f":\n{COLORS.ITALIC}{selected_map[1]}{COLORS.END}")
+                selected_map = invalid_list[choice - 1]
+                print(f"\n{COLORS.RED}{COLORS.BOLD}Error in '{selected_map[0]}"
+                      f"':\n{COLORS.ITALIC}{selected_map[1]}{COLORS.END}")
                 input("\nPress Enter to continue...")
                 curr_category = "invalid"
 

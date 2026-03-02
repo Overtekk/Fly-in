@@ -6,13 +6,15 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 16:56:39 by roandrie        #+#    #+#               #
-#  Updated: 2026/02/26 00:14:27 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/02 15:48:41 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 import sys
 
 from enum import Enum
+
+from src.utils.css3_colors import CSS3_NAMES
 
 
 class Display():
@@ -28,11 +30,12 @@ class Display():
         print(prefix + content, file=sys.stderr)
 
 
-class COLORS(Enum):
+class COLORS(str, Enum):
     """
     Enumeration of ANSI color codes for terminal text coloring.
     """
 
+    WHITE = "\033[37m"
     RED = "\033[31m"
     BLACK = "\033[30m"
     GREEN = "\033[32m"
@@ -56,6 +59,30 @@ class COLORS(Enum):
 
     END = "\033[0m"
     CLEARLINE = "\033[F\033[K"
+
+    @staticmethod
+    def get_rgb_code(color_name: str) -> str:
+        """
+        Transform a CSS color name (ex: 'lime') in ANSI TrueColor. If a color
+        does not exist, return white.
+
+        Args:
+            color_name (str): name of the color
+
+        Returns:
+            str: ANSI color sequence
+        """
+        name = color_name.lower()
+        if name not in CSS3_NAMES:
+            return COLORS.WHITE.value
+
+        hex_code = CSS3_NAMES[name].lstrip('#')
+
+        r = int(hex_code[0:2], 16)
+        g = int(hex_code[2:4], 16)
+        b = int(hex_code[4:6], 16)
+
+        return f"\033[38;2;{r};{g};{b}m"
 
     def __str__(self) -> str:
         """

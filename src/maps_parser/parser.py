@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 17:33:05 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/01 19:06:26 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/02 16:02:49 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -41,7 +41,7 @@ class Maps():
         self.root = Path("maps")
         self.extension = "*.txt"
         self.maps_dict: dict[str, list[str]] = {}
-        self.invalid_maps_dict: dict[str, list[str]] = {}
+        self.invalid_maps_dict: dict[str, list[tuple[str, str]]] = {}
 
         self._add_maps_to_list()
 
@@ -142,8 +142,8 @@ class Maps():
             print(f"{category}: {maps}")
 
         print(f"{COLORS.RED}Invalid maps:{COLORS.END}")
-        for category, maps in self.invalid_maps_dict.items():
-            print(f"{category}: {maps}")
+        for category, invalid_maps in self.invalid_maps_dict.items():
+            print(f"{category}: {invalid_maps}")
 
 
 class MapModel(BaseModel):
@@ -160,20 +160,19 @@ class MapModel(BaseModel):
             raise MapError(f"Invalid file extension '{file.suffix}'. Map must "
                            "be a '.txt' file.")
 
-        # Valid first key
         valid_map_key: Set[str] = {
             "nb_drones", "start_hub", "end_hub", "hub", "connection"
         }
-        # Valid first key and can be duplicate
         list_key: Set[str] = {"hub", "connection"}
-        # Valid metadata for connection
-        valid_connection_metadata = {"max_link_capacity"}
-        # Raw config with all maps informations
-        raw_config: Dict[str, Any] = {}
-        # List of errors of a map
-        errors_list: List[str] = []
 
+        valid_zones = []
+        existing_connection: List[str] = []
+
+        raw_config: Dict[str, Any] = {}
+
+        errors_list: List[str] = []
         key_line_map: Dict[str, int] = {}
+
         is_first_param = True
 
         try:
@@ -204,31 +203,96 @@ class MapModel(BaseModel):
                     # Check if first key is "nb_drones"
                     if is_first_param:
                         if key != "nb_drones":
-                            errors_list.append(f"Line {i}: First parameter must"
-                                               f" be 'nb_drones'. "
+                            errors_list.append(f"Line {i}: First parameter"
+                                               f" must be 'nb_drones'. "
                                                f"Found '{key}'.")
                         is_first_param = False
                     elif key == "nb_drones":
                         errors_list.append(f"Line {i}: 'nb_drones' must be at "
                                            "the first line.")
 
+                    # Check zones data
                     if key in ["start_hub", "hub", "end_hub"]:
                         zone_data = re.findall(r"\[[^\]]*\]|\S+", value)
                         if len(zone_data) in [3, 4]:
-                            if cls._check_zone_name(zone_data[0]) is False:
-                                errors_list.append(f"Line {i}: error in zone name ('{zone_data[0]}'). Check that is a valid string, with no space and '-'.")
+                            if cls._check_valid_zones(zone_data[0]) is False:
+                                errors_list.append(f"Line {i}: error in zone "
+                                                   f"name ('{zone_data[0]}'). "
+                                                   "Check that is a valid "
+                                                   "string, with no space and "
+                                                   "'-'.")
+                            else:
+                                if zone_data[0] in valid_zones:
+                                    errors_list.append(f"Line {i}: Duplicated"
+                                                       " zone name: "
+                                                       f"{zone_data[0]}")
+                                valid_zones.append(zone_data[0])
+
                             if cls._check_zone_coords(zone_data[1]) is False:
-                                errors_list.append(f"Line {i}: error in zone coordinates ('{zone_data[1]}). Check that is a valid positive int.")
+                                errors_list.append(f"Line {i}: error in zone "
+                                                   "coordinates ('"
+                                                   f"{zone_data[1]}). Check "
+                                                   "that is a valid int.")
+
                             if cls._check_zone_coords(zone_data[2]) is False:
-                                errors_list.append(f"Line {i}: error in zone coordinates ('{zone_data[2]}). Check that is a valid positive int.")
+                                errors_list.append(f"Line {i}: error in zone "
+                                                   "coordinates ('"
+                                                   f"{zone_data[2]}). Check "
+                                                   "that is a valid int.")
+
                             if len(zone_data) == 4:
-                                if cls._check_zone_metada(zone_data[3]) is False:
-                                    errors_list.append(f"Line {i}: error in zone metadata.")
+                                tmp_error = cls._check_metada(zone_data[3],
+                                                              "zone")
+                                if tmp_error:
+                                    for e in tmp_error:
+                                        errors_list.append(f"Line {i}: {e}")
                         else:
                             if len(zone_data) < 3:
-                                errors_list.append(f"Line {i}: Missing datas for zone. Valid syntax: <name>(str) <x>(int) <y>(int) <metadata> (metadata is optional).")
+                                errors_list.append(f"Line {i}: Missing datas "
+                                                   "for zone. Valid syntax: "
+                                                   "<name>(str) <x>(int) <y>"
+                                                   "(int) <metadata> (metadata"
+                                                   " is optional).")
                             else:
-                                errors_list.append(f"Line {i}: Too much datas for zone. Valid syntax: <name>(str) <x>(int) <y>(int) <metadata> (metadata is optional).")
+                                errors_list.append(f"Line {i}: Too much datas "
+                                                   "for zone. Valid syntax: "
+                                                   "<name>(str) <x>(int) <y>"
+                                                   "(int) <metadata> (metadata"
+                                                   " is optional).")
+                    # Check connections data
+                    elif key == "connection":
+                        zone_data = re.findall(r"\[[^\]]*\]|\S+", value)
+                        if len(zone_data) in [1, 2]:
+                            tmp_error = cls._check_connection(
+                                zone_data[0], existing_connection, valid_zones)
+                            if tmp_error:
+                                for e in tmp_error:
+                                    errors_list.append(f"Line {i}: {e}")
+                            else:
+                                existing_connection.append(zone_data[0])
+                                zone1, zone2 = zone_data[0].split("-", 1)
+                                inversed = f"{zone2}-{zone1}"
+                                existing_connection.append(inversed)
+
+                            if len(zone_data) == 2:
+                                tmp_error = cls._check_metada(zone_data[1],
+                                                              "connection")
+                                if tmp_error:
+                                    for e in tmp_error:
+                                        errors_list.append(f"Line {i}: {e}")
+                        else:
+                            if len(zone_data) < 1:
+                                errors_list.append(f"Line {i}: Missing data "
+                                                   "for connection. Valid "
+                                                   "syntax: <zone1>-<zone2> "
+                                                   "<metadata> (metadata is "
+                                                   "optional).")
+                            else:
+                                errors_list.append(f"Line {i}: Too much data "
+                                                   "for connection. Valid "
+                                                   "syntax: <zone1>-<zone2> "
+                                                   "<metadata> (metadata is "
+                                                   "optional).")
 
                     # Constructing data
                     if key in list_key:
@@ -250,8 +314,6 @@ class MapModel(BaseModel):
             raise MapError(f"Can't read file, check permissions: {file}")
         # except Exception as e:
         #     raise MapError(f"Critical error reading file {file.name}: {e}")
-
-        print(raw_config)
 
         try:
             map = cls(**raw_config)
@@ -283,13 +345,14 @@ class MapModel(BaseModel):
         return map
 
     @staticmethod
-    def _check_zone_name(zone_name: str) -> bool:
-        if " " in zone_name or "-" in zone_name or not isinstance(zone_name, str):
+    def _check_valid_zones(valid_zones: str) -> bool:
+        if (" " in valid_zones or "-" in valid_zones or
+                not isinstance(valid_zones, str)):
             return False
         return True
 
     @staticmethod
-    def _check_zone_coords(coords: int) -> bool:
+    def _check_zone_coords(coords: str) -> bool:
         try:
             int(coords)
             return True
@@ -297,10 +360,86 @@ class MapModel(BaseModel):
             return False
 
     @staticmethod
-    def _check_zone_metada(metada: str) -> bool:
-        # Valid metadata for zone
+    def _check_metada(metada: str, definition: str) -> List:
+        error_list = []
         valid_zone_metadata = {"zone", "color", "max_drones"}
-        # Valid zone type
         valid_zone_type = {"normal", "blocked", "restricted", "priority"}
+        duplicate_data: List[str] = []
 
+        if not metada.startswith("["):
+            error_list.append("Missing '[' at the start.")
+        if not metada.endswith("]"):
+            error_list.append("Missing ']' at the end.")
 
+        metada = metada.strip("[]")
+        metada_list = re.findall(r"\S+", metada)
+
+        for m in metada_list:
+            if "=" not in m:
+                error_list.append(f"Missing '=' separator in {m}")
+                continue
+
+            key, value = m.split("=", 1)
+
+            if definition == "zone":
+                if key not in valid_zone_metadata:
+                    error_list.append(f"{key} is not a valid tag.")
+                    continue
+            elif definition == "connection":
+                if key != "max_link_capacity":
+                    error_list.append(f"{key} is not a valid tag.")
+                    continue
+
+            if key == "zone":
+                if value not in valid_zone_type:
+                    error_list.append(f"'{key}={value}' is not a valid zone "
+                                      "type. Use: 'normal', 'blocked', "
+                                      "'restricted', 'priority'.")
+
+            elif key in ["max_drones", "max_link_capacity"]:
+                try:
+                    n = int(value)
+                    if n <= 0:
+                        raise ValueError
+                except ValueError:
+                    error_list.append(f"'{key}={value}' need to be a positive "
+                                      "valid int.")
+
+            elif key == "color":
+                if not isinstance(value, str):
+                    error_list.append(f"'{key}={value}' is not a valid color.")
+
+            if len(duplicate_data) > 0:
+                if key in duplicate_data:
+                    error_list.append(f"'duplicated key: {key}")
+            duplicate_data.append(key)
+
+        return error_list
+
+    @staticmethod
+    def _check_connection(connection_name: str, existing_connection: List[str],
+                          valid_zones: List[str]) -> List:
+        error_list = []
+
+        if "-" not in connection_name:
+            error_list.append("Missing '-' between zones name.")
+            return error_list
+
+        zone1, zone2 = connection_name.split("-", 1)
+
+        if len(valid_zones) == 0:
+            error_list.append("Define zones first.")
+            return error_list
+
+        if zone1 not in valid_zones:
+            error_list.append(f"{zone1} not a valid zone name.")
+        if zone2 not in valid_zones:
+            error_list.append(f"{zone2} not a valid zone name.")
+
+        if error_list:
+            return error_list
+
+        if connection_name in existing_connection:
+            error_list.append(f"Duplicated connection: {connection_name}")
+
+        return error_list

@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/01 18:03:34 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/01 18:11:51 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/02 15:46:50 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """Runtime dependency verification utility.
@@ -32,13 +32,14 @@ def module_checker() -> None:
     """
 
     required = ['pydantic']
-    missing = []
+    missing: list[str] = []
 
     for module_name in required:
         spec = importlib.util.find_spec(module_name)
         if spec is None:
-            missing.append(spec)
+            missing.append(module_name)
 
     if missing:
-        raise ModuleNotFoundError(f"missing dependencies {len(missing)}.\nUse "
+        miss_module = ", ".join(missing)
+        raise ModuleNotFoundError(f"missing dependencies {miss_module}.\nUse "
                                   "'uv run python3 run.py <map>' instead.")
