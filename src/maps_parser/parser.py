@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 17:33:05 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/02 22:02:39 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/05 13:58:00 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -68,8 +68,8 @@ class Maps():
         except MapError as e:
             self.invalid_maps_dict[category].append((file_path.stem, str(e)))
         # Catch weird errors
-        # except Exception as e:
-        #     raise MapError(f"Error processing {file_path}: {e}")
+        except Exception as e:
+            raise MapError(f"Error processing {file_path}: {e}")
 
     def _cleanup_dictionaries(self) -> None:
         """
@@ -130,8 +130,8 @@ class Maps():
         except PermissionError:
             raise MapError("Permission denied: Cannot read directory "
                            f"'{self.root}'. Check your permission.")
-        # except Exception as e:
-        #     raise MapError(f"Unexpected error of type {e}")
+        except Exception as e:
+            raise MapError(f"Unexpected error of type {e}")
 
     def get_maps_list(self) -> None:
         """
@@ -147,6 +147,15 @@ class Maps():
 
 
 class MapModel(BaseModel):
+    """
+    Class for validating data of map.
+
+    nb_drones: number of drones (positive int, need at least 1).
+    start_hub: start where drones will spawn.
+    end_hub: end where drones will finish their journey.
+    hub: list of hubs where drones can pass.
+    connection: list of connections between zones.
+    """
     nb_drones: int = Field(ge=1)
     start_hub: str
     end_hub: str
@@ -155,6 +164,22 @@ class MapModel(BaseModel):
 
     @classmethod
     def is_map_valid(cls, file: Path) -> "MapModel":
+        """Check if a map is valid by checking all informations. If a map is
+        not valid, the method will store the error and the line to tell the
+        user what was wrong.
+
+        Args:
+            file (Path): the path to the file containing informations about the
+                         map.
+
+        Raises:
+            MapError: if the file is not found.
+            MapError: if the permissions are wrong.
+            MapError: unexpected error.
+
+        Returns:
+            MapModel: the map with all verified data.
+        """
         # Check if file extension is '.txt' if user manually launch the script.
         if file.suffix != ".txt":
             raise MapError(f"Invalid file extension '{file.suffix}'. Map must "
@@ -268,6 +293,7 @@ class MapModel(BaseModel):
                             if tmp_error:
                                 for e in tmp_error:
                                     errors_list.append(f"Line {i}: {e}")
+                                continue
                             else:
                                 existing_connection.append(zone_data[0])
                                 zone1, zone2 = zone_data[0].split("-", 1)
@@ -280,6 +306,7 @@ class MapModel(BaseModel):
                                 if tmp_error:
                                     for e in tmp_error:
                                         errors_list.append(f"Line {i}: {e}")
+                                    continue
                         else:
                             if len(zone_data) < 1:
                                 errors_list.append(f"Line {i}: Missing data "
@@ -312,8 +339,8 @@ class MapModel(BaseModel):
             raise MapError(f"File not found: {file}")
         except PermissionError:
             raise MapError(f"Can't read file, check permissions: {file}")
-        # except Exception as e:
-        #     raise MapError(f"Critical error reading file {file.name}: {e}")
+        except Exception as e:
+            raise MapError(f"Critical error reading file {file.name}: {e}")
 
         try:
             map = cls(**raw_config)
@@ -349,10 +376,36 @@ class MapModel(BaseModel):
         return map
 
     @model_validator(mode='after')
-    def validate_coords(self) -> Self:
+    def _validate_coords(self) -> Self:
+        """
+        Check if coordinates are not duplicated between start and end. Also,
+        check if a hub don't have the same coordinates than the start.
+
+        Raises:
+            MapError: if start and end are not unique.
+            MapError: if a hub have the same coordinates that the start.
+
+        Returns:
+            Self: the MapModel verified.
+        """
         seen_coords: set[tuple[int, int]] = set()
 
-        all_zones = [self.start_hub, self.end_hub] + self.hub
+        all_zones = self.hub
+        start = self.start_hub.split()
+        end = self.end_hub.split()
+
+        try:
+            start_x = int(start[1])
+            start_y = int(start[2])
+            end_x = int(end[1])
+            end_y = int(end[2])
+            start_coords = (start_x, start_y)
+            end_coords = (end_x, end_y)
+        except ValueError:
+            return self
+
+        if start_coords == end_coords:
+            raise MapError("Coordinates of start and end must be unique.")
 
         for zone in all_zones:
             parts = zone.split()
@@ -367,30 +420,119 @@ class MapModel(BaseModel):
             except ValueError:
                 continue
 
-            if curr_coords in seen_coords:
-                raise ValueError(f"Duplicate coordinates: {curr_coords} "
-                                 f"for zone '{parts[0]}'")
+            if curr_coords == start_coords or curr_coords == end_coords:
+                raise MapError(f"Duplicate coordinates: {curr_coords} "
+                               "(can't be the same than entry/exit) - "
+                               f"for zone '{parts[0]}'")
             seen_coords.add(curr_coords)
 
         return self
 
+    @model_validator(mode='after')
+    def _validate_connection(self) -> Self:
+        """Check all connections to know if the start or the end are not
+        missing. Also check if a path between start and end exist.
+
+        Raises:
+            MapError: If start or end does not exist.
+            MapError: If there is no connectio between start and end.
+
+        Returns:
+            Self: the MapModel verified.
+        """
+        all_connections = self.connection
+
+        if len(all_connections) == 0:
+            return self
+
+        save_start = None
+        end_save = None
+        connection_map: Dict[str, List[str]] = {}
+
+        start_split = self.start_hub.strip().split()
+        end_split = self.end_hub.strip().split()
+
+        start_name = start_split[0]
+        end_name = end_split[0]
+
+        for raw_connection in all_connections:
+            connect = re.findall(r"\[[^\]]*\]|\S+", raw_connection)
+            zone1, zone2 = connect[0].split("-")
+            if save_start is None:
+                if zone1 == start_name or zone2 == start_name:
+                    save_start = connect[0]
+            if end_save is None:
+                if zone1 == end_name or zone2 == end_name:
+                    end_save = connect[0]
+            connection_map.setdefault(zone1, []).append(zone2)
+            connection_map.setdefault(zone2, []).append(zone1)
+
+        if save_start is None:
+            raise MapError("No start found. Have you forgot to add it?")
+        if end_save is None:
+            raise MapError("No end found. Have you forgot to add it?")
+
+        to_visit = [start_name]
+        visited: Set[str] = set()
+
+        while to_visit:
+            current_hub = to_visit.pop(0)
+
+            if current_hub == end_name:
+                return self
+
+            visited.add(current_hub)
+            for neighbor in connection_map[current_hub]:
+                if neighbor not in to_visit and neighbor not in visited:
+                    to_visit.append(neighbor)
+
+        raise MapError("No connections between start and end.")
+
     @staticmethod
     def _check_valid_zones(valid_zones: str) -> bool:
+        """Method to check if a zone does not have an error in its name.
+
+        Args:
+            valid_zones (str): the name of the zone.
+
+        Returns:
+            bool: True if no error is found.
+        """
         if (" " in valid_zones or "-" in valid_zones or
                 not isinstance(valid_zones, str)):
             return False
         return True
 
     @staticmethod
-    def _check_zone_coords(coords: str) -> bool:
+    def _check_zone_coords(coord: str) -> bool:
+        """Method to check if coordinates are of type int.
+
+        Args:
+            coords (str): the coordinate to check.
+
+        Returns:
+            bool: True if no error is found.
+        """
         try:
-            int(coords)
+            int(coord)
             return True
         except ValueError:
             return False
 
     @staticmethod
-    def _check_metada(metada: str, definition: str) -> List:
+    def _check_metada(metada: str, type: str) -> List[str]:
+        """Check if metada is correct (good syntax, value, etc...)
+
+        Args:
+            metada (str): the metada to check.
+            definition (str): the type of metadata to check.
+
+        Raises:
+            ValueError: if int are negatives.
+
+        Returns:
+            List: a list with all errors found.
+        """
         error_list = []
         valid_zone_metadata = {"zone", "color", "max_drones"}
         valid_zone_type = {"normal", "blocked", "restricted", "priority"}
@@ -411,11 +553,11 @@ class MapModel(BaseModel):
 
             key, value = m.split("=", 1)
 
-            if definition == "zone":
+            if type == "zone":
                 if key not in valid_zone_metadata:
                     error_list.append(f"{key} is not a valid tag.")
                     continue
-            elif definition == "connection":
+            elif type == "connection":
                 if key != "max_link_capacity":
                     error_list.append(f"{key} is not a valid tag.")
                     continue
@@ -448,7 +590,18 @@ class MapModel(BaseModel):
 
     @staticmethod
     def _check_connection(connection_name: str, existing_connection: List[str],
-                          valid_zones: List[str]) -> List:
+                          valid_zones: List[str]) -> List[str]:
+        """Method to check if a connection is valid (good syntax,
+        no duplication, etc...)
+
+        Args:
+            connection_name (str): the connection to check.
+            existing_connection (List[str]): a list of all connections.
+            valid_zones (List[str]): a list of all zones.
+
+        Returns:
+            List: a list with all errors found.
+        """
         error_list = []
 
         if "-" not in connection_name:

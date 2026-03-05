@@ -9,3 +9,4 @@ connection: start-waypoint1
 connection: waypoint1-waypoint2
 connection: waypoint2 goal # Bad syntax
 connection: waypoint2=goal # Missing '-' between zones name
+connection: start-waypoint1-waypoint2- # Too much datas
