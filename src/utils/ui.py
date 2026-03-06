@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 16:56:39 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/02 15:48:41 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/06 11:42:10 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -14,7 +14,7 @@ import sys
 
 from enum import Enum
 
-from src.utils.css3_colors import CSS3_NAMES
+from src.utils.css3_Colors import CSS3_NAMES
 
 
 class Display():
@@ -25,12 +25,12 @@ class Display():
         Arguments:
             message (str): message to print.
         """
-        prefix = f"{COLORS.BOLD}{COLORS.RED}Error: {COLORS.END}"
-        content = f"{COLORS.RED}{message}{COLORS.END}"
+        prefix = f"{Colors.BOLD}{Colors.RED}Error: {Colors.END}"
+        content = f"{Colors.RED}{message}{Colors.END}"
         print(prefix + content, file=sys.stderr)
 
 
-class COLORS(str, Enum):
+class Colors(str, Enum):
     """
     Enumeration of ANSI color codes for terminal text coloring.
     """
@@ -74,7 +74,7 @@ class COLORS(str, Enum):
         """
         name = color_name.lower()
         if name not in CSS3_NAMES:
-            return COLORS.WHITE.value
+            return Colors.WHITE.value
 
         hex_code = CSS3_NAMES[name].lstrip('#')
 

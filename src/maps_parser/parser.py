@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 17:33:05 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/05 13:58:00 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/06 11:42:10 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -25,7 +25,7 @@ from typing import Any, Dict, List, Self, Set
 
 from pydantic import BaseModel, Field, ValidationError, model_validator
 
-from src.utils.ui import COLORS
+from src.utils.ui import Colors
 from src.utils.custom_errors import MapError
 
 
@@ -137,11 +137,11 @@ class Maps():
         """
         Prints the current state of valid and invalid maps.
         """
-        print(f"{COLORS.GREEN}Valid maps:{COLORS.END}")
+        print(f"{Colors.GREEN}Valid maps:{Colors.END}")
         for category, maps in self.maps_dict.items():
             print(f"{category}: {maps}")
 
-        print(f"{COLORS.RED}Invalid maps:{COLORS.END}")
+        print(f"{Colors.RED}Invalid maps:{Colors.END}")
         for category, invalid_maps in self.invalid_maps_dict.items():
             print(f"{category}: {invalid_maps}")
 

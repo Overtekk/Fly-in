@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 18:48:26 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/02 16:01:16 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/06 11:42:10 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -15,7 +15,7 @@ import os
 
 from time import sleep
 
-from src.utils.ui import COLORS
+from src.utils.ui import Colors
 from src.maps_parser.parser import Maps
 
 
@@ -49,7 +49,7 @@ def print_menu(maps: Maps) -> str | int:
         Returns:
             str: the title project.
         """
-        return f"{COLORS.LIGHT_CYAN}{COLORS.BOLD}Fly-in{COLORS.END}"
+        return f"{Colors.LIGHT_CYAN}{Colors.BOLD}Fly-in{Colors.END}"
 
     def get_subtitle() -> str:
         """Short string to explain to the user how to select map.
@@ -57,7 +57,7 @@ def print_menu(maps: Maps) -> str | int:
         Returns:
             str: the string with the explanation.
         """
-        return f"{COLORS.BLUE}Choose your map using the numpad{COLORS.END}"
+        return f"{Colors.BLUE}Choose your map using the numpad{Colors.END}"
 
     def center(text: str, width: int) -> str:
         """Center a text based on a with.
@@ -83,18 +83,18 @@ def print_menu(maps: Maps) -> str | int:
         """
         os.system("clear")
         print("")
-        print(f"{COLORS.LIGHT_WHITE}┏" + "━" * WIDTH + f"┓{COLORS.END}")
+        print(f"{Colors.LIGHT_WHITE}┏" + "━" * WIDTH + f"┓{Colors.END}")
         print(center(get_title(), WIDTH))
         print("")
         print(center(get_subtitle(), WIDTH))
-        print(f"{COLORS.LIGHT_WHITE}┗" + "━" * (WIDTH) + f"┛{COLORS.END}")
+        print(f"{Colors.LIGHT_WHITE}┗" + "━" * (WIDTH) + f"┛{Colors.END}")
         print("")
 
     def print_error_input() -> None:
         """
         Print an error if the user input is incorrect and clear the line.
         """
-        print(f"{COLORS.CLEARLINE}{COLORS.RED}❌ERROR{COLORS.END}",
+        print(f"{Colors.CLEARLINE}{Colors.RED}❌ERROR{Colors.END}",
               end="", flush=True)
         sleep(0.6)
         print("\r\033[K\033[A", end="")
@@ -109,17 +109,17 @@ def print_menu(maps: Maps) -> str | int:
         # Show category menu
         if curr_category is None:
             for i, name in category.items():
-                print(f"{COLORS.BOLD}{COLORS.LIGHT_BLUE}{i}: {name.title()}"
-                      f"{COLORS.END}")
+                print(f"{Colors.BOLD}{Colors.LIGHT_BLUE}{i}: {name.title()}"
+                      f"{Colors.END}")
 
             if maps.invalid_maps_dict:
-                print(f"\n{COLORS.BOLD}{COLORS.LIGHT_BLUE}{len(category) + 1}"
-                      f": Invalid maps{COLORS.END}")
+                print(f"\n{Colors.BOLD}{Colors.LIGHT_BLUE}{len(category) + 1}"
+                      f": Invalid maps{Colors.END}")
 
-            print(f"\n{COLORS.BOLD}{COLORS.LIGHT_WHITE}0: Leave{COLORS.END}")
+            print(f"\n{Colors.BOLD}{Colors.LIGHT_WHITE}0: Leave{Colors.END}")
 
             while True:
-                user_input = input(f"\n{COLORS.ITALIC}Choice: {COLORS.END}")
+                user_input = input(f"\n{Colors.ITALIC}Choice: {Colors.END}")
                 try:
                     choice = int(user_input)
                     if 0 <= choice <= len(category) + 1:
@@ -131,7 +131,7 @@ def print_menu(maps: Maps) -> str | int:
                     print_error_input()
 
             if choice == 0:
-                print(f"{COLORS.GREEN}\n👋 Bye!{COLORS.END}")
+                print(f"{Colors.GREEN}\n👋 Bye!{Colors.END}")
                 return 0
             if choice == len(category) + 1:
                 curr_category = "invalid"
@@ -144,13 +144,13 @@ def print_menu(maps: Maps) -> str | int:
                             for map in list]
 
             for i, (name, error) in enumerate(invalid_list, 1):
-                print(f"{COLORS.BOLD}{COLORS.LIGHT_BLUE}{i}: {COLORS.ITALIC}"
-                      f"{name}{COLORS.END}")
+                print(f"{Colors.BOLD}{Colors.LIGHT_BLUE}{i}: {Colors.ITALIC}"
+                      f"{name}{Colors.END}")
 
-            print(f"\n{COLORS.BOLD}{COLORS.LIGHT_WHITE}0: Back{COLORS.END}")
+            print(f"\n{Colors.BOLD}{Colors.LIGHT_WHITE}0: Back{Colors.END}")
 
             while True:
-                user_input = input(f"\n{COLORS.ITALIC}Choice: {COLORS.END}")
+                user_input = input(f"\n{Colors.ITALIC}Choice: {Colors.END}")
                 try:
                     choice = int(user_input)
                     if 0 <= choice <= len(invalid_list):
@@ -165,8 +165,8 @@ def print_menu(maps: Maps) -> str | int:
                 curr_category = None
             else:
                 selected_map = invalid_list[choice - 1]
-                print(f"\n{COLORS.RED}{COLORS.BOLD}Error in '{selected_map[0]}"
-                      f"':\n{COLORS.ITALIC}{selected_map[1]}{COLORS.END}")
+                print(f"\n{Colors.RED}{Colors.BOLD}Error in '{selected_map[0]}"
+                      f"':\n{Colors.ITALIC}{selected_map[1]}{Colors.END}")
                 input("\nPress Enter to continue...")
                 curr_category = "invalid"
 
@@ -176,17 +176,17 @@ def print_menu(maps: Maps) -> str | int:
             maps_selection = {i: name for i, name in enumerate(maps_list, 1)}
 
             if len(maps_selection) == 0:
-                print(f"{COLORS.BOLD}{COLORS.LIGHT_BLUE}No map in this folder."
-                      f" Maybe an error?{COLORS.END}")
+                print(f"{Colors.BOLD}{Colors.LIGHT_BLUE}No map in this folder."
+                      f" Maybe an error?{Colors.END}")
             else:
                 for i, name in maps_selection.items():
-                    print(f"{COLORS.BOLD}{COLORS.LIGHT_BLUE}{i}: "
-                          f"{COLORS.ITALIC}{name}{COLORS.END}")
+                    print(f"{Colors.BOLD}{Colors.LIGHT_BLUE}{i}: "
+                          f"{Colors.ITALIC}{name}{Colors.END}")
 
-            print(f"\n{COLORS.BOLD}{COLORS.LIGHT_WHITE}0: Back{COLORS.END}")
+            print(f"\n{Colors.BOLD}{Colors.LIGHT_WHITE}0: Back{Colors.END}")
 
             while True:
-                user_input = input(f"\n{COLORS.ITALIC}Choice: {COLORS.END}")
+                user_input = input(f"\n{Colors.ITALIC}Choice: {Colors.END}")
                 try:
                     choice = int(user_input)
                     if 0 <= choice <= len(maps_selection):
@@ -200,8 +200,8 @@ def print_menu(maps: Maps) -> str | int:
             if choice == 0:
                 curr_category = None
             else:
-                print(f"\n{COLORS.YELLOW}Selected map: {COLORS.GREEN}"
-                      f"{maps_selection[choice]}{COLORS.END}")
+                print(f"\n{Colors.YELLOW}Selected map: {Colors.GREEN}"
+                      f"{maps_selection[choice]}{Colors.END}")
                 return maps_selection[choice]
 
         print_header()
