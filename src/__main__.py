@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:28:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/02 15:28:20 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/06 08:50:27 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -17,6 +17,7 @@ from pathlib import Path
 from src.utils.ui import Display
 from src.utils.custom_errors import ArgumentError, MapError
 from src.utils.module_checker import module_checker
+from src.simulation.launch import Simulation
 
 
 def main() -> int:
@@ -36,6 +37,7 @@ def main() -> int:
 
         elif len(sys.argv) == 2:
             map = MapModel.is_map_valid(Path(sys.argv[1]))
+            simu = Simulation(map)
 
         else:
             maps = Maps()
