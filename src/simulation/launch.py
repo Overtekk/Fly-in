@@ -6,13 +6,13 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/06 11:42:10 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/06 14:26:36 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 import re
 
-from typing import Dict
+from typing import Dict, List
 
 from src.utils.ui import Colors
 from src.maps_parser.parser import MapModel
@@ -21,7 +21,8 @@ from src.object.zone import Zone
 
 
 class Simulation():
-    def __init__(self, map_config: MapModel) -> None:
+    def __init__(self, map_config: MapModel,
+                 connection_map: Dict[str, List[str]]) -> None:
         # Init Raw
         self.cfg = map_config
         self.raw_nb_drones = map_config.nb_drones
@@ -34,7 +35,7 @@ class Simulation():
         self.drones: Dict[int, Drone] = {}
         self.zones: Dict[str, Zone] = {}
         self._create_drones()
-        self._create_zone()
+        self._create_zone(connection_map)
 
         for k, zone in self.zones.items():
             print(zone.get_zone_information())
@@ -61,6 +62,7 @@ class Simulation():
         for connection in self.raw_connections:
             map_info += f"{Colors.LIGHT_BLUE}- {connection}\n"
         map_info += f"{Colors.END}"
+
         return map_info
 
     def _print_log(self, drone_id: Drone, zone: Zone) -> str:
@@ -70,17 +72,19 @@ class Simulation():
         for i in range(self.raw_nb_drones):
             self.drones[i] = Drone(i)
 
-    def _create_zone(self) -> None:
+    def _create_zone(self, connection_map: Dict[str, List[str]]) -> None:
         value = re.findall(r"\[[^\]]*\]|\S+", self.raw_start_hub)
-        self._add_to_zone(value)
+        self._add_to_zone(value, connection_map[value[0]])
         value = re.findall(r"\[[^\]]*\]|\S+", self.raw_end_hub)
-        self._add_to_zone(value)
+        self._add_to_zone(value, connection_map[value[0]])
         for hubs in self.raw_hubs:
             value = re.findall(r"\[[^\]]*\]|\S+", hubs)
-            self._add_to_zone(value)
+            self._add_to_zone(value, connection_map[value[0]])
 
-    def _add_to_zone(self, value: str | int) -> Zone:
+    def _add_to_zone(self, value: List[str], connection: List[str]) -> None:
         if len(value) == 4:
-            self.zones[value[0]] = Zone(value[0], value[1], value[2], value[3])
+            self.zones[value[0]] = Zone(value[0], int(value[1]), int(value[2]),
+                                        value[3], connection)
         else:
-            self.zones[value[0]] = Zone(value[0], value[1], value[2], None)
+            self.zones[value[0]] = Zone(value[0], int(value[1]), int(value[2]),
+                                        None, connection)

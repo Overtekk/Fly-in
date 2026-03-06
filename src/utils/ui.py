@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 16:56:39 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/06 11:42:10 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/06 11:48:27 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -14,7 +14,7 @@ import sys
 
 from enum import Enum
 
-from src.utils.css3_Colors import CSS3_NAMES
+from src.utils.css3_colors import CSS3_NAMES
 
 
 class Display():

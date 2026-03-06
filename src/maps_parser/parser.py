@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 17:33:05 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/06 11:42:10 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/06 13:44:36 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -42,6 +42,7 @@ class Maps():
         self.extension = "*.txt"
         self.maps_dict: dict[str, list[str]] = {}
         self.invalid_maps_dict: dict[str, list[tuple[str, str]]] = {}
+        self.connection_map: Dict[str, MapModel] = {}
 
         self._add_maps_to_list()
 
@@ -61,8 +62,9 @@ class Maps():
 
         # If the map is valid, we add it to "maps_dict"
         try:
-            MapModel.is_map_valid(file_path)
+            parsed = MapModel.is_map_valid(file_path)
             self.maps_dict[category].append(file_path.stem)
+            self.connection_map[file_path.stem] = parsed
         # If map is invalid, we add it to the "invalid_maps_dict" with
         # errors list
         except MapError as e:
@@ -161,6 +163,7 @@ class MapModel(BaseModel):
     end_hub: str
     hub: List[str] = Field(default_factory=list)
     connection: List[str] = Field(default_factory=list)
+    connection_map: Dict[str, List[str]] = Field(default_factory=dict)
 
     @classmethod
     def is_map_valid(cls, file: Path) -> "MapModel":
@@ -447,7 +450,6 @@ class MapModel(BaseModel):
 
         save_start = None
         end_save = None
-        connection_map: Dict[str, List[str]] = {}
 
         start_split = self.start_hub.strip().split()
         end_split = self.end_hub.strip().split()
@@ -464,8 +466,8 @@ class MapModel(BaseModel):
             if end_save is None:
                 if zone1 == end_name or zone2 == end_name:
                     end_save = connect[0]
-            connection_map.setdefault(zone1, []).append(zone2)
-            connection_map.setdefault(zone2, []).append(zone1)
+            self.connection_map.setdefault(zone1, []).append(zone2)
+            self.connection_map.setdefault(zone2, []).append(zone1)
 
         if save_start is None:
             raise MapError("No start found. Have you forgot to add it?")
@@ -482,7 +484,7 @@ class MapModel(BaseModel):
                 return self
 
             visited.add(current_hub)
-            for neighbor in connection_map[current_hub]:
+            for neighbor in self.connection_map[current_hub]:
                 if neighbor not in to_visit and neighbor not in visited:
                     to_visit.append(neighbor)
 

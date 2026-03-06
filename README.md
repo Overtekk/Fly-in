@@ -175,5 +175,7 @@ todo
 #### Re-syntax:
 - https://docs.python.org/3/library/re.html
 - https://www.geeksforgeeks.org/python/re-match-in-python/
+#### Case:
+- https://www.commentcoder.com/python-switch-case/
 
 ---

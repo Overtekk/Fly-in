@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/05 15:11:21 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/06 08:45:13 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/06 13:45:53 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -14,5 +14,5 @@ class Drone():
     def __init__(self, id: int) -> None:
         self.id = f"D{id}"
 
-    def move(self):
+    def move(self) -> None:
         pass
