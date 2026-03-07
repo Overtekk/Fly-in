@@ -3,10 +3,10 @@
 #                                                      :::      ::::::::    #
 #  menu.py                                           :+:      :+:    :+:    #
 #                                                  +:+ +:+         +:+      #
-#  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
+#  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 18:48:26 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/06 11:42:10 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 21:03:27 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 

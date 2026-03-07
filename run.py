@@ -3,10 +3,10 @@
 #                                                      :::      ::::::::    #
 #  run.py                                            :+:      :+:    :+:    #
 #                                                  +:+ +:+         +:+      #
-#  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
+#  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 17:45:51 by roandrie        #+#    #+#               #
-#  Updated: 2026/02/24 23:32:16 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 21:03:59 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """

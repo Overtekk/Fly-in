@@ -3,10 +3,10 @@
 #                                                      :::      ::::::::    #
 #  css3_colors.py                                    :+:      :+:    :+:    #
 #                                                  +:+ +:+         +:+      #
-#  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
+#  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/02 11:44:46 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/06 11:42:10 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 21:03:00 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 

@@ -3,10 +3,10 @@
 #                                                      :::      ::::::::    #
 #  ui.py                                             :+:      :+:    :+:    #
 #                                                  +:+ +:+         +:+      #
-#  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
+#  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 16:56:39 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/06 11:48:27 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 21:02:51 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 

@@ -3,9 +3,9 @@
 #                                                      :::      ::::::::    #
 #  __init__.py                                       :+:      :+:    :+:    #
 #                                                  +:+ +:+         +:+      #
-#  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
+#  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/05 15:11:14 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/05 15:11:15 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 21:03:52 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #

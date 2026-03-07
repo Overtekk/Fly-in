@@ -3,10 +3,10 @@
 #                                                      :::      ::::::::    #
 #  Makefile                                          :+:      :+:    :+:    #
 #                                                  +:+ +:+         +:+      #
-#  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
+#  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:22:36 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/06 11:47:21 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 21:03:56 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 

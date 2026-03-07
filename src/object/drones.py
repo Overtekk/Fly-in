@@ -3,10 +3,10 @@
 #                                                      :::      ::::::::    #
 #  drones.py                                         :+:      :+:    :+:    #
 #                                                  +:+ +:+         +:+      #
-#  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
+#  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/05 15:11:21 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/07 16:53:40 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 21:03:10 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 

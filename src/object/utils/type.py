@@ -3,10 +3,10 @@
 #                                                      :::      ::::::::    #
 #  type.py                                           :+:      :+:    :+:    #
 #                                                  +:+ +:+         +:+      #
-#  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
+#  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 11:40:10 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/06 12:41:57 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 21:03:19 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 

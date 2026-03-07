@@ -3,10 +3,10 @@
 #                                                      :::      ::::::::    #
 #  __main__.py                                       :+:      :+:    :+:    #
 #                                                  +:+ +:+         +:+      #
-#  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
+#  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:28:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/07 20:59:20 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 21:02:47 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 

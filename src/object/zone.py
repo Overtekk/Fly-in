@@ -3,10 +3,10 @@
 #                                                      :::      ::::::::    #
 #  zone.py                                           :+:      :+:    :+:    #
 #                                                  +:+ +:+         +:+      #
-#  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
+#  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 13:43:53 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/07 17:08:25 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 21:03:18 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 

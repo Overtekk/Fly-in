@@ -3,10 +3,10 @@
 #                                                      :::      ::::::::    #
 #  parser.py                                         :+:      :+:    :+:    #
 #                                                  +:+ +:+         +:+      #
-#  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
+#  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 17:33:05 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/06 13:44:36 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 21:03:26 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 

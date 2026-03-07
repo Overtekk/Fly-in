@@ -3,10 +3,10 @@
 #                                                      :::      ::::::::    #
 #  module_checker.py                                 :+:      :+:    :+:    #
 #                                                  +:+ +:+         +:+      #
-#  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
+#  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/01 18:03:34 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/02 15:46:50 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 21:02:52 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """Runtime dependency verification utility.
