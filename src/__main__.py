@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:28:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/06 13:58:43 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 09:39:03 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -37,11 +37,13 @@ def main() -> int:
 
         elif len(sys.argv) == 2:
             map = MapModel.is_map_valid(Path(sys.argv[1]))
-            Simulation(map, map.connection_map)
 
         else:
-            maps = Maps()
-            print_menu(maps)
+            map = Maps()
+            print_menu(map)
+
+        simu = Simulation(map, map.connection_map)
+        simu.simulate()
 
     except (ArgumentError, MapError) as e:
         Display.error(f"{e}")

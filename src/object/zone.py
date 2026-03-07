@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 13:43:53 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/06 14:36:00 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 17:08:25 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -39,11 +39,14 @@ class Zone():
             return True
         return False
 
+    def get_next_zone(self) -> List[str]:
+        return self.connection
+
     def add_drone(self, drone_id: Drone) -> None:
         self.drones_on_it.append(drone_id)
 
     def remove_drone(self, drone_id: Drone) -> None:
-        self.drones_on_it.pop(drone_id)
+        self.drones_on_it.remove(drone_id)
 
     def get_zone_information(self) -> str:
         # Variable to short strings.
@@ -54,10 +57,14 @@ class Zone():
         zone_info += f"{LB}Zone name:{EB} {self.name}\n{Colors.END}"
         zone_info += f"{LB}Coordinates:{EB} x={self.x} y={self.y}{Colors.END}"
         zone_info += f"\n{LB}metadatata:\n{Colors.END}"
-        zone_info += f"{Colors.LIGHT_BLUE}- {self.metadatata_color}\n"
-        zone_info += f"{Colors.LIGHT_BLUE}- {self.metadata_zone_type}\n"
-        zone_info += f"{Colors.LIGHT_BLUE}- {self.metadata_max_drones}\n\n"
-        zone_info += f"{LB}Connection to:{EB} {self.connection}{Colors.END}"
+        zone_info += (f"{LB}- Color: {Colors.END}{Colors.LIGHT_BLUE}"
+                      f"{self.metadatata_color}\n")
+        zone_info += (f"{LB}- Zone Type: {Colors.END}{Colors.LIGHT_BLUE}"
+                      f"{self.metadata_zone_type}\n")
+        zone_info += (f"{LB}- Max Drones: {Colors.END}{Colors.LIGHT_BLUE}"
+                      f"{self.metadata_max_drones}\n\n")
+        zone_info += f"{LB}Connection to:{EB} {self.connection}\n{Colors.END}"
+        zone_info += f"{LB}Drones on zone:{EB} {self.drones_on_it}{Colors.END}"
 
         return zone_info
 
