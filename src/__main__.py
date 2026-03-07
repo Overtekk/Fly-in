@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:28:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/07 09:39:03 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 20:59:20 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -17,7 +17,7 @@ from pathlib import Path
 from src.utils.ui import Display
 from src.utils.custom_errors import ArgumentError, MapError
 from src.utils.module_checker import module_checker
-from src.simulation.launch import Simulation
+from src.simulation.manager import Manager
 
 
 def main() -> int:
@@ -42,7 +42,7 @@ def main() -> int:
             map = Maps()
             print_menu(map)
 
-        simu = Simulation(map, map.connection_map)
+        simu = Manager(map, map.connection_map)
         simu.simulate()
 
     except (ArgumentError, MapError) as e:

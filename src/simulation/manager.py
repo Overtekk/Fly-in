@@ -1,12 +1,12 @@
 # ************************************************************************* #
 #                                                                           #
 #                                                      :::      ::::::::    #
-#  launch.py                                         :+:      :+:    :+:    #
+#  manager.py                                        :+:      :+:    :+:    #
 #                                                  +:+ +:+         +:+      #
-#  By: roandrie <roandrie@student.42.fr>         +#+  +:+       +#+         #
+#  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/07 17:07:39 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 21:02:27 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -20,7 +20,7 @@ from src.object.drones import Drone
 from src.object.zone import Zone
 
 
-class Simulation():
+class Manager():
     def __init__(self, map_config: MapModel,
                  connection_map: Dict[str, List[str]]) -> None:
         # Init Raw
