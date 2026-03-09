@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/07 21:03:05 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/07 23:10:24 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -18,7 +18,7 @@ from src.utils.ui import Colors
 from src.maps_parser.parser import MapModel
 from src.object.drones import Drone
 from src.object.zone import Zone
-
+from src.graphics.renderer import Renderer
 
 class Manager():
     def __init__(self, map_config: MapModel,
@@ -31,6 +31,8 @@ class Manager():
         self.raw_hubs = map_config.hub
         self.raw_connections = map_config.connection
 
+        self.turns = 0
+
         # Init Object
         self.drones: Dict[int, Drone] = {}
         self.zones: Dict[str, Zone] = {}
@@ -38,8 +40,7 @@ class Manager():
         self.end_name = None
         self._create_drones()
         self._create_zone(connection_map)
-
-        self.turns = 0
+        self._init_renderer()
 
     def simulate(self) -> None:
         print("=== Starting Simulation ===")
@@ -47,8 +48,7 @@ class Manager():
         self._debug_get_data()
         for drone in self.drones.values():
             loc = drone.get_location()
-            next_zones = self.zones[loc].get_next_zone
-            print(next_zones)
+            next_zones = self.zones[loc].get_next_zone()
 
     def get_map_information(self) -> str:
         # Variable to short strings.
@@ -69,6 +69,10 @@ class Manager():
         map_info += f"{Colors.END}"
 
         return map_info
+
+    def _init_renderer(self) -> None:
+        renderer = Renderer(self.zones)
+        renderer.run_renderer()
 
     def _print_log(self, drone_id: Drone, zone: Zone) -> str:
         return f"{drone_id}-{zone}"
