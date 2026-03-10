@@ -1,21 +1,19 @@
 # ************************************************************************* #
 #                                                                           #
 #                                                      :::      ::::::::    #
-#  sprites.py                                        :+:      :+:    :+:    #
+#  graphics_settings.py                              :+:      :+:    :+:    #
 #                                                  +:+ +:+         +:+      #
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
-#  Created: 2026/03/07 23:22:54 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/10 21:33:09 by roandrie        ###   ########.fr        #
+#  Created: 2026/03/10 20:01:40 by roandrie        #+#    #+#               #
+#  Updated: 2026/03/10 20:04:26 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
-import pygame
 
-
-class Sprite(pygame.sprite.Sprite):
-    def __init__(self, sprite: pygame.Surface, x: int, y: int) -> None:
-        super().__init__()
-
-        self.image = sprite
-        self.rect = self.image.get_rect(center=(x, y))
+class ScreenSettings:
+    FPS = 60
+    WIDTH = 1280
+    HEIGHT = 720
+    NAME = "Fly-in"
+    OFFSET = 100

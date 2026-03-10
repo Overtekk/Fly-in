@@ -6,28 +6,13 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 16:56:39 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/07 21:02:51 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/10 18:08:24 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
-
-import sys
 
 from enum import Enum
 
 from src.utils.css3_colors import CSS3_NAMES
-
-
-class Display():
-    @staticmethod
-    def error(message: str) -> None:
-        """Print an error message to stderr.
-
-        Arguments:
-            message (str): message to print.
-        """
-        prefix = f"{Colors.BOLD}{Colors.RED}Error: {Colors.END}"
-        content = f"{Colors.RED}{message}{Colors.END}"
-        print(prefix + content, file=sys.stderr)
 
 
 class Colors(str, Enum):

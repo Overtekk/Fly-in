@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 13:43:53 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/07 22:07:51 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/10 19:38:42 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -19,11 +19,21 @@ from src.object.drones import Drone
 
 class Zone():
     def __init__(self, name: str, x: int, y: int,
-                 metadatata: str | None, connection: List[str]) -> None:
+                 metadatata: str | None, connection: List[str],
+                 type: str) -> None:
         self.name = name
         self.x = x
         self.y = y
         self.connection = connection
+        if type == "start":
+            self.is_start = True
+            self.is_end = False
+        elif type == "end":
+            self.is_end = True
+            self.is_start = False
+        else:
+            self.is_start = False
+            self.is_end = False
         raw_metadatata = metadatata
         # Default value
         self.metadatata_color = "white"

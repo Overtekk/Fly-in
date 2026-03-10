@@ -177,10 +177,19 @@ todo
 - https://www.geeksforgeeks.org/python/re-match-in-python/
 #### Case:
 - https://www.commentcoder.com/python-switch-case/
+#### Define custom exceptions:
+- https://www.geeksforgeeks.org/python/define-custom-exceptions-in-python/
 
 <br>
 
-### Rendering:
+### Rendering (pygame):
 - https://www.pygame.org/docs/
+- https://zestedesavoir.com/tutoriels/846/pygame-pour-les-zesteurs/1381_a-la-decouverte-de-pygame/creer-une-simple-fenetre-personnalisable/
+- https://zestedesavoir.com/tutoriels/846/pygame-pour-les-zesteurs/1381_a-la-decouverte-de-pygame/5505_afficher-des-images/
+
+<br>
+
+IA was use to:
+- help to do maths to calculate graph rendering (centering everything, zooming)
 
 ---

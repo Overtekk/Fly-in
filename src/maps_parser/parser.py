@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 17:33:05 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/07 21:03:26 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/10 22:40:07 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -26,7 +26,7 @@ from typing import Any, Dict, List, Self, Set
 from pydantic import BaseModel, Field, ValidationError, model_validator
 
 from src.utils.ui import Colors
-from src.utils.custom_errors import MapError
+from src.utils.errors import MapError
 
 
 class Maps():
@@ -474,6 +474,20 @@ class MapModel(BaseModel):
         if end_save is None:
             raise MapError("No end found. Have you forgot to add it?")
 
+        blocked_zones: Set[str] = set()
+        all_zone_definitions = self.hub + [self.start_hub, self.end_hub]
+        for zone_def in all_zone_definitions:
+            if "zone=blocked" in zone_def:
+                blocked_name = zone_def.split()[0]
+                blocked_zones.add(blocked_name)
+
+        if start_name in blocked_zones:
+            raise MapError(f"Start hub '{start_name}' is blocked. "
+                           "Path impossible.")
+        if end_name in blocked_zones:
+            raise MapError(f"End hub '{end_name}' is blocked. "
+                           "Path impossible.")
+
         to_visit = [start_name]
         visited: Set[str] = set()
 
@@ -485,7 +499,8 @@ class MapModel(BaseModel):
 
             visited.add(current_hub)
             for neighbor in self.connection_map[current_hub]:
-                if neighbor not in to_visit and neighbor not in visited:
+                if (neighbor not in to_visit and neighbor not in visited and
+                    neighbor not in blocked_zones):
                     to_visit.append(neighbor)
 
         raise MapError("No connections between start and end.")

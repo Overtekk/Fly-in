@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/07 23:10:24 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/10 21:47:23 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -19,6 +19,7 @@ from src.maps_parser.parser import MapModel
 from src.object.drones import Drone
 from src.object.zone import Zone
 from src.graphics.renderer import Renderer
+from src.utils.errors import SpriteError, Display
 
 class Manager():
     def __init__(self, map_config: MapModel,
@@ -45,7 +46,7 @@ class Manager():
     def simulate(self) -> None:
         print("=== Starting Simulation ===")
         self._add_drones_to_spawn()
-        self._debug_get_data()
+        #self._debug_get_data()
         for drone in self.drones.values():
             loc = drone.get_location()
             next_zones = self.zones[loc].get_next_zone()
@@ -71,7 +72,11 @@ class Manager():
         return map_info
 
     def _init_renderer(self) -> None:
-        renderer = Renderer(self.zones)
+        try:
+            renderer = Renderer(self.zones)
+        except SpriteError as e:
+            Display.error(e)
+            return
         renderer.run_renderer()
 
     def _print_log(self, drone_id: Drone, zone: Zone) -> str:
@@ -82,23 +87,31 @@ class Manager():
             self.drones[i] = Drone(i)
 
     def _create_zone(self, connection_map: Dict[str, List[str]]) -> None:
+        # Start
         value = re.findall(r"\[[^\]]*\]|\S+", self.raw_start_hub)
         self.start_name = value[0]
-        self._add_to_zone(value, connection_map[value[0]])
+        self._add_to_zone(value, connection_map.get(value[0], []), "start")
+
+        # End
         value = re.findall(r"\[[^\]]*\]|\S+", self.raw_end_hub)
         self.end_name = value[0]
-        self._add_to_zone(value, connection_map[value[0]])
+        self._add_to_zone(value, connection_map.get(value[0], []), "end")
+
+        # Hubs
         for hubs in self.raw_hubs:
             value = re.findall(r"\[[^\]]*\]|\S+", hubs)
-            self._add_to_zone(value, connection_map[value[0]])
+            self._add_to_zone(value, connection_map.get(value[0], []), "hub")
 
-    def _add_to_zone(self, value: List[str], connection: List[str]) -> None:
+    def _add_to_zone(self, value: List[str], connection: List[str],
+                     type: str) -> None:
+        if type not in ["start", "end"]:
+            type = None
         if len(value) == 4:
             self.zones[value[0]] = Zone(value[0], int(value[1]), int(value[2]),
-                                        value[3], connection)
+                                        value[3], connection, type)
         else:
             self.zones[value[0]] = Zone(value[0], int(value[1]), int(value[2]),
-                                        None, connection)
+                                        None, connection, type)
 
     def _add_drones_to_spawn(self) -> None:
         for drone in self.drones.values():

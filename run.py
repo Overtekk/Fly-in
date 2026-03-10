@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 17:45:51 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/07 21:03:59 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/10 19:46:41 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -17,7 +17,7 @@ a custom map.
 import sys
 
 from src.__main__ import main
-from src.utils.ui import Display
+from src.utils.errors import Display
 
 if __name__ == "__main__":
     try:
@@ -27,6 +27,6 @@ if __name__ == "__main__":
         Display.error("\nProgram interrupted by user.")
         sys.exit(130)
 
-    except Exception as e:
-        Display.error(f"{e}")
-        sys.exit(1)
+    # except Exception as e:
+    #     Display.error(f"{e}")
+    #     sys.exit(1)

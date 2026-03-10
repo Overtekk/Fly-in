@@ -1,6 +1,6 @@
 nb_drones: 10
 
-start_hub: start 0 0
+start_hub: start 0 0 [zone=blocked]
 hub: waypoint1 1 0 [color=blue max_drones=8]
 hub: quarantine 1 1 [color=blue max_drones=2]
 hub: blocked 1 -1 [color=red max_drones=50 zone=blocked]
