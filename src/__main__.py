@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:28:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/10 18:09:34 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/11 12:08:18 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -14,7 +14,7 @@ import sys
 
 from pathlib import Path
 
-from src.utils.errors import Display
+from src.utils.ui import Display
 from src.utils.errors import ArgumentError, MapError
 from src.utils.module_checker import module_checker
 from src.simulation.manager import Manager

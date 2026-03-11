@@ -6,13 +6,29 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 16:56:39 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/10 18:08:24 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/11 13:37:22 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
+import sys
+
 from enum import Enum
+from typing import Set
 
 from src.utils.css3_colors import CSS3_NAMES
+
+
+class Display():
+    @staticmethod
+    def error(message: str) -> None:
+        """Print an error message to stderr.
+
+        Arguments:
+            message (str): message to print.
+        """
+        prefix = f"{Colors.BOLD}{Colors.RED}Error: {Colors.END}"
+        content = f"{Colors.RED}{message}{Colors.END}"
+        print(prefix + content, file=sys.stderr)
 
 
 class Colors(str, Enum):
@@ -68,6 +84,29 @@ class Colors(str, Enum):
         b = int(hex_code[4:6], 16)
 
         return f"\033[38;2;{r};{g};{b}m"
+
+    def get_rgb_color(color_name: str) -> Set:
+        """
+        Transform a CSS color name (ex: 'lime') in rgb code. If a color
+        does not exist, return white.
+
+        Args:
+            color_name (str): name of the color
+
+        Returns:
+            set: set of rgb code
+        """
+        name = color_name.lower()
+        if name not in CSS3_NAMES:
+            return (255, 255, 255)
+
+        hex_code = CSS3_NAMES[name].lstrip('#')
+
+        r = int(hex_code[0:2], 16)
+        g = int(hex_code[2:4], 16)
+        b = int(hex_code[4:6], 16)
+
+        return (int(r), int(g), int(b))
 
     def __str__(self) -> str:
         """

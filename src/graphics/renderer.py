@@ -6,13 +6,15 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/07 22:18:37 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/10 22:23:42 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/11 16:36:04 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 
-from typing import Dict
+from typing import Dict, List, Tuple
 
 from src.object.zone import Zone
 from src.object.utils.type import ZoneType
@@ -20,13 +22,18 @@ from src.utils.errors import SpriteError
 from src.graphics.sprites import Sprite
 from src.graphics.graphics_settings import ScreenSettings
 
+PATH = "src/graphics/sprites/"
+
 
 class Renderer():
-    def __init__(self, zones: Dict[str, Zone]) -> None:
+    def __init__(self, zones: Dict[str, Zone],
+                 connection_map: Dict[str, List[str]]) -> None:
         self.zones = zones
+        self.connection_map = connection_map
 
         # pygame setup
         pygame.init()
+        pygame.font.init()
         self.fpsClock = pygame.time.Clock()
 
         # Load the icon
@@ -38,15 +45,19 @@ class Renderer():
 
         # Set up the window
         self.screen = pygame.display.set_mode((ScreenSettings.WIDTH,
-                                              ScreenSettings.HEIGHT),
-                                              pygame.RESIZABLE)
+                                              ScreenSettings.HEIGHT))
         pygame.display.set_caption(ScreenSettings.NAME)
 
         # Load sprites
         self.assets = {}
         self._load_sprite()
         self.all_sprites = pygame.sprite.Group()
+        self.zone_coords: Dict[str, Tuple[int, int]] = {}
         self._init_zone_sprites()
+
+        # Calculate lines for each connections to draw
+        self.lines_to_draw = []
+        self._calculate_line_to_draw()
 
         self.running = True
 
@@ -61,7 +72,12 @@ class Renderer():
                     if event.key == pygame.K_ESCAPE:
                         self.running = False
 
-            self.screen.fill((0, 0, 0))
+            self.screen.blit(self.background, (0, 0))
+
+            for start_pos, end_pos in self.lines_to_draw:
+                pygame.draw.line(self.screen, (255, 255, 255), start_pos, end_pos, 3)
+
+            self.all_sprites.update()
             self.all_sprites.draw(self.screen)
             pygame.display.flip()
 
@@ -70,9 +86,12 @@ class Renderer():
         pygame.quit()
 
     def _load_sprite(self) -> None:
-        PATH = "src/graphics/sprites/"
-
         try:
+            background_image = (pygame.image.load(f"{PATH}background.jpg").
+                                convert())
+            self.background = pygame.transform.smoothscale(background_image,
+                                (ScreenSettings.WIDTH, ScreenSettings.HEIGHT))
+
             self.assets["spawn"] = (pygame.image.load(f"{PATH}spawn.png")
                                     .convert_alpha())
             self.assets["end"] = (pygame.image.load(f"{PATH}end.png")
@@ -125,10 +144,11 @@ class Renderer():
         else:
             step_y = float("inf")
 
-        # Final result
-        final_step = min(step_x, step_y)
         # Final sprite size
-        sprite_size = max(int(min(final_step - MARGIN, BASE_SIZE)), 12)
+        sprite_size = max(int(min(min(step_x, step_y) - MARGIN, BASE_SIZE)),
+                          12)
+        # Font size based on sprite size
+        font_size = max(int(sprite_size * 0.16), 1)
 
         scaled_assets = {}
         for name, image_surface in self.assets.items():
@@ -136,14 +156,14 @@ class Renderer():
                          (image_surface, (sprite_size, sprite_size)))
             scaled_assets[name] = new_image
 
-        graph_pixel_width = map_width_units * final_step
+        graph_pixel_width = map_width_units * step_x
         offset_x = ((ScreenSettings.WIDTH - graph_pixel_width)
-                    / 2 - (min_x * final_step))
-        offset_y = ScreenSettings.HEIGHT / 2 - (main_y * final_step)
+                    / 2 - (min_x * step_x))
+        offset_y = ScreenSettings.HEIGHT / 2 - (main_y * step_y)
 
         for zone in self.zones.values():
-            pixel_x = int(offset_x + zone.x * final_step)
-            pixel_y = int(offset_y + zone.y * final_step)
+            pixel_x = int(offset_x + zone.x * step_x)
+            pixel_y = int(offset_y + zone.y * step_y)
 
             if zone.is_start:
                 image = scaled_assets["spawn"]
@@ -159,4 +179,21 @@ class Renderer():
                 else:
                     image = scaled_assets["hub"]
 
-            self.all_sprites.add(Sprite(image, pixel_x, pixel_y))
+            self.all_sprites.add(Sprite(image, pixel_x, pixel_y, zone,
+                                        font_size))
+            self.zone_coords[zone.name] = (pixel_x, pixel_y)
+
+
+    def _calculate_line_to_draw(self) -> None:
+        draw_lines = set()
+
+        for zone_a, neighbors in self.connection_map.items():
+            for zone_b in neighbors:
+                connection_draw = tuple(sorted([zone_a, zone_b]))
+
+                if connection_draw not in draw_lines:
+                    coords_a = self.zone_coords[zone_a]
+                    coords_b = self.zone_coords[zone_b]
+
+                    self.lines_to_draw.append((coords_a, coords_b))
+                    draw_lines.add(connection_draw)

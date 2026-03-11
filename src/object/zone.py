@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 13:43:53 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/10 19:38:42 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/11 13:50:59 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -36,7 +36,7 @@ class Zone():
             self.is_end = False
         raw_metadatata = metadatata
         # Default value
-        self.metadatata_color = "white"
+        self.metadata_color = "white"
         self.metadata_zone_type = ZoneType.NORMAL
         self.metadata_max_drones = 1
         if raw_metadatata is not None:
@@ -68,7 +68,7 @@ class Zone():
         zone_info += f"{LB}Coordinates:{EB} x={self.x} y={self.y}{Colors.END}"
         zone_info += f"\n{LB}metadatata:\n{Colors.END}"
         zone_info += (f"{LB}- Color: {Colors.END}{Colors.LIGHT_BLUE}"
-                      f"{self.metadatata_color}\n")
+                      f"{self.metadata_color}\n")
         zone_info += (f"{LB}- Zone Type: {Colors.END}{Colors.LIGHT_BLUE}"
                       f"{self.metadata_zone_type}\n")
         zone_info += (f"{LB}- Max Drones: {Colors.END}{Colors.LIGHT_BLUE}"
@@ -90,7 +90,7 @@ class Zone():
             key, value = data.split("=")
             match key:
                 case "color":
-                    self.metadatata_color = value
+                    self.metadata_color = value
                 case "zone":
                     match value:
                         case "normal":

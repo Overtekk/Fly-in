@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/01 18:03:34 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/07 21:02:52 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/11 11:48:49 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """Runtime dependency verification utility.
@@ -23,7 +23,7 @@ def module_checker() -> None:
     """Verifies that all required third-party dependencies are installed.
 
     Iterates through a strict list of required packages and attempts to
-    locate their specifications using `importlib`. This prevents the
+    locate their specifications using `importlib.metadata`. This prevents the
     application from crashing with a standard ImportError later on.
 
     Raises:
@@ -31,13 +31,14 @@ def module_checker() -> None:
                              environment.
     """
 
-    required = ['pydantic']
+    required = ['pydantic', 'pygame-ce']
     missing: list[str] = []
 
-    for module_name in required:
-        spec = importlib.util.find_spec(module_name)
-        if spec is None:
-            missing.append(module_name)
+    for package_name in required:
+        try:
+            importlib.metadata.version(package_name)
+        except importlib.metadata.PackageNotFoundError:
+            missing.append(package_name)
 
     if missing:
         miss_module = ", ".join(missing)

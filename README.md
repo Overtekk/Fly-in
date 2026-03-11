@@ -186,6 +186,7 @@ todo
 - https://www.pygame.org/docs/
 - https://zestedesavoir.com/tutoriels/846/pygame-pour-les-zesteurs/1381_a-la-decouverte-de-pygame/creer-une-simple-fenetre-personnalisable/
 - https://zestedesavoir.com/tutoriels/846/pygame-pour-les-zesteurs/1381_a-la-decouverte-de-pygame/5505_afficher-des-images/
+- https://medium.com/@amit25173/pygame-fonts-guide-for-beginners-e2ec8bf7671c
 
 <br>
 

@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/10 21:47:23 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/11 16:12:33 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -14,12 +14,12 @@ import re
 
 from typing import Dict, List
 
-from src.utils.ui import Colors
+from src.utils.ui import Colors, Display
 from src.maps_parser.parser import MapModel
 from src.object.drones import Drone
 from src.object.zone import Zone
 from src.graphics.renderer import Renderer
-from src.utils.errors import SpriteError, Display
+from src.utils.errors import SpriteError
 
 class Manager():
     def __init__(self, map_config: MapModel,
@@ -31,6 +31,7 @@ class Manager():
         self.raw_end_hub = map_config.end_hub
         self.raw_hubs = map_config.hub
         self.raw_connections = map_config.connection
+        self.connection_map = connection_map
 
         self.turns = 0
 
@@ -40,7 +41,7 @@ class Manager():
         self.start_name = None
         self.end_name = None
         self._create_drones()
-        self._create_zone(connection_map)
+        self._create_zone(self.connection_map)
         self._init_renderer()
 
     def simulate(self) -> None:
@@ -73,7 +74,7 @@ class Manager():
 
     def _init_renderer(self) -> None:
         try:
-            renderer = Renderer(self.zones)
+            renderer = Renderer(self.zones, self.connection_map)
         except SpriteError as e:
             Display.error(e)
             return
