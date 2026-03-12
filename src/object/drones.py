@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/05 15:11:21 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/07 21:03:10 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/12 11:19:43 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -25,7 +25,12 @@ class Drone():
         return self.current_location
 
     def __repr__(self) -> str:
-        return self.id
+        """Return the ID of the Drone instead of it's memory adress.
+
+        Returns:
+            str: ID of the drone.
+        """
+        return f"Drone(id={self.id})"
 
     def get_drone_information(self) -> str:
         # Variable to short strings.

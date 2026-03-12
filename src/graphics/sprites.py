@@ -6,14 +6,18 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/07 23:22:54 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/11 16:17:15 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/12 23:15:09 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 import pygame
+import math
+
+from typing import Dict, Tuple
 
 from src.utils.ui import Colors
 from src.object.zone import Zone
+from src.object.drones import Drone
 from src.object.utils.type import ZoneType
 from src.graphics.graphics_settings import FontSettings
 
@@ -31,6 +35,7 @@ class Sprite(pygame.sprite.Sprite):
             font = pygame.font.SysFont("dejavuserif", font_size, True)
 
         self.zone = zone
+        self.drone_count = len(zone.drones_on_it)
         self.previous_drone_count = -1
 
         name = zone.name
@@ -58,20 +63,26 @@ class Sprite(pygame.sprite.Sprite):
         except Exception:
             font = pygame.font.SysFont("dejavuserif", FontSettings.SIZE, True)
 
-        nb_drones = len(self.zone.drones_on_it)
-        if nb_drones != self.previous_drone_count:
+        if self.drone_count != self.previous_drone_count:
             self.image = self.base_image.copy()
 
             if self.zone.metadata_zone_type == ZoneType.BLOCKED:
                 pass
             elif self.zone.is_start or self.zone.is_end:
-                text = font.render(f"{str(nb_drones)}", True, (Colors.get_rgb_color("tomato")))
+                text = font.render(f"{str(self.drone_count)}", True, (Colors.get_rgb_color("tomato")))
                 self.image.blit(text, (self.image.get_width() - text.get_width() - 5, 0))
             else:
-                text = font.render(f"{str(nb_drones)}/{self.zone.metadata_max_drones}", True, (Colors.get_rgb_color("fuchsia")))
+                text = font.render(f"{str(self.drone_count)}/{self.zone.metadata_max_drones}", True, (Colors.get_rgb_color("fuchsia")))
                 self.image.blit(text, (self.image.get_width() - text.get_width(), 0))
 
-            self.previous_drone_count = nb_drones
+            self.previous_drone_count = self.drone_count
+
+    def _add_visual_drone(self) -> None:
+        self.drone_count += 1
+
+    def _remove_visual_drone(self) -> None:
+        if self.drone_count > 0:
+            self.drone_count -= 1
 
     def _get_surface_width(self, sprite: pygame.Surface, text: pygame.Surface) -> int:
         return max(sprite.get_width(), text.get_width())
@@ -81,3 +92,56 @@ class Sprite(pygame.sprite.Sprite):
 
     def _get_combined_surface(self, total_width: int, total_height: int) -> pygame.Surface:
         return pygame.Surface((total_width, total_height), pygame.SRCALPHA)
+
+
+class DroneSprite(pygame.sprite.Sprite):
+    def __init__(self, sprite: pygame.Surface, drone: Drone,
+                 zone_coords: Dict[str, Tuple[int, int]],
+                 zone_sprites_dict: Dict[str, Sprite]) -> None:
+        super().__init__()
+
+        self.logical_drone = drone
+        self.zone_coords = zone_coords
+        self.zone_sprites_dict = zone_sprites_dict
+        self.speed = 4
+        self.moving = False
+
+        self.location = self.logical_drone.get_location()
+        position = self.zone_coords[self.location]
+
+        self.target_x = position[0]
+        self.target_y = position[1]
+
+        self.image = sprite
+        self.rect = self.image.get_rect(center=(position))
+
+    def update(self) -> None:
+        if self.location != self.logical_drone.get_location():
+            old_loc = self.location
+            new_loc = self.logical_drone.get_location()
+            new_pos = self.zone_coords[new_loc]
+
+            self.target_x = new_pos[0]
+            self.target_y = new_pos[1]
+            self.location = new_loc
+
+            self.zone_sprites_dict[old_loc]._remove_visual_drone()
+            self.moving = True
+
+        dx = self.target_x - self.rect.centerx
+        dy = self.target_y - self.rect.centery
+        distance = math.hypot(dx, dy)
+
+        if distance > self.speed:
+            vecteur_x = (dx / distance) * self.speed
+            vecteur_y = (dy / distance) * self.speed
+
+            self.rect.centerx += vecteur_x
+            self.rect.centery += vecteur_y
+
+        elif distance <= self.speed and self.moving:
+            self.rect.centerx = self.target_x
+            self.rect.centery = self.target_y
+
+            self.zone_sprites_dict[self.location]._add_visual_drone()
+            self.moving = False

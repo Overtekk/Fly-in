@@ -6,30 +6,38 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/07 22:18:37 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/11 16:36:04 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/12 23:11:52 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 import os
+
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, TYPE_CHECKING
 
+from src.object.drones import Drone
 from src.object.zone import Zone
 from src.object.utils.type import ZoneType
 from src.utils.errors import SpriteError
-from src.graphics.sprites import Sprite
+from src.graphics.sprites import Sprite, DroneSprite
 from src.graphics.graphics_settings import ScreenSettings
+
+if TYPE_CHECKING:
+    from src.simulation.manager import Manager
 
 PATH = "src/graphics/sprites/"
 
 
 class Renderer():
-    def __init__(self, zones: Dict[str, Zone],
-                 connection_map: Dict[str, List[str]]) -> None:
+    def __init__(self, zones: Dict[str, Zone], drones: Dict[int, Drone],
+                 connection_map: Dict[str, List[str]],
+                 manager: 'Manager') -> None:
         self.zones = zones
+        self.drones = drones
         self.connection_map = connection_map
+        self.manager = manager
 
         # pygame setup
         pygame.init()
@@ -52,17 +60,28 @@ class Renderer():
         self.assets = {}
         self._load_sprite()
         self.all_sprites = pygame.sprite.Group()
+        self.drones_sprites = pygame.sprite.Group()
         self.zone_coords: Dict[str, Tuple[int, int]] = {}
+        self.zone_sprites_dict: Dict[str, Sprite] = {}
+
         self._init_zone_sprites()
+        self._init_drone_sprites()
 
         # Calculate lines for each connections to draw
         self.lines_to_draw = []
         self._calculate_line_to_draw()
 
         self.running = True
+        self.last_update_time = pygame.time.get_ticks()
 
     def run_renderer(self) -> None:
         while self.running:
+            current_time = pygame.time.get_ticks()
+
+            if current_time - self.last_update_time > 2000 and self.manager.turns == 0:
+                self.manager._debug_simulate_one_step()
+                self.manager.turns += 1
+                self.last_update_time = current_time
 
             # Quit the program
             for event in pygame.event.get():
@@ -79,6 +98,10 @@ class Renderer():
 
             self.all_sprites.update()
             self.all_sprites.draw(self.screen)
+
+            self.drones_sprites.update()
+            self.drones_sprites.draw(self.screen)
+
             pygame.display.flip()
 
             self.fpsClock.tick(ScreenSettings.FPS)
@@ -179,10 +202,18 @@ class Renderer():
                 else:
                     image = scaled_assets["hub"]
 
-            self.all_sprites.add(Sprite(image, pixel_x, pixel_y, zone,
-                                        font_size))
+            zone_sprite = Sprite(image, pixel_x, pixel_y, zone, font_size)
+            self.all_sprites.add(zone_sprite)
             self.zone_coords[zone.name] = (pixel_x, pixel_y)
+            self.zone_sprites_dict[zone.name] = zone_sprite
 
+    def _init_drone_sprites(self) -> None:
+        if not self.drones:
+            return
+
+        image = self.assets["drone"]
+        for drone in self.drones.values():
+            self.drones_sprites.add(DroneSprite(image, drone, self.zone_coords, self.zone_sprites_dict))
 
     def _calculate_line_to_draw(self) -> None:
         draw_lines = set()

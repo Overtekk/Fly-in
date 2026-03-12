@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/11 16:12:33 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/12 22:41:30 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -42,15 +42,12 @@ class Manager():
         self.end_name = None
         self._create_drones()
         self._create_zone(self.connection_map)
-        self._init_renderer()
 
     def simulate(self) -> None:
         print("=== Starting Simulation ===")
         self._add_drones_to_spawn()
-        #self._debug_get_data()
-        for drone in self.drones.values():
-            loc = drone.get_location()
-            next_zones = self.zones[loc].get_next_zone()
+        self._init_renderer()
+        self._debug_simulate_one_step()
 
     def get_map_information(self) -> str:
         # Variable to short strings.
@@ -74,7 +71,7 @@ class Manager():
 
     def _init_renderer(self) -> None:
         try:
-            renderer = Renderer(self.zones, self.connection_map)
+            renderer = Renderer(self.zones, self.drones, self.connection_map, self)
         except SpriteError as e:
             Display.error(e)
             return
@@ -124,3 +121,10 @@ class Manager():
             print(zone.get_zone_information())
         for drone in self.drones.values():
             print(drone.get_drone_information())
+
+    def _debug_simulate_one_step(self) -> None:
+        pos = self.drones[1].get_location()
+        next_zone = self.connection_map[pos][0]
+        self.drones[1].update_location(next_zone)
+        self.zones[pos].remove_drone(self.drones[1])
+        self.zones[next_zone].add_drone(self.drones[1])
