@@ -190,6 +190,12 @@ todo
 
 <br>
 
+### Algorithm:
+- https://fr.wikipedia.org/wiki/Algorithme_de_Dijkstra
+- https://fr.wikipedia.org/wiki/Algorithme_A*
+- https://www.datacamp.com/tutorial/dijkstra-algorithm-in-python?
+- https://www.datacamp.com/tutorial/a-star-algorithm
+
 IA was use to:
 - help to do maths to calculate graph rendering (centering everything, zooming)
 

@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/12 22:41:30 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/13 13:37:09 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -18,6 +18,7 @@ from src.utils.ui import Colors, Display
 from src.maps_parser.parser import MapModel
 from src.object.drones import Drone
 from src.object.zone import Zone
+from src.simulation.pathfinding import PathFinding
 from src.graphics.renderer import Renderer
 from src.utils.errors import SpriteError
 
@@ -46,8 +47,10 @@ class Manager():
     def simulate(self) -> None:
         print("=== Starting Simulation ===")
         self._add_drones_to_spawn()
-        self._init_renderer()
-        self._debug_simulate_one_step()
+        robot = PathFinding(self.start_name, self.end_name, self.connection_map, self.zones)
+        robot.find_shortest_path()
+        #self._init_renderer()
+        #self._debug_simulate_one_step()
 
     def get_map_information(self) -> str:
         # Variable to short strings.
