@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/07 22:18:37 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/12 23:11:52 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/13 11:40:49 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -21,7 +21,7 @@ from src.object.drones import Drone
 from src.object.zone import Zone
 from src.object.utils.type import ZoneType
 from src.utils.errors import SpriteError
-from src.graphics.sprites import Sprite, DroneSprite
+from src.graphics.sprites import Sprite, DroneSprite, SpriteText
 from src.graphics.graphics_settings import ScreenSettings
 
 if TYPE_CHECKING:
@@ -61,11 +61,13 @@ class Renderer():
         self._load_sprite()
         self.all_sprites = pygame.sprite.Group()
         self.drones_sprites = pygame.sprite.Group()
+        self.text_sprite = pygame.sprite.Group()
         self.zone_coords: Dict[str, Tuple[int, int]] = {}
         self.zone_sprites_dict: Dict[str, Sprite] = {}
 
         self._init_zone_sprites()
         self._init_drone_sprites()
+        self._init_text_sprites()
 
         # Calculate lines for each connections to draw
         self.lines_to_draw = []
@@ -92,6 +94,9 @@ class Renderer():
                         self.running = False
 
             self.screen.blit(self.background, (0, 0))
+
+            self.text_sprite.update()
+            self.text_sprite.draw(self.screen)
 
             for start_pos, end_pos in self.lines_to_draw:
                 pygame.draw.line(self.screen, (255, 255, 255), start_pos, end_pos, 3)
@@ -214,6 +219,9 @@ class Renderer():
         image = self.assets["drone"]
         for drone in self.drones.values():
             self.drones_sprites.add(DroneSprite(image, drone, self.zone_coords, self.zone_sprites_dict))
+
+    def _init_text_sprites(self) -> None:
+        self.text_sprite.add(SpriteText(self.manager))
 
     def _calculate_line_to_draw(self) -> None:
         draw_lines = set()
