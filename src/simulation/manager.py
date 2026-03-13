@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/13 13:37:09 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/13 21:21:08 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -49,8 +49,8 @@ class Manager():
         self._add_drones_to_spawn()
         robot = PathFinding(self.start_name, self.end_name, self.connection_map, self.zones)
         robot.find_shortest_path()
-        #self._init_renderer()
-        #self._debug_simulate_one_step()
+        self._init_renderer()
+        self._debug_simulate_one_step()
 
     def get_map_information(self) -> str:
         # Variable to short strings.
