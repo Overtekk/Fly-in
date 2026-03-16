@@ -6,14 +6,14 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/07 22:15:21 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/16 08:53:48 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/16 09:58:39 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 import math
 import heapq
 
-from typing import Dict, List, Tuple, Set
+from typing import Dict, List
 
 from src.object.zone import Zone
 from src.object.utils.type import ZoneType
@@ -29,15 +29,12 @@ class PathFinding():
         self._find_path(start, end)
 
     def _find_path(self, start: str, goal: str) -> List[str]:
-        start_node = self._create_node(
-            position = start,
-            cost = 0,
-            estimate_cost = self._calculate_heuristic(start, goal)
-        )
+        start_node = self._create_node(start, 0,
+                                       self._calculate_heuristic(start, goal))
 
-        open_list = [(start_node["sum"], start)] # Priority queue
-        open_dict = {start: start_node}          # Quickly node lookup
-        closed_set = set()                       # Explorer for nodes
+        open_list = [(start_node["sum"], start)]  # Priority queue
+        open_dict = {start: start_node}           # Quickly node lookup
+        closed_set = set()                        # Explorer for nodes
 
         while open_list:
             # Get zone with lowest sum value
@@ -59,8 +56,7 @@ class PathFinding():
 
             neighbor_cost = (current_node["cost"] +
                              self._calculate_heuristic(current_pos, neighbor))
-
-
+            return neighbor_cost
 
     def _create_node(self, position: str, cost: float = float('inf'),
                      estimate_cost: float = 0.0,
@@ -84,7 +80,8 @@ class PathFinding():
         for neighbor in self.connect_map[position]:
             if self.zones[neighbor].metadata_zone_type == ZoneType.BLOCKED:
                 pass
-            elif self.zones[neighbor].metadata_zone_type == ZoneType.RESTRICTED:
+            elif (self.zones[neighbor].metadata_zone_type ==
+                  ZoneType.RESTRICTED):
                 valid_neighbrs = {
                     self.zones[neighbor]: 2,
                 }
@@ -126,11 +123,13 @@ class PathFinding():
     #             if self.zones[zone].metadata_zone_type == ZoneType.BLOCKED:
     #                 pass
 
-    #             # elif self.zones[self.zones].metadata_zone_type == ZoneType.PRIORITY:
+    #             # elif self.zones[self.zones].metadata_zone_type ==
+    #                    ZoneType.PRIORITY:
     #             #     pass
 
     #             elif zone not in visited:
-    #                 if self.zones[zone].metadata_zone_type == ZoneType.RESTRICTED:
+    #                 if self.zones[zone].metadata_zone_type ==
+    #                       ZoneType.RESTRICTED:
     #                     cost += 2
     #                 else:
     #                     cost += 1

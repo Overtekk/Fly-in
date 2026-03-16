@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 17:33:05 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/10 22:40:07 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/16 09:54:11 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -500,7 +500,7 @@ class MapModel(BaseModel):
             visited.add(current_hub)
             for neighbor in self.connection_map[current_hub]:
                 if (neighbor not in to_visit and neighbor not in visited and
-                    neighbor not in blocked_zones):
+                        neighbor not in blocked_zones):
                     to_visit.append(neighbor)
 
         raise MapError("No connections between start and end.")

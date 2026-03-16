@@ -6,13 +6,11 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/07 22:18:37 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/13 11:40:49 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/16 09:47:31 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 import os
-
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 
 from typing import Dict, List, Tuple, TYPE_CHECKING
@@ -26,6 +24,7 @@ from src.graphics.graphics_settings import ScreenSettings
 
 if TYPE_CHECKING:
     from src.simulation.manager import Manager
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
 PATH = "src/graphics/sprites/"
 
@@ -80,7 +79,8 @@ class Renderer():
         while self.running:
             current_time = pygame.time.get_ticks()
 
-            if current_time - self.last_update_time > 2000 and self.manager.turns == 0:
+            if (current_time - self.last_update_time > 2000 and
+                    self.manager.turns == 0):
                 self.manager._debug_simulate_one_step()
                 self.manager.turns += 1
                 self.last_update_time = current_time
@@ -99,7 +99,8 @@ class Renderer():
             self.text_sprite.draw(self.screen)
 
             for start_pos, end_pos in self.lines_to_draw:
-                pygame.draw.line(self.screen, (255, 255, 255), start_pos, end_pos, 3)
+                pygame.draw.line(self.screen, (255, 255, 255), start_pos,
+                                 end_pos, 3)
 
             self.all_sprites.update()
             self.all_sprites.draw(self.screen)
@@ -117,8 +118,9 @@ class Renderer():
         try:
             background_image = (pygame.image.load(f"{PATH}background.jpg").
                                 convert())
-            self.background = pygame.transform.smoothscale(background_image,
-                                (ScreenSettings.WIDTH, ScreenSettings.HEIGHT))
+            self.background = pygame.transform.smoothscale(
+                background_image, (ScreenSettings.WIDTH,
+                                   ScreenSettings.HEIGHT))
 
             self.assets["spawn"] = (pygame.image.load(f"{PATH}spawn.png")
                                     .convert_alpha())
@@ -218,7 +220,8 @@ class Renderer():
 
         image = self.assets["drone"]
         for drone in self.drones.values():
-            self.drones_sprites.add(DroneSprite(image, drone, self.zone_coords, self.zone_sprites_dict))
+            self.drones_sprites.add(DroneSprite(image, drone, self.zone_coords,
+                                                self.zone_sprites_dict))
 
     def _init_text_sprites(self) -> None:
         self.text_sprite.add(SpriteText(self.manager))

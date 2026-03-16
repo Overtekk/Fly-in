@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 17:42:28 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/11 12:07:44 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/16 09:58:51 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -22,6 +22,7 @@ class MapError(Exception):
     No maps found, error validating map.
     """
     pass
+
 
 class SpriteError(Exception):
     """

@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/07 23:22:54 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/13 11:48:56 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/16 09:53:11 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -33,7 +33,8 @@ class Sprite(pygame.sprite.Sprite):
         super().__init__()
 
         try:
-            self.font = pygame.font.Font(f"{PATH}whitrabt.ttf", font_size, True)
+            self.font = pygame.font.Font(f"{PATH}whitrabt.ttf", font_size,
+                                         True)
         except Exception:
             self.font = pygame.font.SysFont("dejavuserif", font_size, True)
 
@@ -46,15 +47,19 @@ class Sprite(pygame.sprite.Sprite):
             name = zone.name[:10]
             name += "..."
 
-        text = self.font.render(name, True, (Colors.get_rgb_color(zone.metadata_color)))
+        text = self.font.render(name, True,
+                                (Colors.get_rgb_color(zone.metadata_color)))
 
         total_width = self._get_surface_width(sprite, text)
         total_height = self._get_surface_height(sprite, text)
 
-        combined_surface = self._get_combined_surface(total_width, total_height)
+        combined_surface = self._get_combined_surface(total_width,
+                                                      total_height)
 
-        combined_surface.blit(sprite, ((total_width - sprite.get_width()) / 2, 0))
-        combined_surface.blit(text, ((total_width - text.get_width()) / 2, sprite.get_height() + 5))
+        combined_surface.blit(sprite,
+                              ((total_width - sprite.get_width()) / 2, 0))
+        combined_surface.blit(text, ((total_width - text.get_width()) / 2,
+                                     sprite.get_height() + 5))
 
         self.image = combined_surface
         self.base_image = combined_surface.copy()
@@ -67,11 +72,18 @@ class Sprite(pygame.sprite.Sprite):
             if self.zone.metadata_zone_type == ZoneType.BLOCKED:
                 pass
             elif self.zone.is_start or self.zone.is_end:
-                text = self.font.render(f"{str(self.drone_count)}", True, (Colors.get_rgb_color("tomato")))
-                self.image.blit(text, (self.image.get_width() - text.get_width() - 5, 0))
+                text = self.font.render(f"{str(self.drone_count)}", True,
+                                        Colors.get_rgb_color("tomato"))
+                self.image.blit(text,
+                                (self.image.get_width() - text.get_width() - 5,
+                                 0))
             else:
-                text = self.font.render(f"{str(self.drone_count)}/{self.zone.metadata_max_drones}", True, (Colors.get_rgb_color("fuchsia")))
-                self.image.blit(text, (self.image.get_width() - text.get_width(), 0))
+                text = self.font.render(f"{str(self.drone_count)}/"
+                                        f"{self.zone.metadata_max_drones}",
+                                        True,
+                                        (Colors.get_rgb_color("fuchsia")))
+                self.image.blit(text,
+                                (self.image.get_width() - text.get_width(), 0))
 
             self.previous_drone_count = self.drone_count
 
@@ -82,13 +94,16 @@ class Sprite(pygame.sprite.Sprite):
         if self.drone_count > 0:
             self.drone_count -= 1
 
-    def _get_surface_width(self, sprite: pygame.Surface, text: pygame.Surface) -> int:
+    def _get_surface_width(self, sprite: pygame.Surface,
+                           text: pygame.Surface) -> int:
         return max(sprite.get_width(), text.get_width())
 
-    def _get_surface_height(self, sprite: pygame.Surface, text: pygame.Surface) -> int:
+    def _get_surface_height(self, sprite: pygame.Surface,
+                            text: pygame.Surface) -> int:
         return sprite.get_height() + text.get_height() + 5
 
-    def _get_combined_surface(self, total_width: int, total_height: int) -> pygame.Surface:
+    def _get_combined_surface(self, total_width: int,
+                              total_height: int) -> pygame.Surface:
         return pygame.Surface((total_width, total_height), pygame.SRCALPHA)
 
 
@@ -152,15 +167,19 @@ class SpriteText(pygame.sprite.Sprite):
         self.manager = manager
         self.turn = self.manager.turns
         self.previous_turn = -1
-        text_turn = FontSettings.FONT.render(f"TURN {str(self.turn)}", True, (Colors.get_rgb_color("navy")))
+        text_turn = FontSettings.FONT.render(f"TURN {str(self.turn)}", True,
+                                             (Colors.get_rgb_color("navy")))
 
         self.image = text_turn
         self.rect = self.image.get_rect(center=(ScreenSettings.WIDTH / 2, 15))
 
     def update(self) -> None:
         if self.previous_turn != self.manager.turns:
-            new_text_turn = FontSettings.FONT.render(f"TURN {str(self.manager.turns)}", True, (Colors.get_rgb_color("navy")))
+            new_text_turn = FontSettings.FONT.render(
+                f"TURN {str(self.manager.turns)}", True,
+                (Colors.get_rgb_color("navy")))
             self.image = new_text_turn
-            self.rect = self.image.get_rect(center=(ScreenSettings.WIDTH / 2, 15))
+            self.rect = self.image.get_rect(
+                center=(ScreenSettings.WIDTH / 2, 15))
 
             self.previous_turn = self.manager.turns

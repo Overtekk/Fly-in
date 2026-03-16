@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 16:56:39 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/11 13:37:22 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/16 09:59:09 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -85,7 +85,7 @@ class Colors(str, Enum):
 
         return f"\033[38;2;{r};{g};{b}m"
 
-    def get_rgb_color(color_name: str) -> Set:
+    def get_rgb_color(color_name: str) -> Set[int]:
         """
         Transform a CSS color name (ex: 'lime') in rgb code. If a color
         does not exist, return white.

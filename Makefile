@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:22:36 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/16 08:58:22 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/16 09:38:16 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -28,7 +28,7 @@ ARGS		=	maps/easy/01_linear_path.txt
 # =		RULES		=
 # ===================
 
-.PHONY:		all install run run-script debug clean lint lint-strict lint-spec lint-strict-spec delete-uv
+.PHONY:		all install run run-script debug clean lint lint-strict delete-uv
 .SILENT:
 
 all:		install run
@@ -73,22 +73,6 @@ lint-strict:
 			@status=0; \
 			$(FLAKE8) $(SRC_MODULE) $(PY_FILES) || status=$$?; \
 			$(MYPY) $(SRC_MODULE) $(PY_FILES) $(MYPY_FLAGS) --strict || status=$$?; \
-			exit $$status
-
-lint-spec:
-			@clear
-			@echo "$(BMAGENTA)Running standard linting...$(RESET)"
-			@status=0; \
-			$(FLAKE8) $(PY_FILE) || status=$$?; \
-			$(MYPY) $(PY_FILE) $(MYPY_FLAGS) || status=$$?; \
-			exit $$status
-
-lint-strict-spec:
-			@clear
-			@echo "$(BMAGENTA)Running strict linting...$(RESET)"
-			@status=0; \
-			$(FLAKE8) $(PY_FILE) || status=$$?; \
-			$(MYPY) $(PY_FILE) $(MYPY_FLAGS) --strict || status=$$?; \
 			exit $$status
 
 delete-uv:

@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/13 21:21:08 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/16 09:40:52 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -21,6 +21,7 @@ from src.object.zone import Zone
 from src.simulation.pathfinding import PathFinding
 from src.graphics.renderer import Renderer
 from src.utils.errors import SpriteError
+
 
 class Manager():
     def __init__(self, map_config: MapModel,
@@ -47,7 +48,8 @@ class Manager():
     def simulate(self) -> None:
         print("=== Starting Simulation ===")
         self._add_drones_to_spawn()
-        robot = PathFinding(self.start_name, self.end_name, self.connection_map, self.zones)
+        robot = PathFinding(self.start_name, self.end_name,
+                            self.connection_map, self.zones)
         robot.find_shortest_path()
         self._init_renderer()
         self._debug_simulate_one_step()
@@ -74,7 +76,8 @@ class Manager():
 
     def _init_renderer(self) -> None:
         try:
-            renderer = Renderer(self.zones, self.drones, self.connection_map, self)
+            renderer = Renderer(self.zones, self.drones, self.connection_map,
+                                self)
         except SpriteError as e:
             Display.error(e)
             return
