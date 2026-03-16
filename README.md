@@ -179,6 +179,9 @@ todo
 - https://www.commentcoder.com/python-switch-case/
 #### Define custom exceptions:
 - https://www.geeksforgeeks.org/python/define-custom-exceptions-in-python/
+#### Heap queue:
+- https://docs.python.org/3/library/heapq.html
+- https://www.geeksforgeeks.org/python/heap-queue-or-heapq-in-python/
 
 <br>
 
@@ -196,7 +199,9 @@ todo
 - https://www.datacamp.com/tutorial/dijkstra-algorithm-in-python?
 - https://www.datacamp.com/tutorial/a-star-algorithm
 
+
 IA was use to:
-- help to do maths to calculate graph rendering (centering everything, zooming)
+- help to do maths to calculate graph rendering and sprites  (centering everything, zooming).
+- help to implement the algorithm using a dictionnary and not a grid with coordinates.
 
 ---

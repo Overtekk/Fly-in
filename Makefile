@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:22:36 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/07 21:03:56 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/16 08:58:22 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -19,7 +19,7 @@ FLAKE8		=	uv run flake8
 MYPY 		=	uv run mypy
 MYPY_FLAGS	=	--warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 SRC_MODULE	=	src
-PY_FILES	=	run.py
+PY_FILE		=	run.py
 INSTALL_UV	=	curl -LsSf https://astral.sh/uv/install.sh | sh
 CHECK_UV	=	command -v uv
 ARGS		=	maps/easy/01_linear_path.txt
@@ -28,7 +28,7 @@ ARGS		=	maps/easy/01_linear_path.txt
 # =		RULES		=
 # ===================
 
-.PHONY:		all install run run-script debug clean lint lint-strict delete-uv
+.PHONY:		all install run run-script debug clean lint lint-strict lint-spec lint-strict-spec delete-uv
 .SILENT:
 
 all:		install run
@@ -72,7 +72,23 @@ lint-strict:
 			@echo "$(BMAGENTA)Running strict linting...$(RESET)"
 			@status=0; \
 			$(FLAKE8) $(SRC_MODULE) $(PY_FILES) || status=$$?; \
-			$(MYPY) $(SRC_MODULE) $(PY_FILES) --strict || status=$$?; \
+			$(MYPY) $(SRC_MODULE) $(PY_FILES) $(MYPY_FLAGS) --strict || status=$$?; \
+			exit $$status
+
+lint-spec:
+			@clear
+			@echo "$(BMAGENTA)Running standard linting...$(RESET)"
+			@status=0; \
+			$(FLAKE8) $(PY_FILE) || status=$$?; \
+			$(MYPY) $(PY_FILE) $(MYPY_FLAGS) || status=$$?; \
+			exit $$status
+
+lint-strict-spec:
+			@clear
+			@echo "$(BMAGENTA)Running strict linting...$(RESET)"
+			@status=0; \
+			$(FLAKE8) $(PY_FILE) || status=$$?; \
+			$(MYPY) $(PY_FILE) $(MYPY_FLAGS) --strict || status=$$?; \
 			exit $$status
 
 delete-uv:
