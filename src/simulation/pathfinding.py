@@ -6,11 +6,10 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/07 22:15:21 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/16 11:41:46 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/16 14:04:28 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
-import math
 import heapq
 
 from typing import Dict, List
@@ -26,16 +25,18 @@ class PathFinding():
         self.zones = zones
 
     def find_path(self, start: str, goal: str) -> List[str]:
-        start_node = self._create_node(start, 0,
-                                       self._calculate_heuristic(start, goal))
+        start_node = self._create_node(position=start, cost=0)
 
-        open_list = [(start_node["sum"], start)]  # Priority queue
-        open_dict = {start: start_node}           # Quickly node lookup
-        closed_set = set()                        # Explorer for nodes
+        open_list = [(start_node["cost"], start)]  # Priority queue
+        open_dict = {start: start_node}            # Quickly node lookup
+        closed_set = set()                         # Explorer for nodes
 
         while open_list:
-            # Get zone with lowest sum value
+            # Get zone with lowest value
             _, current_pos = heapq.heappop(open_list)
+            if current_pos in closed_set:
+                continue
+
             current_node = open_dict[current_pos]
 
             # End the loop if the position is the end
@@ -45,46 +46,41 @@ class PathFinding():
             # Mark the position as visited
             closed_set.add(current_pos)
 
-            # Explore neighbors and cost
-            for (neighbor, cost) in self._get_valid_neighbors(current_pos).items():
+            # Explore neighbors
+            for (neighbor, cost) in self._get_valid_neighbors(
+                    current_pos).items():
                 # Skip if already explored
                 if neighbor in closed_set:
                     continue
 
-                zone_cost = cost
-                neighbor_cost = (current_node["cost"] + zone_cost)
+                neighbor_cost = (current_node["cost"] + cost)
 
+                # Create or update neighbor
                 if neighbor not in open_dict:
                     node = self._create_node(
-                        neighbor, neighbor_cost,
-                        self._calculate_heuristic(neighbor, goal),
-                        current_node)
-                    heapq.heappush(open_list, (node["sum"], neighbor))
+                        position=neighbor,
+                        cost=neighbor_cost,
+                        parent=current_node)
+
+                    heapq.heappush(open_list, (node["cost"], neighbor))
                     open_dict[neighbor] = node
 
+                # Better path to the neighbor
                 elif neighbor_cost < open_dict[neighbor]["cost"]:
                     node = open_dict[neighbor]
-                    neighbor["cost"] = node
-                    neighbor["sum"] = neighbor_cost + neighbor["estimate_cost"]
-                    neighbor["parent"] = current_node
+                    node["cost"] = neighbor_cost
+                    node["parent"] = current_node
+                    heapq.heappush(open_list, (node["cost"], neighbor))
 
         return []
 
     def _create_node(self, position: str, cost: float = float('inf'),
-                     estimate_cost: float = 0.0,
                      parent: Dict = None) -> Dict[str, str | float | Dict]:
         return {
             "position": position,
             "cost": cost,
-            "estimate_cost": estimate_cost,
-            "sum": cost + estimate_cost,
             "parent": parent
         }
-
-    def _calculate_heuristic(self, zone1: str, zone2: str) -> float:
-        x1, y1 = self.zones[zone1].x, self.zones[zone1].y
-        x2, y2 = self.zones[zone2].x, self.zones[zone2].y
-        return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
     def _get_valid_neighbors(self, position: str) -> Dict[str, int]:
         valid_neighbors = {}
@@ -96,7 +92,7 @@ class PathFinding():
                   ZoneType.RESTRICTED):
                 valid_neighbors[neighbor] = 2
             elif self.zones[neighbor].metadata_zone_type == ZoneType.PRIORITY:
-                valid_neighbors[neighbor] = 1
+                valid_neighbors[neighbor] = 0.99
             else:
                 valid_neighbors[neighbor] = 1
         return valid_neighbors

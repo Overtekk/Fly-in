@@ -9,12 +9,16 @@ hub: road2 2 0 [color=yellow zone=restricted]
 hub: other1 1 1 [color=orange zone=restricted]
 hub: other2 2 1 [color=orange zone=restricted]
 
-hub: fast_way1 0 -1 [color=brown]
+hub: fast_way1 0 -2 [color=brown]
 hub: fast_way2 1 -2 [color=brown]
 hub: fast_way3 2 -2 [color=brown]
 
-hub: rock -1 0 [color=black zone=blocked]
+hub: fast_wayp1 0 4 [color=blue zone=priority]
+hub: fast_wayp2 1 4 [color=blue]
+hub: fast_wayp3 3 4 [color=blue]
 
+hub: rock -1 0 [color=black zone=blocked]
+hub: rock2 2 3 [color=black zone=blocked]
 
 connection: start-road1
 connection: road1-road2
@@ -29,4 +33,12 @@ connection: fast_way1-fast_way2
 connection: fast_way2-fast_way3
 connection: fast_way3-goal
 
+connection: start-fast_wayp1
+connection: fast_wayp1-fast_wayp2
+connection: fast_wayp2-fast_wayp3
+connection: fast_wayp3-goal
+
 connection: rock-start
+
+connection: start-rock2
+connection: rock2-goal
