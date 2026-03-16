@@ -1,0 +1,32 @@
+nb_drones: 5
+
+start_hub: start 0 0 [color=green]
+end_hub: goal 3 0 [color=red]
+
+hub: road1 1 0 [color=yellow zone=restricted]
+hub: road2 2 0 [color=yellow zone=restricted]
+
+hub: other1 1 1 [color=orange zone=restricted]
+hub: other2 2 1 [color=orange zone=restricted]
+
+hub: fast_way1 0 -1 [color=brown]
+hub: fast_way2 1 -2 [color=brown]
+hub: fast_way3 2 -2 [color=brown]
+
+hub: rock -1 0 [color=black zone=blocked]
+
+
+connection: start-road1
+connection: road1-road2
+connection: road2-goal
+
+connection: start-other1
+connection: other1-other2
+connection: other2-goal
+
+connection: start-fast_way1
+connection: fast_way1-fast_way2
+connection: fast_way2-fast_way3
+connection: fast_way3-goal
+
+connection: rock-start

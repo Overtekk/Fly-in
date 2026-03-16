@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/07 22:18:37 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/16 09:47:31 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/16 11:38:33 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -112,7 +112,7 @@ class Renderer():
 
             self.fpsClock.tick(ScreenSettings.FPS)
 
-        pygame.quit()
+        os._exit(0)
 
     def _load_sprite(self) -> None:
         try:
@@ -172,7 +172,7 @@ class Renderer():
         if max_offset_y > 0:
             step_y = half_available_y_space / max_offset_y
         else:
-            step_y = float("inf")
+            step_y = step_x
 
         # Final sprite size
         sprite_size = max(int(min(min(step_x, step_y) - MARGIN, BASE_SIZE)),

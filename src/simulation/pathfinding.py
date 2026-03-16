@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/07 22:15:21 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/16 09:58:39 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/16 11:41:46 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -20,15 +20,12 @@ from src.object.utils.type import ZoneType
 
 
 class PathFinding():
-    def __init__(self, start: str, end: str,
-                 connect_map: Dict[str, List[str]],
+    def __init__(self, connect_map: Dict[str, List[str]],
                  zones: Dict[str, Zone]) -> None:
         self.connect_map = connect_map
         self.zones = zones
 
-        self._find_path(start, end)
-
-    def _find_path(self, start: str, goal: str) -> List[str]:
+    def find_path(self, start: str, goal: str) -> List[str]:
         start_node = self._create_node(start, 0,
                                        self._calculate_heuristic(start, goal))
 
@@ -48,15 +45,30 @@ class PathFinding():
             # Mark the position as visited
             closed_set.add(current_pos)
 
-            # Explore neighbors
-            for neighbor in self._get_valid_neighbors(current_pos):
+            # Explore neighbors and cost
+            for (neighbor, cost) in self._get_valid_neighbors(current_pos).items():
                 # Skip if already explored
                 if neighbor in closed_set:
                     continue
 
-            neighbor_cost = (current_node["cost"] +
-                             self._calculate_heuristic(current_pos, neighbor))
-            return neighbor_cost
+                zone_cost = cost
+                neighbor_cost = (current_node["cost"] + zone_cost)
+
+                if neighbor not in open_dict:
+                    node = self._create_node(
+                        neighbor, neighbor_cost,
+                        self._calculate_heuristic(neighbor, goal),
+                        current_node)
+                    heapq.heappush(open_list, (node["sum"], neighbor))
+                    open_dict[neighbor] = node
+
+                elif neighbor_cost < open_dict[neighbor]["cost"]:
+                    node = open_dict[neighbor]
+                    neighbor["cost"] = node
+                    neighbor["sum"] = neighbor_cost + neighbor["estimate_cost"]
+                    neighbor["parent"] = current_node
+
+        return []
 
     def _create_node(self, position: str, cost: float = float('inf'),
                      estimate_cost: float = 0.0,
@@ -75,25 +87,19 @@ class PathFinding():
         return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
     def _get_valid_neighbors(self, position: str) -> Dict[str, int]:
-        valid_neighbrs = {}
+        valid_neighbors = {}
 
         for neighbor in self.connect_map[position]:
             if self.zones[neighbor].metadata_zone_type == ZoneType.BLOCKED:
                 pass
             elif (self.zones[neighbor].metadata_zone_type ==
                   ZoneType.RESTRICTED):
-                valid_neighbrs = {
-                    self.zones[neighbor]: 2,
-                }
+                valid_neighbors[neighbor] = 2
             elif self.zones[neighbor].metadata_zone_type == ZoneType.PRIORITY:
-                valid_neighbrs = {
-                    self.zones[neighbor]: 1,
-                }
+                valid_neighbors[neighbor] = 1
             else:
-                valid_neighbrs = {
-                    self.zones[neighbor]: 1,
-                }
-        return valid_neighbrs
+                valid_neighbors[neighbor] = 1
+        return valid_neighbors
 
     def _reconstruct_path(self, goal_node: Dict) -> List[str]:
         path = []
@@ -104,36 +110,3 @@ class PathFinding():
             current = current["parent"]
 
         return path[::-1]
-
-    # def find_shortest_path(self) -> List[str]:
-    #     cost = 0
-    #     queue = [[self.start]]
-    #     visited = [self.start]
-
-    #     while queue:
-    #         curr_list = queue.pop(0)
-    #         curr_node = curr_list[-1]
-
-    #         if curr_node == self.end:
-    #             print(f"{curr_list} {cost}")
-    #             break
-
-    #         node = self.connect_map[curr_node]
-    #         for zone in node:
-    #             if self.zones[zone].metadata_zone_type == ZoneType.BLOCKED:
-    #                 pass
-
-    #             # elif self.zones[self.zones].metadata_zone_type ==
-    #                    ZoneType.PRIORITY:
-    #             #     pass
-
-    #             elif zone not in visited:
-    #                 if self.zones[zone].metadata_zone_type ==
-    #                       ZoneType.RESTRICTED:
-    #                     cost += 2
-    #                 else:
-    #                     cost += 1
-    #                 visited.append(zone)
-    #                 copy = curr_list.copy()
-    #                 copy.append(zone)
-    #                 queue.append(copy)
