@@ -6,11 +6,12 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/16 11:38:57 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/16 14:48:05 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 import re
+import arcade
 
 from typing import Dict, List
 
@@ -48,9 +49,9 @@ class Manager():
     def simulate(self) -> None:
         print("=== Starting Simulation ===")
         self._add_drones_to_spawn()
-        path = PathFinding(self.connection_map, self.zones)
-        tmp = path.find_path(self.start_name, self.end_name)
-        print(tmp)
+        #path = PathFinding(self.connection_map, self.zones)
+        #tmp = path.find_path(self.start_name, self.end_name)
+        #print(tmp)
         self._init_renderer()
 
     def get_map_information(self) -> str:
@@ -75,12 +76,16 @@ class Manager():
 
     def _init_renderer(self) -> None:
         try:
-            renderer = Renderer(self.zones, self.drones, self.connection_map,
-                                self)
-        except SpriteError as e:
+            Renderer(self.zones, Manager, self.drones, self.connection_map)
+            arcade.run()
+        except (OSError, FileNotFoundError) as e:
             Display.error(e)
-            return
-        renderer.run_renderer()
+            arcade.exit()
+            return 1
+        except Exception as e:
+            Display.error(e)
+            arcade.exit()
+            return 1
 
     def _print_log(self, drone_id: Drone, zone: Zone) -> str:
         return f"{drone_id}-{zone}"

@@ -6,28 +6,33 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/10 20:01:40 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/13 11:34:00 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/16 15:58:27 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
-
-from pygame import font
 
 PATH = "src/graphics/sprites/"
 
 
-class ScreenSettings:
-    FPS = 60
+class WindowSettings():
     WIDTH = 1280
     HEIGHT = 720
     NAME = "Fly-in"
-    OFFSET = 100
 
 
-class FontSettings:
-    SIZE = 20
+class SpritePath():
+    BACKGROUND = f"{PATH}background.png"
+    DRONE = f"{PATH}drone.png"
+    START_HUB = f"{PATH}start_hub.png"
+    END_HUB = f"{PATH}end_hub.png"
+    DEFAULT_ZONE = f"{PATH}default_zone.png"
+    ZONE_BLOCKED = f"{PATH}zone_blocked.png"
+    ZONE_PRIORITY = f"{PATH}zone_priority.png"
+    ZONE_RESTRICTED = f"{PATH}zone_restricted.png"
 
-    font.init()
-    try:
-        FONT = font.Font(f"{PATH}whitrabt.ttf", SIZE, True)
-    except Exception:
-        FONT = font.SysFont("dejavuserif", SIZE, True)
+
+class SpriteSetting():
+    ZONE_SCALE = 0.7
+    DRONE_SCALE = 0.6
+    SPACING = 50
+    OFFSET_X = 100
+    OFFSET_Y = 100

@@ -5,6 +5,7 @@ description = "Drones are interesting."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "arcade>=3.3.3",
     "pydantic>=2.12.5",
     "pygame-ce>=2.5.7",
 ]

@@ -185,7 +185,12 @@ todo
 
 <br>
 
-### Rendering (pygame):
+### Rendering (arcade):
+- https://api.arcade.academy/en/stable/
+- https://arcade-pk.readthedocs.io/en/latest/
+
+
+### I was using pygame in the first time but I discovered the arcade library and like it. I kept the old resources for pygame here just in case:
 - https://www.pygame.org/docs/
 - https://zestedesavoir.com/tutoriels/846/pygame-pour-les-zesteurs/1381_a-la-decouverte-de-pygame/creer-une-simple-fenetre-personnalisable/
 - https://zestedesavoir.com/tutoriels/846/pygame-pour-les-zesteurs/1381_a-la-decouverte-de-pygame/5505_afficher-des-images/
@@ -194,6 +199,8 @@ todo
 <br>
 
 ### Algorithm:
+> [!NOTE]
+> I first use the A* algorithm (which is the Dijkstra algorithm but better), but found that the coordinates are only use in the rendering. So i remade my code to use the Dikstra algorithm but I keep the documentation for the A* algorithm because it can be usefull to know it.
 - https://fr.wikipedia.org/wiki/Algorithme_de_Dijkstra
 - https://fr.wikipedia.org/wiki/Algorithme_A*
 - https://www.datacamp.com/tutorial/dijkstra-algorithm-in-python?
@@ -201,7 +208,6 @@ todo
 
 
 IA was use to:
-- help to do maths to calculate graph rendering and sprites  (centering everything, zooming).
 - help to implement the algorithm using a dictionnary and not a grid with coordinates.
 
 ---
