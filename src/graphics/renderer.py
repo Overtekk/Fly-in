@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/17 19:49:57 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/17 20:46:37 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -69,6 +69,7 @@ class Renderer(arcade.Window):
 
     def on_mouse_drag(self, x: int, y: int, dx: int, dy: int,
                       buttons: int, modifiers: int) -> None:
+        # Allow camera movement
         if buttons == arcade.MOUSE_BUTTON_RIGHT:
             curr_x, curr_y = self.camera.position
             update_x = curr_x - (dx * self.camera_zoom)
@@ -76,7 +77,10 @@ class Renderer(arcade.Window):
 
             self.camera.position = (update_x, update_y)
 
-        if buttons == arcade.MOUSE_BUTTON_MIDDLE:
+    def on_mouse_press(self, x: int, y: int,
+                       button: int, modifiers: int) -> None:
+        # Reset camera position
+        if button == arcade.MOUSE_BUTTON_MIDDLE:
             self.camera.position = (self.default_camera_x,
                                     self.default_camera_y)
 
@@ -161,6 +165,7 @@ class Renderer(arcade.Window):
                                          + SpriteSetting.OFFSET_X)
                 drone_sprite.center_y = ((drone_y * SpriteSetting.SPACING)
                                          + SpriteSetting.OFFSET_Y)
+                self.all_sprites_list.append(drone_sprite)
 
         except FileNotFoundError as e:
             raise FileNotFoundError(f"Sprite not found in PATH {e}")
