@@ -161,53 +161,58 @@ todo
 
 ## 📚 Resources
 
-### Colors:
-- https://gist.github.com/rene-d/9e584a7dd2935d0f461904b9f2950007
+### Documentations for Python built-in functions and libraries
+| Resource | Description |
+| :------: | :---------: |
+| [Python docs ⎯ Regular expression operations (re)](https://docs.python.org/3/library/re.html) | Using the `re` syntax
+| [Geeksforgeeks ⎯ Regular expression operations (re)](https://www.geeksforgeeks.org/python/re-match-in-python/) | Using the `re` syntax
+| [Comment coder ⎯ Pattern matching](https://www.commentcoder.com/python-switch-case/) | Use `match` and `case` to avoid using blocks of `if/elif/else`
+| [Python docs ⎯ Heapq](https://docs.python.org/3/library/heapq.html) | How to use heapq and how its works
+| [Geeksforgeeks ⎯ Heapq](https://www.geeksforgeeks.org/python/heap-queue-or-heapq-in-python/) | How to use heapq and how its works |
 
-<br>
+### Documentation for the `Pydantic` library
+| Resource | Description |
+| :------: | :---------: |
+|[Pydantic docs ⎯ Default values field](https://docs.pydantic.dev/latest/concepts/fields/#default-values) | Used to know how to have default value and a `default_factory` |
 
-### Pydantic:
-- https://docs.pydantic.dev/latest/concepts/fields/#default-values
+### Documentation for the `Arcade` and `Pygame` libraries
+| Resource | Description |
+| :------: | :---------: |
+|[Officiel Arcade API docs](https://api.arcade.academy/en/stable/) | Learning how `arcade` works and how to implement it |
+|[Arcade docs ⎯ Official documentations](https://arcade-pk.readthedocs.io/en/latest/) | Official documentations with a lot of examples (thanks for that!!) |
+|[Pygame official docs](https://www.pygame.org/docs/) | Reference of how to use `pygame` |
+|[Zestedesavoir ⎯ How to create a window](https://zestedesavoir.com/tutoriels/846/pygame-pour-les-zesteurs/1381_a-la-decouverte-de-pygame/creer-une-simple-fenetre-personnalisable/) | Tutorial of how to create a window of the basics of `pygame` |
+|[Zestedesavoir ⎯ Show sprite on screen](https://zestedesavoir.com/tutoriels/846/pygame-pour-les-zesteurs/1381_a-la-decouverte-de-pygame/5505_afficher-des-images/) | Tutorial of how to use custom sprite |
+|[Zestedesavoir ⎯ How to use custom font](https://medium.com/@amit25173/pygame-fonts-guide-for-beginners-e2ec8bf7671c) | Tutorial of how to use custom font |
 
-<br>
+> [!NOTE]
+> I first use pygame as the rendering library but switch to `arcade` because I like it more. I discovered using by doing a personnal project and thought that `arcade` was more easy to learn and implement. I figured it that it was also more optimized in term of memory usage and ram. Of course, `arcade` have like almost no documentations.
 
-### Python docs:
-#### Re-syntax:
-- https://docs.python.org/3/library/re.html
-- https://www.geeksforgeeks.org/python/re-match-in-python/
-#### Case:
-- https://www.commentcoder.com/python-switch-case/
-#### Define custom exceptions:
-- https://www.geeksforgeeks.org/python/define-custom-exceptions-in-python/
-#### Heap queue:
-- https://docs.python.org/3/library/heapq.html
-- https://www.geeksforgeeks.org/python/heap-queue-or-heapq-in-python/
+### Documentation used to create the algorithms
+| Resource | Description |
+| :------: | :---------: |
+|[Wikipedia ⎯ Dijkstra algorithm](https://fr.wikipedia.org/wiki/Algorithme_de_Dijkstra) | Learn what is this algorithm, how it works and its story|
+|[Datacamp ⎯ Implementation of Dijkstra algorithm](https://www.datacamp.com/tutorial/dijkstra-algorithm-in-python?) | Reference for implementation |
+|[Wikipedia ⎯ A* algorithm](https://fr.wikipedia.org/wiki/Algorithme_A*) | Learn what is this algorithm, how it works and its story (after searching how google maps works, I found this) |
+|[Datacamp ⎯ Implementation of A* algorithm](https://www.datacamp.com/tutorial/a-star-algorithm) |  Reference for implementation |
 
-<br>
-
-### Rendering (arcade):
-- https://api.arcade.academy/en/stable/
-- https://arcade-pk.readthedocs.io/en/latest/
-
-
-### I was using pygame in the first time but I discovered the arcade library and like it. I kept the old resources for pygame here just in case:
-- https://www.pygame.org/docs/
-- https://zestedesavoir.com/tutoriels/846/pygame-pour-les-zesteurs/1381_a-la-decouverte-de-pygame/creer-une-simple-fenetre-personnalisable/
-- https://zestedesavoir.com/tutoriels/846/pygame-pour-les-zesteurs/1381_a-la-decouverte-de-pygame/5505_afficher-des-images/
-- https://medium.com/@amit25173/pygame-fonts-guide-for-beginners-e2ec8bf7671c
-
-<br>
-
-### Algorithm:
 > [!NOTE]
 > I first use the A* algorithm (which is the Dijkstra algorithm but better), but found that the coordinates are only use in the rendering. So i remade my code to use the Dikstra algorithm but I keep the documentation for the A* algorithm because it can be usefull to know it.
-- https://fr.wikipedia.org/wiki/Algorithme_de_Dijkstra
-- https://fr.wikipedia.org/wiki/Algorithme_A*
-- https://www.datacamp.com/tutorial/dijkstra-algorithm-in-python?
-- https://www.datacamp.com/tutorial/a-star-algorithm
 
+### Other documentation, useful links and references
+| Resource | Description |
+| :------: | :---------: |
+|[Github of **rene-d**](https://gist.github.com/rene-d/9e584a7dd2935d0f461904b9f2950007) | Used to have a class of base colors|
+|[Github of **bdelespierre**](https://gist.github.com/bdelespierre/5876883) | Used to have a list of x11 colors|
+| [Github of **CryEyeOfficial** *(mhummels)*](https://github.com/CryEyeOfficial/fly-in-public) | Help with a lot of things with Arcade (thanks) |
 
-IA was use to:
-- help to implement the algorithm using a dictionnary and not a grid with coordinates.
+<br>
+
+### IA was use to:
+- **For the algorithm implementation** ⎯ help to implement the algorithm using a dictionnary and not a grid with coordinates. Also used to determine why the **A*** algorithm didn't works as intented to not hit my dead againts a wall.
+- **Math problems** ⎯ with the algorithms and rendering.
+- **Questions about `Arcade` library** ⎯ because of the lack of documentations and a bit old sometimes.
+- **Help with code quality** ⎯ do better readable codes, avoid code repetition, help with some code quality.
+- **As a talking board** ⎯ dicussion over code behavior, design choices (which is better), code refactoring to do better code in the future
 
 ---
