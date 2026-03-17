@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/16 15:57:13 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/17 19:49:57 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -40,28 +40,82 @@ class Renderer(arcade.Window):
         self.manager = manager
 
         self._init_variables()
+        self._init_arcade_components()
         self._load_sprites()
 
-    def on_update(self, delta_time: float):
+    def on_update(self, delta_time: float) -> None:
         pass
 
-    def on_draw(self):
+    def on_draw(self) -> None:
         self.clear()
+
+        self.static_camera.use()
+        arcade.draw_texture_rect(self.background, arcade.LBWH(
+            0, 0, WindowSettings.WIDTH, WindowSettings.HEIGHT))
+        self.camera.use()
 
         self.all_sprites_list.draw()
 
-    def on_key_press(self, symbol: int, modifiers: int):
+    def on_key_press(self, symbol: int, modifiers: int) -> None:
         if symbol == arcade.key.ESCAPE:
             arcade.exit()
 
+    def on_mouse_scroll(self, x: int, y: int,
+                        scroll_x: int, scroll_y: int) -> None:
+        self.camera_zoom *= 0.9 if scroll_y < 0 else 1.1
+
+        self.camera_zoom = max(0.1, min(1.0, self.camera_zoom))
+        self.camera.zoom = self.camera_zoom
+
+    def on_mouse_drag(self, x: int, y: int, dx: int, dy: int,
+                      buttons: int, modifiers: int) -> None:
+        if buttons == arcade.MOUSE_BUTTON_RIGHT:
+            curr_x, curr_y = self.camera.position
+            update_x = curr_x - (dx * self.camera_zoom)
+            update_y = curr_y - (dy * self.camera_zoom)
+
+            self.camera.position = (update_x, update_y)
+
+        if buttons == arcade.MOUSE_BUTTON_MIDDLE:
+            self.camera.position = (self.default_camera_x,
+                                    self.default_camera_y)
+
     def _init_variables(self) -> None:
         self.all_sprites_list = arcade.SpriteList()
+
+    def _init_arcade_components(self) -> None:
+        self.camera = arcade.camera.Camera2D()
+        self.static_camera = arcade.camera.Camera2D()
+        self.camera_zoom = 1.0
+
+        self.default_camera_x, self.default_camera_y = self.camera.position
 
     def _load_sprites(self) -> None:
         if not os.path.exists("src/graphics/sprites/"):
             raise OSError("PATH 'src/graphics/sprites/' does snot exist.")
 
         try:
+            # Calcule the offset to center all sprites
+            x_coords = [zone.x for zone in self.zones_dict.values()]
+            y_coords = [zone.y for zone in self.zones_dict.values()]
+
+            min_x, max_x = min(x_coords), max(x_coords)
+            min_y, max_y = min(y_coords), max(y_coords)
+
+            center_logical_x = (min_x + max_x) / 2
+            center_logical_y = (min_y + max_y) / 2
+
+            # Change the offset based on the actual map
+            SpriteSetting.OFFSET_X = ((WindowSettings.WIDTH / 2)
+                                      - (center_logical_x
+                                         * SpriteSetting.SPACING))
+            SpriteSetting.OFFSET_Y = ((WindowSettings.HEIGHT / 2)
+                                      - (center_logical_y
+                                         * SpriteSetting.SPACING))
+
+            # Load background
+            self.background = arcade.load_texture(SpritePath.BACKGROUND)
+
             # Create sprites for zones
             for (name, zone) in self.zones_dict.items():
                 if zone.is_start:
@@ -106,7 +160,7 @@ class Renderer(arcade.Window):
                 drone_sprite.center_x = ((drone_x * SpriteSetting.SPACING)
                                          + SpriteSetting.OFFSET_X)
                 drone_sprite.center_y = ((drone_y * SpriteSetting.SPACING)
-                                         + SpriteSetting.OFFSET_X)
+                                         + SpriteSetting.OFFSET_Y)
 
         except FileNotFoundError as e:
             raise FileNotFoundError(f"Sprite not found in PATH {e}")

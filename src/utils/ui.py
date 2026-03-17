@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 16:56:39 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/16 09:59:09 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/17 18:44:16 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -15,7 +15,7 @@ import sys
 from enum import Enum
 from typing import Set
 
-from src.utils.css3_colors import CSS3_NAMES
+from src.utils.x11_colors import X11_NAMES
 
 
 class Display():
@@ -74,10 +74,10 @@ class Colors(str, Enum):
             str: ANSI color sequence
         """
         name = color_name.lower()
-        if name not in CSS3_NAMES:
+        if name not in X11_NAMES:
             return Colors.WHITE.value
 
-        hex_code = CSS3_NAMES[name].lstrip('#')
+        hex_code = X11_NAMES[name].lstrip('#')
 
         r = int(hex_code[0:2], 16)
         g = int(hex_code[2:4], 16)
@@ -97,10 +97,10 @@ class Colors(str, Enum):
             set: set of rgb code
         """
         name = color_name.lower()
-        if name not in CSS3_NAMES:
+        if name not in X11_NAMES:
             return (255, 255, 255)
 
-        hex_code = CSS3_NAMES[name].lstrip('#')
+        hex_code = X11_NAMES[name].lstrip('#')
 
         r = int(hex_code[0:2], 16)
         g = int(hex_code[2:4], 16)

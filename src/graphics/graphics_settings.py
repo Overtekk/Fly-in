@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/10 20:01:40 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/17 18:05:09 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/17 19:21:55 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -34,8 +34,8 @@ class SpritePath():
 
 
 class SpriteSetting():
-    ZONE_SCALE = 0.7
+    ZONE_SCALE = 0.9
     DRONE_SCALE = 0.6
-    SPACING = 50
+    SPACING = 120
     OFFSET_X = 100
     OFFSET_Y = 100

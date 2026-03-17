@@ -1,12 +1,12 @@
 # ************************************************************************* #
 #                                                                           #
 #                                                      :::      ::::::::    #
-#  css3_colors.py                                    :+:      :+:    :+:    #
+#  x11_colors.py                                     :+:      :+:    :+:    #
 #                                                  +:+ +:+         +:+      #
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/02 11:44:46 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/07 21:03:00 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/17 18:43:47 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -16,7 +16,7 @@ Dictionary mapping lowercase color names to their Hex representation.
 From https://gist.github.com/bdelespierre/5876883
 """
 
-CSS3_NAMES = {
+X11_NAMES = {
     "pink": "#ffc0cb",
     "lightpink": "#ffb6c1",
     "hotpink": "#ff69b4",
