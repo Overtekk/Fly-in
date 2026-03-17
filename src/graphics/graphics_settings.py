@@ -6,11 +6,11 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/10 20:01:40 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/16 15:58:27 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/17 18:05:09 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
-PATH = "src/graphics/sprites/"
+PATH = "src/graphics/sprites/default/"
 
 
 class WindowSettings():
@@ -22,6 +22,9 @@ class WindowSettings():
 class SpritePath():
     BACKGROUND = f"{PATH}background.png"
     DRONE = f"{PATH}drone.png"
+    DRONE1 = f"{PATH}drone1.png"
+    DRONE2 = f"{PATH}drone2.png"
+    DRONE_FINISH = f"{PATH}drone_finish.png"
     START_HUB = f"{PATH}start_hub.png"
     END_HUB = f"{PATH}end_hub.png"
     DEFAULT_ZONE = f"{PATH}default_zone.png"
