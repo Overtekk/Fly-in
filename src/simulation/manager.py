@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/16 14:48:05 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/18 12:01:13 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -21,7 +21,6 @@ from src.object.drones import Drone
 from src.object.zone import Zone
 from src.simulation.pathfinding import PathFinding
 from src.graphics.renderer import Renderer
-from src.utils.errors import SpriteError
 
 
 class Manager():
@@ -76,16 +75,16 @@ class Manager():
 
     def _init_renderer(self) -> None:
         try:
-            Renderer(self.zones, Manager, self.drones, self.connection_map)
+            Renderer(self.zones, self, self.drones, self.connection_map)
             arcade.run()
         except (OSError, FileNotFoundError) as e:
             Display.error(e)
             arcade.exit()
             return 1
-        except Exception as e:
-            Display.error(e)
-            arcade.exit()
-            return 1
+        # except Exception as e:
+        #     Display.error(e)
+        #     arcade.exit()
+        #     return 1
 
     def _print_log(self, drone_id: Drone, zone: Zone) -> str:
         return f"{drone_id}-{zone}"

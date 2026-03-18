@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/17 20:46:37 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/18 12:00:59 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -21,6 +21,7 @@ from src.object.drones import Drone
 from src.object.zone import Zone
 from src.object.utils.type import ZoneType
 from src.graphics.sprites import ZoneSprite, DroneSprite
+
 
 if TYPE_CHECKING:
     from src.simulation.manager import Manager
@@ -42,6 +43,7 @@ class Renderer(arcade.Window):
         self._init_variables()
         self._init_arcade_components()
         self._load_sprites()
+        self._calculate_line_to_draw()
 
     def on_update(self, delta_time: float) -> None:
         pass
@@ -54,17 +56,28 @@ class Renderer(arcade.Window):
             0, 0, WindowSettings.WIDTH, WindowSettings.HEIGHT))
         self.camera.use()
 
-        self.all_sprites_list.draw()
+        for (start_x, start_y), (end_x, end_y) in self.line_to_draw:
+            arcade.draw_line(start_x, start_y, end_x, end_y,
+                             arcade.color.WHITE, 1.5)
+
+        self.zone_sprites_list.draw()
+        for sprite in self.zone_sprites_list:
+            sprite.label_name_text.draw()
+            sprite.label_count_text.draw()
+
+        self.drone_sprites_list.draw()
 
     def on_key_press(self, symbol: int, modifiers: int) -> None:
         if symbol == arcade.key.ESCAPE:
             arcade.exit()
+        elif symbol == arcade.key.S:
+            self.manager._debug_simulate_one_step()
 
     def on_mouse_scroll(self, x: int, y: int,
                         scroll_x: int, scroll_y: int) -> None:
         self.camera_zoom *= 0.9 if scroll_y < 0 else 1.1
 
-        self.camera_zoom = max(0.1, min(1.0, self.camera_zoom))
+        self.camera_zoom = max(0.1, min(2.0, self.camera_zoom))
         self.camera.zoom = self.camera_zoom
 
     def on_mouse_drag(self, x: int, y: int, dx: int, dy: int,
@@ -85,7 +98,11 @@ class Renderer(arcade.Window):
                                     self.default_camera_y)
 
     def _init_variables(self) -> None:
-        self.all_sprites_list = arcade.SpriteList()
+        self.zone_sprites_list = arcade.SpriteList()
+        self.drone_sprites_list = arcade.SpriteList()
+        self.zone_coords = {}
+        self.line_to_draw = []
+        self.draw_lines = set()
 
     def _init_arcade_components(self) -> None:
         self.camera = arcade.camera.Camera2D()
@@ -121,28 +138,31 @@ class Renderer(arcade.Window):
             self.background = arcade.load_texture(SpritePath.BACKGROUND)
 
             # Create sprites for zones
-            for (name, zone) in self.zones_dict.items():
+            for zone in self.zones_dict.values():
                 if zone.is_start:
                     zone_sprite = ZoneSprite(SpritePath.START_HUB,
-                                             SpriteSetting.ZONE_SCALE)
+                                             SpriteSetting.ZONE_SCALE, zone)
                 elif zone.is_end:
                     zone_sprite = ZoneSprite(SpritePath.END_HUB,
-                                             SpriteSetting.ZONE_SCALE)
+                                             SpriteSetting.ZONE_SCALE, zone)
                 else:
                     match zone.metadata_zone_type:
                         case ZoneType.NORMAL:
                             zone_sprite = ZoneSprite(SpritePath.DEFAULT_ZONE,
-                                                    SpriteSetting.ZONE_SCALE)
+                                                    SpriteSetting.ZONE_SCALE,
+                                                    zone)
                         case ZoneType.BLOCKED:
                             zone_sprite = ZoneSprite(SpritePath.ZONE_BLOCKED,
-                                                    SpriteSetting.ZONE_SCALE)
+                                                    SpriteSetting.ZONE_SCALE,
+                                                    zone)
                         case ZoneType.RESTRICTED:
                             zone_sprite = ZoneSprite(
                                 SpritePath.ZONE_RESTRICTED,
-                                SpriteSetting.ZONE_SCALE)
+                                SpriteSetting.ZONE_SCALE, zone)
                         case ZoneType.PRIORITY:
                             zone_sprite = ZoneSprite(SpritePath.ZONE_PRIORITY,
-                                                    SpriteSetting.ZONE_SCALE)
+                                                    SpriteSetting.ZONE_SCALE,
+                                                    zone)
                         case _:
                             pass
 
@@ -150,7 +170,14 @@ class Renderer(arcade.Window):
                                         + SpriteSetting.OFFSET_X)
                 zone_sprite.center_y = ((zone.y * SpriteSetting.SPACING)
                                         + SpriteSetting.OFFSET_Y)
-                self.all_sprites_list.append(zone_sprite)
+                zone_sprite.label_name_text.x = zone_sprite.center_x
+                zone_sprite.label_name_text.y = zone_sprite.center_y - 30
+                zone_sprite.label_count_text.x = zone_sprite.center_x + 10
+                zone_sprite.label_count_text.y = zone_sprite.center_y + 30
+                self.zone_sprites_list.append(zone_sprite)
+
+                self.zone_coords[zone.name] = (zone_sprite.center_x,
+                                               zone_sprite.center_y)
 
             # Create sprites for drones
 
@@ -165,7 +192,19 @@ class Renderer(arcade.Window):
                                          + SpriteSetting.OFFSET_X)
                 drone_sprite.center_y = ((drone_y * SpriteSetting.SPACING)
                                          + SpriteSetting.OFFSET_Y)
-                self.all_sprites_list.append(drone_sprite)
+                self.drone_sprites_list.append(drone_sprite)
 
         except FileNotFoundError as e:
             raise FileNotFoundError(f"Sprite not found in PATH {e}")
+
+    def _calculate_line_to_draw(self) -> None:
+        for zone_a, neighbors in self.connection_map.items():
+            for zone_b in neighbors:
+                connection_draw = tuple(sorted([zone_a, zone_b]))
+
+                if connection_draw not in self.draw_lines:
+                    coords_a = self.zone_coords[zone_a]
+                    coords_b = self.zone_coords[zone_b]
+
+                    self.line_to_draw.append((coords_a, coords_b))
+                    self.draw_lines.add(connection_draw)
