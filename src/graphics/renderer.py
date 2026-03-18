@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/18 12:00:59 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/18 13:59:29 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -46,7 +46,8 @@ class Renderer(arcade.Window):
         self._calculate_line_to_draw()
 
     def on_update(self, delta_time: float) -> None:
-        pass
+        for drone_sprite in self.drone_sprites_list:
+            drone_sprite.on_update(delta_time)
 
     def on_draw(self) -> None:
         self.clear()
@@ -72,6 +73,7 @@ class Renderer(arcade.Window):
             arcade.exit()
         elif symbol == arcade.key.S:
             self.manager._debug_simulate_one_step()
+            self._update_drone_sprite()
 
     def on_mouse_scroll(self, x: int, y: int,
                         scroll_x: int, scroll_y: int) -> None:
@@ -181,9 +183,10 @@ class Renderer(arcade.Window):
 
             # Create sprites for drones
 
-            for drone in self.drones_dict.values():
+            for (id, drone) in self.drones_dict.items():
                 drone_sprite = DroneSprite(SpritePath.DRONE,
-                                           SpriteSetting.DRONE_SCALE)
+                                           SpriteSetting.DRONE_SCALE,
+                                           drone, id)
                 drone_location = drone.get_location()
                 drone_x = self.zones_dict[drone_location].x
                 drone_y = self.zones_dict[drone_location].y
@@ -208,3 +211,15 @@ class Renderer(arcade.Window):
 
                     self.line_to_draw.append((coords_a, coords_b))
                     self.draw_lines.add(connection_draw)
+
+    def _update_drone_sprite(self) -> None:
+        for drone_sprite in self.drone_sprites_list:
+            drone_obj = self.drones_dict[drone_sprite.id]
+
+            new_location = drone_obj.get_location()
+            if new_location!= drone_sprite.location:
+                loc_x, loc_y = self.zone_coords[new_location]
+
+                drone_sprite.target_x = loc_x
+                drone_sprite.target_y = loc_y
+                drone_sprite.is_moving = True
