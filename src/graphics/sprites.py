@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:34:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/19 09:24:50 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 10:31:07 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -28,12 +28,15 @@ class ZoneSprite(arcade.Sprite):
         super().__init__(image_path, scale)
 
         self.zone_data = zone_data
+        self.max_drones = self.zone_data.metadata_max_drones
 
+        # Override zone name if it's too long
         zone_name = self.zone_data.name
         if len(self.zone_data.name) > 12:
             zone_name = self.zone_data.name[:12]
             zone_name += "..."
 
+        # Write zone name
         self.label_name_text = arcade.Text(
             text=zone_name, bold=True, italic=True,
             x=0, y=0, anchor_x="center", anchor_y="top",
@@ -41,21 +44,24 @@ class ZoneSprite(arcade.Sprite):
             font_name="arial", font_size=8
             )
 
+        self.label_count_text = arcade.Text(
+            text="", bold=True, italic=False,
+            x=0, y=0, anchor_x="left", anchor_y="baseline",
+            color=arcade.color.FLORAL_WHITE,
+            font_name="arial", font_size=13
+        )
+
+    def update_drone_count(self) -> None:
         nb_drones = len(self.zone_data.drones_on_it)
-        max_drones = self.zone_data.metadata_max_drones
+
         if self.zone_data.is_start:
             text_drone = f"{nb_drones}"
         elif self.zone_data.is_end:
             text_drone = f"{nb_drones}"
         else:
-            text_drone = f"{nb_drones}/{max_drones}"
+            text_drone = f"{nb_drones}/{self.max_drones}"
 
-        self.label_count_text = arcade.Text(
-            text=text_drone, bold=True, italic=False,
-            x=0, y=0, anchor_x="left", anchor_y="baseline",
-            color=arcade.color.FLORAL_WHITE,
-            font_name="arial", font_size=8
-        )
+        self.label_count_text.text = text_drone
 
 
 class DroneSprite(arcade.Sprite):
@@ -115,15 +121,18 @@ class DroneSprite(arcade.Sprite):
         if not self.is_moving:
             if self.drone_data.finish:
                 self.texture = self.finish_texture
-                self.cur_textures = 3
-                return
-
-            elif not self.cur_textures == 0:
+            else:
                 self.texture = self.idle_texture
-                self.cur_textures = 0
 
-        self.cur_textures = (self.cur_textures + 1) % 2
+            self.scale = SpriteSetting.DRONE_SCALE
+            self.cur_textures == 0
+            return
 
-        self.time_counter += 1
-        if self.time_counter > 7 * SpriteSetting.ANIM_SPEED:
+        self.time_counter += delta_time
+        self.scale = SpriteSetting.DRONE_SCALE - 0.2
+
+        if self.time_counter > (0.1 / SpriteSetting.ANIM_SPEED):
+            self.cur_textures = (self.cur_textures + 1) % 2
             self.texture = self.move_textures[self.cur_textures]
+
+            self.time_counter = 0.0

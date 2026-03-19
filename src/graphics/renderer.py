@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/19 09:22:36 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 10:38:33 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -42,20 +42,33 @@ class Renderer(arcade.Window):
 
         self._init_variables()
         self._init_arcade_components()
+        self._init_texts()
         self._load_sprites()
         self._calculate_line_to_draw()
 
     def on_update(self, delta_time: float) -> None:
         for drone_sprite in self.drone_sprites_list:
+            was_moving = drone_sprite.is_moving
             drone_sprite.on_update(delta_time)
             drone_sprite.update_animation(delta_time, None, None)
+
+            if was_moving and not drone_sprite.is_moving:
+                for zone_sprite in self.zone_sprites_list:
+                    if zone_sprite.zone_data.name == drone_sprite.location:
+                        zone_sprite.update_drone_count()
 
     def on_draw(self) -> None:
         self.clear()
 
+        # Static camera (no affected by the zoom)
         self.static_camera.use()
         arcade.draw_texture_rect(self.background, arcade.LBWH(
             0, 0, WindowSettings.WIDTH, WindowSettings.HEIGHT))
+
+        if self.text_started:
+            self.starting_text_ui.draw()
+
+        # Main camera (affected by the zoon)
         self.camera.use()
 
         for (start_x, start_y), (end_x, end_y) in self.line_to_draw:
@@ -72,7 +85,8 @@ class Renderer(arcade.Window):
     def on_key_press(self, symbol: int, modifiers: int) -> None:
         if symbol == arcade.key.ESCAPE:
             arcade.exit()
-        elif symbol == arcade.key.S:
+        elif symbol == arcade.key.SPACE:
+            self.text_started = False
             self.manager._debug_simulate_one_step()
             self._update_drone_sprite()
 
@@ -113,6 +127,14 @@ class Renderer(arcade.Window):
         self.camera_zoom = 1.0
 
         self.default_camera_x, self.default_camera_y = self.camera.position
+
+    def _init_texts(self) -> None:
+        self.text_started = True
+        self.starting_text_ui = arcade.Text(
+            text="Press SPACE to start", anchor_x="center", anchor_y="bottom",
+            x=(WindowSettings.WIDTH / 2), y=(20 / 2),
+            font_size=22, color=arcade.color.WHITE_SMOKE, font_name="arial"
+        )
 
     def _load_sprites(self) -> None:
         if not os.path.exists("src/graphics/sprites/"):
@@ -178,6 +200,7 @@ class Renderer(arcade.Window):
                 zone_sprite.label_count_text.x = zone_sprite.center_x + 10
                 zone_sprite.label_count_text.y = zone_sprite.center_y + 30
                 self.zone_sprites_list.append(zone_sprite)
+                zone_sprite.update_drone_count()
 
                 self.zone_coords[zone.name] = (zone_sprite.center_x,
                                                zone_sprite.center_y)
@@ -224,7 +247,12 @@ class Renderer(arcade.Window):
             drone_obj = self.drones_dict[drone_sprite.id]
 
             new_location = drone_obj.get_location()
-            if new_location!= drone_sprite.location:
+            if new_location != drone_sprite.location:
+
+                for zone_sprite in self.zone_sprites_list:
+                    if zone_sprite.zone_data.name == drone_sprite.location:
+                        zone_sprite.update_drone_count()
+
                 loc_x, loc_y = self.zone_coords[new_location]
 
                 drone_sprite.target_x = loc_x
