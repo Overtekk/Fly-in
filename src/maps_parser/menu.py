@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 18:48:26 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/07 21:03:27 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 14:15:37 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -16,10 +16,10 @@ import os
 from time import sleep
 
 from src.utils.ui import Colors
-from src.maps_parser.parser import Maps
+from src.maps_parser.parser import MapModel, Maps
 
 
-def print_menu(maps: Maps) -> str | int:
+def print_menu(maps: Maps) -> MapModel:
     WIDTH = 40
     order = ["easy", "medium", "hard", "other", "custom", "challenger"]
 
@@ -202,6 +202,7 @@ def print_menu(maps: Maps) -> str | int:
             else:
                 print(f"\n{Colors.YELLOW}Selected map: {Colors.GREEN}"
                       f"{maps_selection[choice]}{Colors.END}")
-                return maps_selection[choice]
+                selected = maps_selection[choice]
+                return maps.connection_map[selected]
 
         print_header()

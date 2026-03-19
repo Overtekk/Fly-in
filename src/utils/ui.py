@@ -6,11 +6,12 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 16:56:39 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/17 18:44:16 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 14:26:57 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 import sys
+import time
 
 from enum import Enum
 from typing import Set
@@ -29,6 +30,17 @@ class Display():
         prefix = f"{Colors.BOLD}{Colors.RED}Error: {Colors.END}"
         content = f"{Colors.RED}{message}{Colors.END}"
         print(prefix + content, file=sys.stderr)
+
+    @staticmethod
+    def loading(wait_time: float) -> None:
+        animation = "|/-\\"
+        index = 0
+
+        while wait_time >= 0:
+            print(animation[index % len(animation)], end="\r")
+            index += 1
+            time.sleep(0.1)
+            wait_time -= 1
 
 
 class Colors(str, Enum):

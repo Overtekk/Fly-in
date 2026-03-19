@@ -6,11 +6,12 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:28:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/11 12:08:18 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 14:27:28 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 import sys
+import argparse
 
 from pathlib import Path
 
@@ -31,19 +32,41 @@ def main() -> int:
         from src.maps_parser.parser import Maps, MapModel
         from src.maps_parser.menu import print_menu
 
-        if len(sys.argv) > 2:
-            raise ArgumentError("Too many arguments. Use 'make run' or 'uv run"
-                                " python run.py [map.txt]'")
+        parser = argparse.ArgumentParser(
+            prog="Fly-in",
+            description=("Design an efficient drone routing system that "
+                         "navigates multiple drones through connected zones "
+                         "while minimizing simulation turns and handling "
+                         "movement constraints.")
+        )
 
-        elif len(sys.argv) == 2:
-            map = MapModel.is_map_valid(Path(sys.argv[1]))
+        parser.add_argument(
+            "filepath",
+            nargs="?",
+            default=None,
+            help=("Launch the main program script. You can specify a map to "
+                  "use instead of having the whole menu. (Maps are stored in "
+                  "the folder 'maps')")
+        )
+        parser.add_argument(
+            "--debug",
+            action="store_true",
+            help="Launch the program with the debug mode, used to test things."
+        )
 
+        args = parser.parse_args()
+
+        if args.filepath is not None:
+            map = MapModel.is_map_valid(Path(args.filepath))
         else:
-            map = Maps()
-            print_menu(map)
+            map_model = Maps()
+            map = print_menu(map_model)
+            Display.loading(1 * 10)
+            print("\n")
 
-        simu = Manager(map, map.connection_map)
-        simu.simulate()
+        # Launch main simulation
+        my_manager = Manager(map, map.connection_map, args)
+        my_manager.simulate()
 
     except (ArgumentError, MapError) as e:
         Display.error(f"{e}")
