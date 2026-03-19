@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/18 13:59:29 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 09:22:36 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -48,6 +48,7 @@ class Renderer(arcade.Window):
     def on_update(self, delta_time: float) -> None:
         for drone_sprite in self.drone_sprites_list:
             drone_sprite.on_update(delta_time)
+            drone_sprite.update_animation(delta_time, None, None)
 
     def on_draw(self) -> None:
         self.clear()
@@ -183,10 +184,16 @@ class Renderer(arcade.Window):
 
             # Create sprites for drones
 
+            drone_sprites_anim = [
+                arcade.load_texture(SpritePath.DRONE_ANIM1),
+                arcade.load_texture(SpritePath.DRONE_ANIM2),
+                arcade.load_texture(SpritePath.DRONE_FINISH)
+            ]
+
             for (id, drone) in self.drones_dict.items():
                 drone_sprite = DroneSprite(SpritePath.DRONE,
                                            SpriteSetting.DRONE_SCALE,
-                                           drone, id)
+                                           drone, id, drone_sprites_anim)
                 drone_location = drone.get_location()
                 drone_x = self.zones_dict[drone_location].x
                 drone_y = self.zones_dict[drone_location].y

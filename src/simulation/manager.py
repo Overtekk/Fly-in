@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/18 12:01:13 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 09:10:52 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -123,7 +123,7 @@ class Manager():
     def _add_drones_to_spawn(self) -> None:
         for drone in self.drones.values():
             self.zones[self.start_name].add_drone(drone)
-            drone.update_location(self.start_name)
+            drone.update_location(self.zones[self.start_name])
 
     def _debug_get_data(self) -> None:
         for zone in self.zones.values():
@@ -134,6 +134,6 @@ class Manager():
     def _debug_simulate_one_step(self) -> None:
         pos = self.drones[1].get_location()
         next_zone = self.connection_map[pos][0]
-        self.drones[1].update_location(next_zone)
+        self.drones[1].update_location(self.zones[next_zone])
         self.zones[pos].remove_drone(self.drones[1])
         self.zones[next_zone].add_drone(self.drones[1])

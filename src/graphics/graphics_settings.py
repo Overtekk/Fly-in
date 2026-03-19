@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/10 20:01:40 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/18 13:43:49 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 08:58:24 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -22,8 +22,8 @@ class WindowSettings():
 class SpritePath():
     BACKGROUND = f"{PATH}background.png"
     DRONE = f"{PATH}drone.png"
-    DRONE1 = f"{PATH}drone1.png"
-    DRONE2 = f"{PATH}drone2.png"
+    DRONE_ANIM1 = f"{PATH}drone1.png"
+    DRONE_ANIM2 = f"{PATH}drone2.png"
     DRONE_FINISH = f"{PATH}drone_finish.png"
     START_HUB = f"{PATH}start_hub.png"
     END_HUB = f"{PATH}end_hub.png"
@@ -35,9 +35,9 @@ class SpritePath():
 
 class SpriteSetting():
     ZONE_SCALE = 0.9
-    DRONE_SCALE = 0.7
+    DRONE_SCALE = 1
     SPACING = 120
     OFFSET_X = 100
     OFFSET_Y = 100
-    DRONE_SPEED = 150.0
-    SPEED = 1.0
+    DRONE_SPEED = 100.0
+    ANIM_SPEED = 5

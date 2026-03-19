@@ -6,9 +6,11 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:34:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/18 13:58:49 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 09:24:50 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
+
+from typing import Any, Dict, List, Tuple
 
 import math
 import arcade
@@ -57,19 +59,27 @@ class ZoneSprite(arcade.Sprite):
 
 
 class DroneSprite(arcade.Sprite):
-    def __init__(self, image_path: PathOrTexture,
-                 scale: float, drone_data: Drone, id: int) -> None:
+    def __init__(self, image_path: PathOrTexture, scale: float,
+                 drone_data: Drone, id: int,
+                 drone_sprites_anim: List[arcade.Texture]) -> None:
         super().__init__(image_path, scale)
 
         self.drone_data = drone_data
 
-        self.location = self.drone_data.get_location()
-
         self.id = id
+        self.location = self.drone_data.get_location()
+        self.finish = drone_data.finish
+
         self.target_x = 0.0
         self.target_y = 0.0
         self.speed = SpriteSetting.DRONE_SPEED
         self.is_moving = False
+
+        self.cur_textures = 0
+        self.time_counter = 0
+        self.idle_texture = arcade.load_texture(image_path)
+        self.finish_texture = drone_sprites_anim[2]
+        self.move_textures = drone_sprites_anim
 
     def on_update(self, delta_time: float) -> None:
         if not self.is_moving:
@@ -87,6 +97,10 @@ class DroneSprite(arcade.Sprite):
             self.center_y = self.target_y
             self.is_moving = False
             self.location = self.drone_data.get_location()
+
+            if not self.finish:
+                self.finish = self.drone_data.finish
+
         else:
             angle = math.atan2(dy, dx)
 
@@ -95,3 +109,21 @@ class DroneSprite(arcade.Sprite):
 
             self.center_x += velocity_x
             self.center_y += velocity_y
+
+    def update_animation(self, delta_time: float,
+                         *args: Tuple, **kwargs: Dict[str, Any]):
+        if not self.is_moving:
+            if self.drone_data.finish:
+                self.texture = self.finish_texture
+                self.cur_textures = 3
+                return
+
+            elif not self.cur_textures == 0:
+                self.texture = self.idle_texture
+                self.cur_textures = 0
+
+        self.cur_textures = (self.cur_textures + 1) % 2
+
+        self.time_counter += 1
+        if self.time_counter > 7 * SpriteSetting.ANIM_SPEED:
+            self.texture = self.move_textures[self.cur_textures]
