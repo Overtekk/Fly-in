@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:22:36 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/16 09:38:16 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 14:39:39 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -28,7 +28,7 @@ ARGS		=	maps/easy/01_linear_path.txt
 # =		RULES		=
 # ===================
 
-.PHONY:		all install run run-script debug clean lint lint-strict delete-uv
+.PHONY:		all install run run-script run-debug debug clean lint lint-strict delete-uv
 .SILENT:
 
 all:		install run
@@ -46,7 +46,8 @@ run:
 
 run-script:
 			$(PYTHON) run.py $(ARGS)
-
+run-debug:
+			$(PYTHON) run.py $(ARGS) --debug
 debug:		install
 			@echo "$(BGREEN)Running the main script in debug mode...$(RESET)"
 			$(PDB) -m $(SRC_MODULE)
