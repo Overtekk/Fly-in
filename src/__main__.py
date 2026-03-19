@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:28:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/19 14:30:50 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 14:57:07 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -69,7 +69,7 @@ def main() -> int:
 
         # Launch main simulation
         my_manager = Manager(map, map.connection_map, args)
-        my_manager.simulate()
+        my_manager.run()
 
     except (ArgumentError, MapError) as e:
         Display.error(f"{e}")

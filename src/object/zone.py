@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 13:43:53 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/16 09:54:32 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 16:42:15 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -24,17 +24,17 @@ class Zone():
         self.name = name
         self.x = x
         self.y = y
-        self.connection = connection
-        if type == "start":
-            self.is_start = True
-            self.is_end = False
-        elif type == "end":
-            self.is_end = True
-            self.is_start = False
-        else:
-            self.is_start = False
-            self.is_end = False
         raw_metadatata = metadatata
+        self.connection = connection
+
+        self.is_start = False
+        self.is_end = False
+        match type:
+            case "start":
+                self.is_start = True
+            case "end":
+                self.is_end = True
+
         # Default value
         self.metadata_color = "white"
         self.metadata_zone_type = ZoneType.NORMAL
@@ -42,10 +42,17 @@ class Zone():
         if raw_metadatata is not None:
             self._write_metadata(raw_metadatata)
 
+        # Weight of a visited zone used by the algorithm
+        self.weight = 0
+
+        # List of drones on the zone
         self.drones_on_it: List[Drone] = []
 
     def is_occuped(self) -> bool:
-        if len(self.drones_on_it) <= self.metadata_max_drones:
+        if self.is_end:
+            return False
+
+        if len(self.drones_on_it) >= self.metadata_max_drones:
             return True
         return False
 
@@ -101,9 +108,5 @@ class Zone():
                             self.metadata_zone_type = ZoneType.PRIORITY
                         case "restricted":
                             self.metadata_zone_type = ZoneType.RESTRICTED
-                        case _:
-                            continue
                 case "max_drones":
                     self.metadata_max_drones = int(value)
-                case _:
-                    continue

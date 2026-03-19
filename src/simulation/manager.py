@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/19 09:10:52 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 16:43:04 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -19,13 +19,15 @@ from src.utils.ui import Colors, Display
 from src.maps_parser.parser import MapModel
 from src.object.drones import Drone
 from src.object.zone import Zone
+from src.object.zone import ZoneType
 from src.simulation.pathfinding import PathFinding
 from src.graphics.renderer import Renderer
 
 
 class Manager():
     def __init__(self, map_config: MapModel,
-                 connection_map: Dict[str, List[str]]) -> None:
+                 connection_map: Dict[str, List[str]],
+                 args: List[str]) -> None:
         # Init Raw
         self.cfg = map_config
         self.raw_nb_drones = map_config.nb_drones
@@ -34,8 +36,10 @@ class Manager():
         self.raw_hubs = map_config.hub
         self.raw_connections = map_config.connection
         self.connection_map = connection_map
+        self.args = args
 
         self.turns = 0
+        self.logs_list = []
 
         # Init Object
         self.drones: Dict[int, Drone] = {}
@@ -45,13 +49,46 @@ class Manager():
         self._create_drones()
         self._create_zone(self.connection_map)
 
-    def simulate(self) -> None:
+    def run(self) -> None:
         print("=== Starting Simulation ===")
         self._add_drones_to_spawn()
-        #path = PathFinding(self.connection_map, self.zones)
-        #tmp = path.find_path(self.start_name, self.end_name)
-        #print(tmp)
+        path = PathFinding(self.connection_map, self.zones)
+        path.find_path(self.start_name, self.end_name)
         self._init_renderer()
+        self.simulate_one_turn()
+
+    def simulate_one_turn(self) -> None:
+        self.turns += 1
+        self.logs_list.clear()
+
+        for drone in self.drones.values():
+
+            if drone.finish:
+                continue
+
+            neighbors_list = []
+            for neighbors in self.zones[drone.get_location()].get_next_zone():
+                if (self.zones[neighbors].metadata_zone_type == ZoneType.BLOCKED):
+                    continue
+                neighbors_list.append(self.zones[neighbors])
+
+            sorted_neighbors = sorted(neighbors_list, key=lambda x: x.weight)
+
+            zone_to_move = None
+            for zone in sorted_neighbors:
+                if not zone.is_occuped():
+                    zone_to_move = zone
+                    break
+
+            if zone_to_move is None:
+                continue
+
+            self.zones[drone.get_location()].remove_drone(drone)
+            drone.update_location(zone_to_move)
+            zone_to_move.add_drone(drone)
+
+            self._save_move_in_log(drone, self.zones[drone.get_location()])
+        print(self._print_log())
 
     def get_map_information(self) -> str:
         # Variable to short strings.
@@ -73,6 +110,17 @@ class Manager():
 
         return map_info
 
+    def _save_move_in_log(self, drone_id: Drone, destination: Zone) -> None:
+        log = f"{drone_id.id}-{destination.name}"
+        self.logs_list.append(log)
+
+    def _print_log(self) -> str:
+        text_log = ""
+        for item in self.logs_list:
+            text_log += f"{item} "
+
+        return text_log
+
     def _init_renderer(self) -> None:
         try:
             Renderer(self.zones, self, self.drones, self.connection_map)
@@ -85,9 +133,6 @@ class Manager():
         #     Display.error(e)
         #     arcade.exit()
         #     return 1
-
-    def _print_log(self, drone_id: Drone, zone: Zone) -> str:
-        return f"{drone_id}-{zone}"
 
     def _create_drones(self) -> None:
         for i in range(1, self.raw_nb_drones + 1):
@@ -132,6 +177,7 @@ class Manager():
             print(drone.get_drone_information())
 
     def _debug_simulate_one_step(self) -> None:
+        self.turns += 1
         pos = self.drones[1].get_location()
         next_zone = self.connection_map[pos][0]
         self.drones[1].update_location(self.zones[next_zone])

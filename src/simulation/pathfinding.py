@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/07 22:15:21 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/16 14:04:28 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 15:05:30 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -25,11 +25,14 @@ class PathFinding():
         self.zones = zones
 
     def find_path(self, start: str, goal: str) -> List[str]:
-        start_node = self._create_node(position=start, cost=0)
+        goal_node = self._create_node(
+            position=goal,
+            cost=0
+            )
 
-        open_list = [(start_node["cost"], start)]  # Priority queue
-        open_dict = {start: start_node}            # Quickly node lookup
-        closed_set = set()                         # Explorer for nodes
+        open_list = [(goal_node["cost"], goal)]  # Priority queue
+        open_dict = {goal: goal_node}            # Quickly node lookup
+        closed_set = set()                       # Explorer for nodes
 
         while open_list:
             # Get zone with lowest value
@@ -40,11 +43,15 @@ class PathFinding():
             current_node = open_dict[current_pos]
 
             # End the loop if the position is the end
-            if current_pos == goal:
-                return self._reconstruct_path(current_node)
+            # if current_pos == start_node:
+            #     return self._reconstruct_path(current_node)
 
             # Mark the position as visited
             closed_set.add(current_pos)
+            self._calculte_weight(
+                current_pos,
+                open_dict[current_pos]["cost"]
+                )
 
             # Explore neighbors
             for (neighbor, cost) in self._get_valid_neighbors(
@@ -86,23 +93,28 @@ class PathFinding():
         valid_neighbors = {}
 
         for neighbor in self.connect_map[position]:
-            if self.zones[neighbor].metadata_zone_type == ZoneType.BLOCKED:
-                pass
-            elif (self.zones[neighbor].metadata_zone_type ==
-                  ZoneType.RESTRICTED):
-                valid_neighbors[neighbor] = 2
-            elif self.zones[neighbor].metadata_zone_type == ZoneType.PRIORITY:
-                valid_neighbors[neighbor] = 0.99
-            else:
-                valid_neighbors[neighbor] = 1
+
+            match self.zones[neighbor].metadata_zone_type:
+                case ZoneType.BLOCKED:
+                    pass
+                case ZoneType.RESTRICTED:
+                    valid_neighbors[neighbor] = 2
+                case ZoneType.PRIORITY:
+                    valid_neighbors[neighbor] = 0.99
+                case ZoneType.NORMAL:
+                    valid_neighbors[neighbor] = 1
+
         return valid_neighbors
 
-    def _reconstruct_path(self, goal_node: Dict) -> List[str]:
-        path = []
-        current = goal_node
+    def _calculte_weight(self, position: str, cost: int) -> None:
+        self.zones[position].weight = cost
 
-        while current is not None:
-            path.append(current["position"])
-            current = current["parent"]
+    # def _reconstruct_path(self, goal_node: Dict) -> List[str]:
+    #     path = []
+    #     current = goal_node
 
-        return path[::-1]
+    #     while current is not None:
+    #         path.append(current["position"])
+    #         current = current["parent"]
+
+    #     return path[::-1]

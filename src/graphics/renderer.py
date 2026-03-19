@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/19 10:38:33 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 16:35:25 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -20,7 +20,7 @@ from src.graphics.graphics_settings import (WindowSettings, SpritePath,
 from src.object.drones import Drone
 from src.object.zone import Zone
 from src.object.utils.type import ZoneType
-from src.graphics.sprites import ZoneSprite, DroneSprite
+from src.graphics.sprites import ZoneSprite, DroneSprite, TurnText
 
 
 if TYPE_CHECKING:
@@ -46,6 +46,17 @@ class Renderer(arcade.Window):
         self._load_sprites()
         self._calculate_line_to_draw()
 
+    def simulate(self) -> None:
+        if self.started:
+            while not self.pause:
+                for drone_sprite in self.drone_sprites_list:
+                    if drone_sprite.is_moving:
+                        continue
+
+                self.manager.simulate_one_turn()
+                self._update_drone_sprite()
+
+
     def on_update(self, delta_time: float) -> None:
         for drone_sprite in self.drone_sprites_list:
             was_moving = drone_sprite.is_moving
@@ -65,8 +76,12 @@ class Renderer(arcade.Window):
         arcade.draw_texture_rect(self.background, arcade.LBWH(
             0, 0, WindowSettings.WIDTH, WindowSettings.HEIGHT))
 
-        if self.text_started:
+        if self.started:
             self.starting_text_ui.draw()
+
+        if self.turn_text.turn != self.manager.turns:
+            self.turn_text.update_turn()
+        self.turn_text.draw_ui()
 
         # Main camera (affected by the zoon)
         self.camera.use()
@@ -77,8 +92,7 @@ class Renderer(arcade.Window):
 
         self.zone_sprites_list.draw()
         for sprite in self.zone_sprites_list:
-            sprite.label_name_text.draw()
-            sprite.label_count_text.draw()
+            sprite.draw_ui()
 
         self.drone_sprites_list.draw()
 
@@ -86,8 +100,8 @@ class Renderer(arcade.Window):
         if symbol == arcade.key.ESCAPE:
             arcade.exit()
         elif symbol == arcade.key.SPACE:
-            self.text_started = False
-            self.manager._debug_simulate_one_step()
+            self.started = False
+            self.manager.simulate_one_turn()
             self._update_drone_sprite()
 
     def on_mouse_scroll(self, x: int, y: int,
@@ -120,6 +134,7 @@ class Renderer(arcade.Window):
         self.zone_coords = {}
         self.line_to_draw = []
         self.draw_lines = set()
+        self.pause = False
 
     def _init_arcade_components(self) -> None:
         self.camera = arcade.camera.Camera2D()
@@ -129,12 +144,16 @@ class Renderer(arcade.Window):
         self.default_camera_x, self.default_camera_y = self.camera.position
 
     def _init_texts(self) -> None:
-        self.text_started = True
+        # Text : start simulation
+        self.started = True
         self.starting_text_ui = arcade.Text(
             text="Press SPACE to start", anchor_x="center", anchor_y="bottom",
             x=(WindowSettings.WIDTH / 2), y=(20 / 2),
             font_size=22, color=arcade.color.WHITE_SMOKE, font_name="arial"
         )
+
+        # Text : number of turns
+        self.turn_text = TurnText(self.manager)
 
     def _load_sprites(self) -> None:
         if not os.path.exists("src/graphics/sprites/"):
@@ -166,30 +185,30 @@ class Renderer(arcade.Window):
             for zone in self.zones_dict.values():
                 if zone.is_start:
                     zone_sprite = ZoneSprite(SpritePath.START_HUB,
-                                             SpriteSetting.ZONE_SCALE, zone)
+                                             SpriteSetting.ZONE_SCALE, zone,
+                                             self.manager)
                 elif zone.is_end:
                     zone_sprite = ZoneSprite(SpritePath.END_HUB,
-                                             SpriteSetting.ZONE_SCALE, zone)
+                                             SpriteSetting.ZONE_SCALE, zone,
+                                             self.manager)
                 else:
                     match zone.metadata_zone_type:
                         case ZoneType.NORMAL:
                             zone_sprite = ZoneSprite(SpritePath.DEFAULT_ZONE,
                                                     SpriteSetting.ZONE_SCALE,
-                                                    zone)
+                                                    zone, self.manager)
                         case ZoneType.BLOCKED:
                             zone_sprite = ZoneSprite(SpritePath.ZONE_BLOCKED,
                                                     SpriteSetting.ZONE_SCALE,
-                                                    zone)
+                                                    zone, self.manager)
                         case ZoneType.RESTRICTED:
                             zone_sprite = ZoneSprite(
                                 SpritePath.ZONE_RESTRICTED,
-                                SpriteSetting.ZONE_SCALE, zone)
+                                SpriteSetting.ZONE_SCALE, zone, self.manager)
                         case ZoneType.PRIORITY:
                             zone_sprite = ZoneSprite(SpritePath.ZONE_PRIORITY,
                                                     SpriteSetting.ZONE_SCALE,
-                                                    zone)
-                        case _:
-                            pass
+                                                    zone, self.manager)
 
                 zone_sprite.center_x = ((zone.x * SpriteSetting.SPACING)
                                         + SpriteSetting.OFFSET_X)
@@ -197,8 +216,13 @@ class Renderer(arcade.Window):
                                         + SpriteSetting.OFFSET_Y)
                 zone_sprite.label_name_text.x = zone_sprite.center_x
                 zone_sprite.label_name_text.y = zone_sprite.center_y - 30
-                zone_sprite.label_count_text.x = zone_sprite.center_x + 10
+                zone_sprite.label_count_text.x = zone_sprite.center_x + 20
                 zone_sprite.label_count_text.y = zone_sprite.center_y + 30
+
+                if self.manager.args.debug:
+                    zone_sprite.label_weight_text.x = zone_sprite.center_x
+                    zone_sprite.label_weight_text.y = zone_sprite.center_y + 30
+
                 self.zone_sprites_list.append(zone_sprite)
                 zone_sprite.update_drone_count()
 

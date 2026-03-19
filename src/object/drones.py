@@ -6,13 +6,14 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/05 15:11:21 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/19 09:12:59 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 16:27:51 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 from typing import TYPE_CHECKING
 
 from src.utils.ui import Colors
+
 
 if TYPE_CHECKING:
     from src.object.zone import Zone
@@ -31,7 +32,7 @@ class Drone():
         if zone.is_end:
             self.finish = True
 
-    def get_location(self) -> str:
+    def get_location(self) -> 'Zone':
         return self.current_location
 
     def __repr__(self) -> str:
