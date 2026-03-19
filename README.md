@@ -169,6 +169,7 @@ todo
 | [Comment coder ⎯ Pattern matching](https://www.commentcoder.com/python-switch-case/) | Use `match` and `case` to avoid using blocks of `if/elif/else`
 | [Python docs ⎯ Heapq](https://docs.python.org/3/library/heapq.html) | How to use heapq and how its works
 | [Geeksforgeeks ⎯ Heapq](https://www.geeksforgeeks.org/python/heap-queue-or-heapq-in-python/) | How to use heapq and how its works |
+| [Python docs ⎯ Argparse](https://docs.python.org/3/library/argparse.html) | How to use `argparse` |
 
 ### Documentation for the `Pydantic` library
 | Resource | Description |
@@ -209,7 +210,7 @@ todo
 <br>
 
 ### IA was use to:
-- **For the algorithm implementation** ⎯ help to implement the algorithm using a dictionnary and not a grid with coordinates. Also used to determine why the **A*** algorithm didn't works as intented to not hit my dead againts a wall.
+- **For the algorithm implementation** ⎯ help to implement the algorithm using a dictionnary and not a grid with coordinates. Also used to determine why the **A*** algorithm didn't works as intented to not hit my dead againts a wall. Help to optimize my algorithm.
 - **Math problems** ⎯ with the algorithms and rendering.
 - **Questions about `Arcade` library** ⎯ because of the lack of documentations and a bit old sometimes.
 - **Help with code quality** ⎯ do better readable codes, avoid code repetition, help with some code quality.
