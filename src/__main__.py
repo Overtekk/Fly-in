@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:28:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/19 14:27:28 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/19 14:30:50 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -61,6 +61,9 @@ def main() -> int:
         else:
             map_model = Maps()
             map = print_menu(map_model)
+            if not isinstance(map, MapModel):
+                return 0
+
             Display.loading(1 * 10)
             print("\n")
 
