@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/19 16:43:04 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/20 10:52:35 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -62,33 +62,68 @@ class Manager():
         self.logs_list.clear()
 
         for drone in self.drones.values():
+            zone_to_move = None
+            neighbors_list = []
+            flag_moving = False
 
+            # Skip turn if drone have finish
             if drone.finish:
                 continue
 
-            neighbors_list = []
-            for neighbors in self.zones[drone.get_location()].get_next_zone():
-                if (self.zones[neighbors].metadata_zone_type == ZoneType.BLOCKED):
+            if drone.is_moving:
+                loc_splitted = drone.current_location.split("-")
+                zone_to_move = loc_splitted[1]
+                flag_moving = True
+                drone.is_moving = False
+
+            if not flag_moving:
+                # Check neighbors zone of the drone location and add it to a list
+                for neighbors in self.zones[drone.get_location()].get_next_zone():
+                    if (self.zones[neighbors].metadata_zone_type == ZoneType.BLOCKED):
+                        continue
+                    neighbors_list.append(self.zones[neighbors])
+
+                # Sort the list based on the weight of a zone
+                sorted_neighbors = sorted(neighbors_list, key=lambda x: x.weight)
+
+                # Check if a zone have the capacity to acquiere the drone
+                for zone in sorted_neighbors:
+                    if not zone.is_occuped():
+                        zone_to_move = zone
+                        if zone_to_move.metadata_zone_type == ZoneType.RESTRICTED:
+                            drone.is_moving = True
+                        break
+                # Pass if no available zone has been found
+                if zone_to_move is None:
                     continue
-                neighbors_list.append(self.zones[neighbors])
 
-            sorted_neighbors = sorted(neighbors_list, key=lambda x: x.weight)
+                # Move the drone to a connection
+                if drone.is_moving:
+                    for connection in zone_to_move.connection:
+                        if connection == self.zones[drone.get_location()].name:
+                            drone.update_connection(connection, zone_to_move)
+                            self._save_move_in_log(drone, zone_to_move, connection)
+                            break
+                    continue
 
-            zone_to_move = None
-            for zone in sorted_neighbors:
-                if not zone.is_occuped():
-                    zone_to_move = zone
-                    break
+            # Update drone location
+            if flag_moving:
+                self.zones[loc_splitted[0]].remove_drone(drone)
+                drone.update_location(self.zones[zone_to_move])
+                self.zones[zone_to_move].add_drone(drone)
+            else:
+                self.zones[drone.get_location()].remove_drone(drone)
+                drone.update_location(zone_to_move)
+                zone_to_move.add_drone(drone)
 
-            if zone_to_move is None:
-                continue
-
-            self.zones[drone.get_location()].remove_drone(drone)
-            drone.update_location(zone_to_move)
-            zone_to_move.add_drone(drone)
-
+            # Add the move to the log list
             self._save_move_in_log(drone, self.zones[drone.get_location()])
+
+        # Print the log once the turn is finished
         print(self._print_log())
+
+        if self.zones[self.end_name].check_if_goal_full(self.raw_nb_drones):
+            print("Stop simulation")
 
     def get_map_information(self) -> str:
         # Variable to short strings.
@@ -110,8 +145,12 @@ class Manager():
 
         return map_info
 
-    def _save_move_in_log(self, drone_id: Drone, destination: Zone) -> None:
-        log = f"{drone_id.id}-{destination.name}"
+    def _save_move_in_log(self, drone_id: Drone, destination: Zone,
+                          connection: Zone = None) -> None:
+        if connection:
+            log = f"{drone_id.id}-{connection}-{destination.name}"
+        else:
+            log = f"{drone_id.id}-{destination.name}"
         self.logs_list.append(log)
 
     def _print_log(self) -> str:

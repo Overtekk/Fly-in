@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/19 16:35:25 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/20 11:18:25 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -277,7 +277,15 @@ class Renderer(arcade.Window):
                     if zone_sprite.zone_data.name == drone_sprite.location:
                         zone_sprite.update_drone_count()
 
-                loc_x, loc_y = self.zone_coords[new_location]
+                if "-" in new_location:
+                    next_zone = new_location.split("-")
+                    new_loc_x, new_loc_y = self.zone_coords[next_zone[1]]
+                    loc_x = new_loc_x - 50
+                    loc_y = new_loc_y
+                    print(f"{new_loc_x} {new_loc_y}")
+                    print(f"{loc_x} {loc_y}")
+                else:
+                    loc_x, loc_y = self.zone_coords[new_location]
 
                 drone_sprite.target_x = loc_x
                 drone_sprite.target_y = loc_y

@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/05 15:11:21 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/19 16:27:51 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/20 10:22:13 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -24,6 +24,7 @@ class Drone():
         self.id = f"D{id}"
         self.current_location = None
 
+        self.is_moving = False
         self.finish = False
 
     def update_location(self, zone: 'Zone') -> None:
@@ -31,6 +32,9 @@ class Drone():
 
         if zone.is_end:
             self.finish = True
+
+    def update_connection(self, old_zone: str, next_zone: 'Zone') -> None:
+        self.current_location = f"{old_zone}-{next_zone.name}"
 
     def get_location(self) -> 'Zone':
         return self.current_location
