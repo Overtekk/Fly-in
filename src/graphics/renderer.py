@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/20 11:18:25 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/20 11:51:55 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -279,11 +279,22 @@ class Renderer(arcade.Window):
 
                 if "-" in new_location:
                     next_zone = new_location.split("-")
+                    old_loc_x, old_loc_y = self.zone_coords[next_zone[0]]
                     new_loc_x, new_loc_y = self.zone_coords[next_zone[1]]
-                    loc_x = new_loc_x - 50
-                    loc_y = new_loc_y
-                    print(f"{new_loc_x} {new_loc_y}")
-                    print(f"{loc_x} {loc_y}")
+
+                    if old_loc_x > new_loc_x:
+                        loc_x = new_loc_x + 50
+                    elif old_loc_x < new_loc_x:
+                        loc_x = new_loc_x - 50
+                    elif old_loc_x == new_loc_x:
+                        loc_x = new_loc_x
+
+                    if old_loc_y > new_loc_y:
+                        loc_y = new_loc_y + 50
+                    elif old_loc_y < new_loc_y:
+                        loc_y = new_loc_y - 50
+                    elif old_loc_y == new_loc_y:
+                        loc_y = new_loc_y
                 else:
                     loc_x, loc_y = self.zone_coords[new_location]
 

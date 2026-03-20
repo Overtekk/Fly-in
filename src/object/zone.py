@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 13:43:53 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/20 09:30:35 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/20 15:18:03 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -47,13 +47,15 @@ class Zone():
 
         # List of drones on the zone
         self.drones_on_it: List[Drone] = []
+        self.reserved_slot = 0
 
     def is_occuped(self) -> bool:
         if self.is_end:
             return False
 
-        if len(self.drones_on_it) >= self.metadata_max_drones:
+        if (len(self.drones_on_it) + self.reserved_slot) >= self.metadata_max_drones:
             return True
+
         return False
 
     def get_next_zone(self) -> List[str]:
