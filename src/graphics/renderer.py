@@ -6,14 +6,19 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/21 16:32:50 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/21 17:34:09 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
-from typing import TYPE_CHECKING, Dict, List
+"""
+Rendering module for the visual representation of the drones's journey using
+the Arcade library.
+"""
 
 import arcade
 import os
+
+from typing import TYPE_CHECKING, Dict, List
 
 from src.graphics.graphics_settings import (WindowSettings, SpritePath,
                                             SpriteSetting)
@@ -26,20 +31,50 @@ from src.graphics.sprites import ZoneSprite, DroneSprite, TurnText
 if TYPE_CHECKING:
     from src.simulation.manager import Manager
 
+
 class Renderer(arcade.Window):
+    """
+    Manages the graphical user interface and rendering of the simulation.
+
+    This class extends `arcade.Window` to create a visual representation of the
+    drones navigating through the zones. It handles the window lifecycle,
+    sprite loading, camera controls, and the synchronization between the
+    logical simulation state (Manager) and the visual components.
+    """
+
     def __init__(self, zones_dict: Dict[str, Zone], manager: 'Manager',
                  drones_dict: Dict[int, Drone],
                  connection_map: Dict[str, List[str]]) -> None:
+
         super().__init__(width=WindowSettings.WIDTH, antialiasing=True,
                          height=WindowSettings.HEIGHT, fullscreen=False,
                          title=WindowSettings.NAME, resizable=True,
                          center_window=True)
+        """
+        Initializes the simulation window and its graphical components.
 
+        Sets up the window dimensions, anti-aliasing, and title based on
+        global settings. It also initializes internal variable states, the
+        camera system, UI texts, and pre-loads all necessary sprites and
+        drawing data before the first render frame.
+
+        Args:
+            zones_dict (Dict[str, Zone]): Dictionary containing all
+                                          instantiated zones.
+            manager (Manager): The core simulation manager to interact with.
+            drones_dict (Dict[int, Drone]): Dictionary containing all
+                                            instantiated drones.
+            connection_map (Dict[str, List[str]]): The map defining connections
+                                                   between zones.
+        """
+
+        # Arguments
         self.zones_dict = zones_dict
         self.drones_dict = drones_dict
         self.connection_map = connection_map
         self.manager = manager
 
+        # Call all needed methods
         self._init_variables()
         self._init_arcade_components()
         self._init_texts()
@@ -199,32 +234,41 @@ class Renderer(arcade.Window):
 
             # Create sprites for zones
             for zone in self.zones_dict.values():
+
                 if zone.is_start:
-                    zone_sprite = ZoneSprite(SpritePath.START_HUB,
-                                             SpriteSetting.ZONE_SCALE, zone,
-                                             self.manager)
+                    zone_sprite = ZoneSprite(
+                        SpritePath.START_HUB, SpriteSetting.ZONE_SCALE, zone,
+                        self.manager
+                    )
+
                 elif zone.is_end:
-                    zone_sprite = ZoneSprite(SpritePath.END_HUB,
-                                             SpriteSetting.ZONE_SCALE, zone,
-                                             self.manager)
+                    zone_sprite = ZoneSprite(
+                        SpritePath.END_HUB, SpriteSetting.ZONE_SCALE, zone,
+                        self.manager
+                    )
+
                 else:
                     match zone.metadata_zone_type:
                         case ZoneType.NORMAL:
-                            zone_sprite = ZoneSprite(SpritePath.DEFAULT_ZONE,
-                                                    SpriteSetting.ZONE_SCALE,
-                                                    zone, self.manager)
+                            zone_sprite = ZoneSprite(
+                                SpritePath.DEFAULT_ZONE,
+                                SpriteSetting.ZONE_SCALE, zone, self.manager
+                            )
                         case ZoneType.BLOCKED:
-                            zone_sprite = ZoneSprite(SpritePath.ZONE_BLOCKED,
-                                                    SpriteSetting.ZONE_SCALE,
-                                                    zone, self.manager)
+                            zone_sprite = ZoneSprite(
+                                SpritePath.ZONE_BLOCKED,
+                                SpriteSetting.ZONE_SCALE, zone, self.manager
+                            )
                         case ZoneType.RESTRICTED:
                             zone_sprite = ZoneSprite(
                                 SpritePath.ZONE_RESTRICTED,
-                                SpriteSetting.ZONE_SCALE, zone, self.manager)
+                                SpriteSetting.ZONE_SCALE, zone, self.manager
+                            )
                         case ZoneType.PRIORITY:
-                            zone_sprite = ZoneSprite(SpritePath.ZONE_PRIORITY,
-                                                    SpriteSetting.ZONE_SCALE,
-                                                    zone, self.manager)
+                            zone_sprite = ZoneSprite(
+                                SpritePath.ZONE_PRIORITY,
+                                SpriteSetting.ZONE_SCALE, zone, self.manager
+                            )
 
                 zone_sprite.center_x = ((zone.x * SpriteSetting.SPACING)
                                         + SpriteSetting.OFFSET_X)
