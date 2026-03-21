@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:28:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/19 14:57:07 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/21 16:01:33 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -58,9 +58,14 @@ def main() -> int:
 
         if args.filepath is not None:
             map = MapModel.is_map_valid(Path(args.filepath))
+            map_name = args.filepath.split("/")
+            map_name = map_name[-1]
+
         else:
             map_model = Maps()
-            map = print_menu(map_model)
+            map_tuple = print_menu(map_model)
+            map_name, map = map_tuple
+            map_name += ".txt"
             if not isinstance(map, MapModel):
                 return 0
 
@@ -68,7 +73,7 @@ def main() -> int:
             print("\n")
 
         # Launch main simulation
-        my_manager = Manager(map, map.connection_map, args)
+        my_manager = Manager(map, map.connection_map, args, map_name)
         my_manager.run()
 
     except (ArgumentError, MapError) as e:

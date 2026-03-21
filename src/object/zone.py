@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 13:43:53 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/20 15:18:03 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/21 14:28:01 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -53,13 +53,20 @@ class Zone():
         if self.is_end:
             return False
 
-        if (len(self.drones_on_it) + self.reserved_slot) >= self.metadata_max_drones:
+        if ((len(self.drones_on_it) + self.reserved_slot)
+                >= self.metadata_max_drones):
             return True
 
         return False
 
     def get_next_zone(self) -> List[str]:
         return self.connection
+
+    def get_nb_drones(self) -> int:
+        if self.is_end:
+            return 0
+
+        return len(self.drones_on_it) + self.reserved_slot
 
     def add_drone(self, drone_id: Drone) -> None:
         self.drones_on_it.append(drone_id)

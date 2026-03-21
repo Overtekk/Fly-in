@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 18:48:26 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/19 14:15:37 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/21 15:20:45 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -14,12 +14,13 @@ import re
 import os
 
 from time import sleep
+from typing import Tuple
 
 from src.utils.ui import Colors
 from src.maps_parser.parser import MapModel, Maps
 
 
-def print_menu(maps: Maps) -> MapModel:
+def print_menu(maps: Maps) -> Tuple[str, MapModel]:
     WIDTH = 40
     order = ["easy", "medium", "hard", "other", "custom", "challenger"]
 
@@ -203,6 +204,6 @@ def print_menu(maps: Maps) -> MapModel:
                 print(f"\n{Colors.YELLOW}Selected map: {Colors.GREEN}"
                       f"{maps_selection[choice]}{Colors.END}")
                 selected = maps_selection[choice]
-                return maps.connection_map[selected]
+                return (selected, maps.connection_map[selected])
 
         print_header()

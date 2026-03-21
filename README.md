@@ -170,6 +170,7 @@ todo
 | [Python docs ⎯ Heapq](https://docs.python.org/3/library/heapq.html) | How to use heapq and how its works
 | [Geeksforgeeks ⎯ Heapq](https://www.geeksforgeeks.org/python/heap-queue-or-heapq-in-python/) | How to use heapq and how its works |
 | [Python docs ⎯ Argparse](https://docs.python.org/3/library/argparse.html) | How to use `argparse` |
+| [Stackoverflow ⎯ Files permissions](https://stackoverflow.com/questions/1861836/checking-file-permissions-in-linux-with-python) | How to check files permissions |
 
 ### Documentation for the `Pydantic` library
 | Resource | Description |

@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/20 11:51:55 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/21 11:27:50 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -46,17 +46,6 @@ class Renderer(arcade.Window):
         self._load_sprites()
         self._calculate_line_to_draw()
 
-    def simulate(self) -> None:
-        if self.started:
-            while not self.pause:
-                for drone_sprite in self.drone_sprites_list:
-                    if drone_sprite.is_moving:
-                        continue
-
-                self.manager.simulate_one_turn()
-                self._update_drone_sprite()
-
-
     def on_update(self, delta_time: float) -> None:
         for drone_sprite in self.drone_sprites_list:
             was_moving = drone_sprite.is_moving
@@ -68,6 +57,18 @@ class Renderer(arcade.Window):
                     if zone_sprite.zone_data.name == drone_sprite.location:
                         zone_sprite.update_drone_count()
 
+        if self.started and not self.pause and self.manager.running:
+            self.drones_moving = False
+
+            for drone_sprite in self.drone_sprites_list:
+                if drone_sprite.is_moving:
+                    self.drones_moving = True
+                    break
+
+            if not self.drones_moving:
+                self.manager.simulate_one_turn()
+                self._update_drone_sprite()
+
     def on_draw(self) -> None:
         self.clear()
 
@@ -76,7 +77,7 @@ class Renderer(arcade.Window):
         arcade.draw_texture_rect(self.background, arcade.LBWH(
             0, 0, WindowSettings.WIDTH, WindowSettings.HEIGHT))
 
-        if self.started:
+        if not self.started:
             self.starting_text_ui.draw()
 
         if self.turn_text.turn != self.manager.turns:
@@ -99,10 +100,24 @@ class Renderer(arcade.Window):
     def on_key_press(self, symbol: int, modifiers: int) -> None:
         if symbol == arcade.key.ESCAPE:
             arcade.exit()
+
         elif symbol == arcade.key.SPACE:
-            self.started = False
-            self.manager.simulate_one_turn()
-            self._update_drone_sprite()
+            if not self.started:
+                self.started = True
+                self.manager.simulate_one_turn()
+                self._update_drone_sprite()
+
+        elif symbol in [arcade.key.PLUS, arcade.key.NUM_ADD, arcade.key.EQUAL]:
+            if SpriteSetting.DRONE_SPEED < 800:
+                SpriteSetting.DRONE_SPEED += 100
+                if self.manager.args.debug:
+                    print(f"Speed up: {SpriteSetting.DRONE_SPEED}")
+
+        elif symbol in [arcade.key.MINUS, arcade.key.NUM_SUBTRACT]:
+            if SpriteSetting.DRONE_SPEED > 100:
+                SpriteSetting.DRONE_SPEED -= 100
+                if self.manager.args.debug:
+                    print(f"Speed down: {SpriteSetting.DRONE_SPEED}")
 
     def on_mouse_scroll(self, x: int, y: int,
                         scroll_x: int, scroll_y: int) -> None:
@@ -135,6 +150,7 @@ class Renderer(arcade.Window):
         self.line_to_draw = []
         self.draw_lines = set()
         self.pause = False
+        self.drones_moving = False
 
     def _init_arcade_components(self) -> None:
         self.camera = arcade.camera.Camera2D()
@@ -145,7 +161,7 @@ class Renderer(arcade.Window):
 
     def _init_texts(self) -> None:
         # Text : start simulation
-        self.started = True
+        self.started = False
         self.starting_text_ui = arcade.Text(
             text="Press SPACE to start", anchor_x="center", anchor_y="bottom",
             x=(WindowSettings.WIDTH / 2), y=(20 / 2),
@@ -282,19 +298,9 @@ class Renderer(arcade.Window):
                     old_loc_x, old_loc_y = self.zone_coords[next_zone[0]]
                     new_loc_x, new_loc_y = self.zone_coords[next_zone[1]]
 
-                    if old_loc_x > new_loc_x:
-                        loc_x = new_loc_x + 50
-                    elif old_loc_x < new_loc_x:
-                        loc_x = new_loc_x - 50
-                    elif old_loc_x == new_loc_x:
-                        loc_x = new_loc_x
+                    loc_x = (old_loc_x + new_loc_x) / 2
+                    loc_y = (old_loc_y + new_loc_y) / 2
 
-                    if old_loc_y > new_loc_y:
-                        loc_y = new_loc_y + 50
-                    elif old_loc_y < new_loc_y:
-                        loc_y = new_loc_y - 50
-                    elif old_loc_y == new_loc_y:
-                        loc_y = new_loc_y
                 else:
                     loc_x, loc_y = self.zone_coords[new_location]
 

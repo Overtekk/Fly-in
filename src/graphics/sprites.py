@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:34:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/19 14:49:53 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/21 10:59:12 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -117,7 +117,6 @@ class DroneSprite(arcade.Sprite):
 
         self.target_x = 0.0
         self.target_y = 0.0
-        self.speed = SpriteSetting.DRONE_SPEED
         self.is_moving = False
 
         self.cur_textures = 0
@@ -135,7 +134,7 @@ class DroneSprite(arcade.Sprite):
 
         distance = math.hypot(dx, dy)
 
-        movement_in_pixels = self.speed * delta_time
+        movement_in_pixels = SpriteSetting.DRONE_SPEED * delta_time
 
         if distance <= movement_in_pixels:
             self.center_x = self.target_x
@@ -149,8 +148,8 @@ class DroneSprite(arcade.Sprite):
         else:
             angle = math.atan2(dy, dx)
 
-            velocity_x = math.cos(angle) * (self.speed * delta_time)
-            velocity_y = math.sin(angle) * (self.speed * delta_time)
+            velocity_x = math.cos(angle) * (SpriteSetting.DRONE_SPEED * delta_time)
+            velocity_y = math.sin(angle) * (SpriteSetting.DRONE_SPEED * delta_time)
 
             self.center_x += velocity_x
             self.center_y += velocity_y

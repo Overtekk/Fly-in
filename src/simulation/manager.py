@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/20 15:17:45 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/21 15:57:01 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -21,13 +21,14 @@ from src.object.drones import Drone
 from src.object.zone import Zone
 from src.object.zone import ZoneType
 from src.simulation.pathfinding import PathFinding
+from src.simulation.output import LogOutput
 from src.graphics.renderer import Renderer
 
 
 class Manager():
     def __init__(self, map_config: MapModel,
                  connection_map: Dict[str, List[str]],
-                 args: List[str]) -> None:
+                 args: List[str], map_name: str) -> None:
         # Init Raw
         self.cfg = map_config
         self.raw_nb_drones = map_config.nb_drones
@@ -37,9 +38,13 @@ class Manager():
         self.raw_connections = map_config.connection
         self.connection_map = connection_map
         self.args = args
+        self.map_name = map_name
 
+        self.running = False
         self.turns = 0
-        self.logs_list = []
+        self.log_turn = []
+        self.log_output = {}
+        self.line = 0
 
         # Init Object
         self.drones: Dict[int, Drone] = {}
@@ -55,13 +60,16 @@ class Manager():
         path = PathFinding(self.connection_map, self.zones)
         path.find_path(self.start_name, self.end_name)
         self._init_renderer()
-        self.simulate_one_turn()
 
     def simulate_one_turn(self) -> None:
+        self.running = True
+        self.line += 1
         self.turns += 1
-        self.logs_list.clear()
+        self.log_turn.clear()
 
-        for drone in self.drones.values():
+        sorted_drone_list = sorted(self.drones.values(), key=self._get_drone_weight)
+
+        for drone in sorted_drone_list:
             zone_to_move = None
             neighbors_list = []
             flag_moving = False
@@ -84,7 +92,7 @@ class Manager():
                     neighbors_list.append(self.zones[neighbors])
 
                 # Sort the list based on the weight of a zone
-                sorted_neighbors = sorted(neighbors_list, key=lambda x: x.weight)
+                sorted_neighbors = sorted(neighbors_list, key=lambda x: x.weight + x.get_nb_drones() * 2)
 
                 # Check if a zone have the capacity to acquiere the drone
                 for zone in sorted_neighbors:
@@ -124,12 +132,15 @@ class Manager():
                 # Add the move to the log list
                 self._save_move_in_log(drone, self.zones[drone.get_location()])
 
-        # Print the log once the turn is finished
-        if len(self.logs_list) > 0:
-            print(self._print_log())
+        # Store the line once the turn is finished
+        if len(self.log_turn) > 0:
+            line_log = self.log_turn.copy()
+            self.log_output[self.line] = line_log
 
         if self.zones[self.end_name].check_if_goal_full(self.raw_nb_drones):
-            print("Stop simulation")
+            self.running = False
+            output_manager = LogOutput(self.map_name, self.log_output)
+            output_manager.write_log()
 
     def get_map_information(self) -> str:
         # Variable to short strings.
@@ -151,17 +162,36 @@ class Manager():
 
         return map_info
 
+    def _get_drone_weight(self, drone: Drone) -> float:
+        location = drone.get_location()
+
+        if "-" in location:
+            split_location = location.split("-")
+            return (self.zones[split_location[1]].weight, self._get_drone_waiting(drone))
+
+
+        return (self.zones[location].weight, self._get_drone_waiting(drone))
+
+    def _get_drone_waiting(self, drone: Drone) -> float:
+        location = drone.get_location()
+
+        if "-" in location:
+            split_location = location.split("-")
+            return self.zones[split_location[1]].get_nb_drones()
+
+        return self.zones[location].get_nb_drones()
+
     def _save_move_in_log(self, drone_id: Drone, destination: Zone,
                           connection: Zone = None) -> None:
         if connection:
             log = f"{drone_id.id}-{connection}-{destination.name}"
         else:
             log = f"{drone_id.id}-{destination.name}"
-        self.logs_list.append(log)
+        self.log_turn.append(log)
 
     def _print_log(self) -> str:
         text_log = ""
-        for item in self.logs_list:
+        for item in self.log_turn:
             text_log += f"{item} "
 
         return text_log
