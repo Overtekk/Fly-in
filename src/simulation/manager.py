@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/21 15:57:01 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/21 16:30:13 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -80,7 +80,7 @@ class Manager():
 
             if drone.is_moving:
                 loc_splitted = drone.current_location.split("-")
-                zone_to_move = loc_splitted[1]
+                zone_to_move = self.zones[loc_splitted[1]]
                 flag_moving = True
                 drone.is_moving = False
 
@@ -88,6 +88,8 @@ class Manager():
                 # Check neighbors zone of the drone location and add it to a list
                 for neighbors in self.zones[drone.get_location()].get_next_zone():
                     if (self.zones[neighbors].metadata_zone_type == ZoneType.BLOCKED):
+                        continue
+                    if self.zones[neighbors].name in drone.visited_zones:
                         continue
                     neighbors_list.append(self.zones[neighbors])
 
@@ -119,24 +121,22 @@ class Manager():
                     continue
 
             # Update drone location
-            if flag_moving:  # If on a connection
-                drone.update_location(self.zones[zone_to_move])
-                self.zones[zone_to_move].add_drone(drone)
-                self.zones[zone_to_move].reserved_slot -= 1
-            else:
+            if not flag_moving:
                 self.zones[drone.get_location()].remove_drone(drone)
-                drone.update_location(zone_to_move)
-                zone_to_move.add_drone(drone)
-                zone_to_move.reserved_slot -= 1
+            drone.update_location(zone_to_move)
+            drone.visited_zones.append(zone_to_move)
+            zone_to_move.add_drone(drone)
+            zone_to_move.reserved_slot -= 1
 
-                # Add the move to the log list
-                self._save_move_in_log(drone, self.zones[drone.get_location()])
+            # Add the move to the log list
+            self._save_move_in_log(drone, self.zones[drone.get_location()])
 
         # Store the line once the turn is finished
         if len(self.log_turn) > 0:
             line_log = self.log_turn.copy()
             self.log_output[self.line] = line_log
 
+        # Stop the simulation if all drones are on the exit
         if self.zones[self.end_name].check_if_goal_full(self.raw_nb_drones):
             self.running = False
             output_manager = LogOutput(self.map_name, self.log_output)
@@ -244,6 +244,7 @@ class Manager():
         for drone in self.drones.values():
             self.zones[self.start_name].add_drone(drone)
             drone.update_location(self.zones[self.start_name])
+            drone.visited_zones.append(self.start_name)
 
     def _debug_get_data(self) -> None:
         for zone in self.zones.values():

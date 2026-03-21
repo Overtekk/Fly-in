@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/05 15:11:21 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/21 10:00:32 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/21 16:17:49 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -23,6 +23,8 @@ class Drone():
     def __init__(self, id: int) -> None:
         self.id = f"D{id}"
         self.current_location = None
+
+        self.visited_zones = []
 
         self.is_moving = False
         self.finish = False
