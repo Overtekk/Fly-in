@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/21 16:30:13 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/21 16:37:09 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -90,6 +90,8 @@ class Manager():
                     if (self.zones[neighbors].metadata_zone_type == ZoneType.BLOCKED):
                         continue
                     if self.zones[neighbors].name in drone.visited_zones:
+                        continue
+                    if self.zones[neighbors].weight >= self.zones[drone.get_location()].weight:
                         continue
                     neighbors_list.append(self.zones[neighbors])
 

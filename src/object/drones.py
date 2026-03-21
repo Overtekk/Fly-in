@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/05 15:11:21 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/21 16:17:49 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/21 16:36:58 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -38,7 +38,7 @@ class Drone():
     def update_connection(self, old_zone: str, next_zone: 'Zone') -> None:
         self.current_location = f"{old_zone}-{next_zone.name}"
 
-    def get_location(self) -> 'Zone':
+    def get_location(self) -> str:
         return self.current_location
 
     def __repr__(self) -> str:

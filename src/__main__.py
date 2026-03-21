@@ -6,9 +6,14 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:28:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/21 16:01:33 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/21 17:12:33 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
+
+"""
+Entry point for the program. It will check arguments and parse it. Call the
+needeed class to check if the map is valid and launch the simulation.
+"""
 
 import sys
 import argparse
@@ -23,6 +28,8 @@ from src.simulation.manager import Manager
 
 def main() -> int:
     try:
+
+        # Check if a module is missing
         try:
             module_checker()
         except ModuleNotFoundError as e:
@@ -56,20 +63,23 @@ def main() -> int:
 
         args = parser.parse_args()
 
+        # If a map is provided in the argument call validator for only this
+        # map.
         if args.filepath is not None:
             map = MapModel.is_map_valid(Path(args.filepath))
             map_name = args.filepath.split("/")
             map_name = map_name[-1]
-
         else:
             map_model = Maps()
             map_tuple = print_menu(map_model)
+
             map_name, map = map_tuple
             map_name += ".txt"
+
             if not isinstance(map, MapModel):
                 return 0
 
-            Display.loading(1 * 10)
+            Display.loading(1 * 10)  # Display a loading logo for visual
             print("\n")
 
         # Launch main simulation
