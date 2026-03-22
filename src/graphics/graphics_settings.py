@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/10 20:01:40 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/21 10:53:51 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/22 19:21:49 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -21,6 +21,7 @@ class WindowSettings():
 
 class SpritePath():
     BACKGROUND = f"{PATH}background.png"
+    WINDOW_INFO = f"{PATH}window_info.png"
     DRONE = f"{PATH}drone.png"
     DRONE_ANIM1 = f"{PATH}drone1.png"
     DRONE_ANIM2 = f"{PATH}drone2.png"

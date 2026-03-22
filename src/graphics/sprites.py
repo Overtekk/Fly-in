@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:34:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/21 10:59:12 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/22 20:04:40 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -196,3 +196,17 @@ class TurnText():
 
     def draw_ui(self) -> None:
         self.label_turn_text.draw()
+
+
+class WindowInfo(arcade.Sprite):
+    def __init__(self, image_path: PathOrTexture,
+                 scale: float, manager: 'Manager'):
+        super().__init__(image_path, scale)
+
+        self.manager = manager
+
+        self.btn_close_width = 7 * scale
+        self.btn_close_offset_right = 2 * scale
+
+    def get_ui_action(self, x: float, y: float) -> None:
+        pass

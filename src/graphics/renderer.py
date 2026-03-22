@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/21 17:34:09 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/22 19:43:18 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -25,7 +25,7 @@ from src.graphics.graphics_settings import (WindowSettings, SpritePath,
 from src.object.drones import Drone
 from src.object.zone import Zone
 from src.object.utils.type import ZoneType
-from src.graphics.sprites import ZoneSprite, DroneSprite, TurnText
+from src.graphics.sprites import ZoneSprite, DroneSprite, TurnText, WindowInfo
 
 
 if TYPE_CHECKING:
@@ -119,7 +119,7 @@ class Renderer(arcade.Window):
             self.turn_text.update_turn()
         self.turn_text.draw_ui()
 
-        # Main camera (affected by the zoon)
+        # Main camera (affected by the zoom)
         self.camera.use()
 
         for (start_x, start_y), (end_x, end_y) in self.line_to_draw:
@@ -131,6 +131,9 @@ class Renderer(arcade.Window):
             sprite.draw_ui()
 
         self.drone_sprites_list.draw()
+
+        self.static_camera.use()
+        self.ui_sprites_list.draw()
 
     def on_key_press(self, symbol: int, modifiers: int) -> None:
         if symbol == arcade.key.ESCAPE:
@@ -181,6 +184,7 @@ class Renderer(arcade.Window):
     def _init_variables(self) -> None:
         self.zone_sprites_list = arcade.SpriteList()
         self.drone_sprites_list = arcade.SpriteList()
+        self.ui_sprites_list = arcade.SpriteList()
         self.zone_coords = {}
         self.line_to_draw = []
         self.draw_lines = set()
@@ -231,6 +235,14 @@ class Renderer(arcade.Window):
 
             # Load background
             self.background = arcade.load_texture(SpritePath.BACKGROUND)
+
+            # Load window informations
+            window_info_sprite = WindowInfo(
+                SpritePath.WINDOW_INFO, 1.5, self.manager
+            )
+            window_info_sprite.center_x = 155
+            window_info_sprite.center_y = self.height - 100
+            self.ui_sprites_list.append(window_info_sprite)
 
             # Create sprites for zones
             for zone in self.zones_dict.values():
