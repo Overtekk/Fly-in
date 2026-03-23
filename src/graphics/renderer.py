@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/22 19:43:18 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/23 18:38:29 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -21,7 +21,7 @@ import os
 from typing import TYPE_CHECKING, Dict, List
 
 from src.graphics.graphics_settings import (WindowSettings, SpritePath,
-                                            SpriteSetting)
+                                            SpriteSetting, WindowAction)
 from src.object.drones import Drone
 from src.object.zone import Zone
 from src.object.utils.type import ZoneType
@@ -135,6 +135,11 @@ class Renderer(arcade.Window):
         self.static_camera.use()
         self.ui_sprites_list.draw()
 
+        if self.manager.args.debug:
+            for ui_elements in self.ui_sprites_list:
+                if isinstance(ui_elements, WindowInfo):
+                    ui_elements.debug_draw_hitboxes()
+
     def on_key_press(self, symbol: int, modifiers: int) -> None:
         if symbol == arcade.key.ESCAPE:
             arcade.exit()
@@ -180,6 +185,13 @@ class Renderer(arcade.Window):
         if button == arcade.MOUSE_BUTTON_MIDDLE:
             self.camera.position = (self.default_camera_x,
                                     self.default_camera_y)
+
+        for ui_element in self.ui_sprites_list:
+            if isinstance(ui_element, WindowInfo):
+                action = ui_element.get_ui_action(x, y)
+
+                if action == WindowAction.CLOSE:
+                    arcade.exit()
 
     def _init_variables(self) -> None:
         self.zone_sprites_list = arcade.SpriteList()

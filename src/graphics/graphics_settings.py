@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/10 20:01:40 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/22 19:21:49 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/23 17:50:50 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -42,3 +42,7 @@ class SpriteSetting():
     OFFSET_Y = 100
     DRONE_SPEED = 200.0
     ANIM_SPEED = 5
+
+
+class WindowAction():
+    CLOSE = "CLOSE"

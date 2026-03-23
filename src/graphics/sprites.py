@@ -6,11 +6,11 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:34:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/22 20:04:40 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/23 19:06:27 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
-from typing import TYPE_CHECKING, Any, Dict, List, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
 
 import math
 import arcade
@@ -19,7 +19,8 @@ from arcade.types import PathOrTexture
 from src.object.drones import Drone
 from src.object.zone import Zone
 from src.utils.ui import Colors
-from src.graphics.graphics_settings import SpriteSetting, WindowSettings
+from src.graphics.graphics_settings import (SpriteSetting, WindowSettings,
+                                            WindowAction)
 
 
 if TYPE_CHECKING:
@@ -205,8 +206,53 @@ class WindowInfo(arcade.Sprite):
 
         self.manager = manager
 
-        self.btn_close_width = 7 * scale
-        self.btn_close_offset_right = 2 * scale
+        self.buttons_data = {
+            WindowAction.CLOSE: {
+                "anchor": "TOP_RIGHT",
+                "offset": (-11, 0),
+                "size": (10, 10)
+            }
+        }
 
-    def get_ui_action(self, x: float, y: float) -> None:
-        pass
+    def get_ui_action(self, mouse_x: float, mouse_y: float) -> Optional[str]:
+        for action, data in self.buttons_data.items():
+            hitbox = self._calculate_hitbox(data)
+
+            # Check if mouse is in the box
+            if hitbox["left"] <= mouse_x <= hitbox["right"]:
+                if hitbox["bottom"] <= mouse_y <= hitbox["top"]:
+                    return action
+
+        return None
+
+    def debug_draw_hitboxes(self) -> None:
+        for data in self.buttons_data.values():
+            hitbox = self._calculate_hitbox(data)
+
+            arcade.draw_lrbt_rectangle_outline(
+                hitbox["left"], hitbox["right"], hitbox["bottom"],
+                hitbox["top"], arcade.color.RED, 2
+            )
+
+    def _calculate_hitbox(self, data: Dict[str, Any]) -> Dict[str, float]:
+        if data["anchor"] == "TOP_RIGHT":
+            ref_x = self.right
+            ref_y = self.top
+
+        else:  # Default value
+            ref_x = self.left
+            ref_y = self.bottom
+
+        # Calculate boundaries
+        button_left = ref_x + (data["offset"][0] * self.scale_x)
+        button_right = button_left + (data["size"][0] * self.scale_x)
+
+        button_top = ref_y + (data["offset"][1] * self.scale_y)
+        button_bottom = button_top - (data["size"][1] * self.scale_y)
+
+        return {
+            "left": button_left,
+            "right": button_right,
+            "top": button_top,
+            "bottom": button_bottom
+        }
