@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:34:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 14:07:13 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 21:33:46 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -190,8 +190,25 @@ class WindowInfo(arcade.Sprite):
                 "anchor": "TOP_RIGHT",
                 "offset": (-11, 0),
                 "size": (10, 10)
+            },
+            WindowAction.MOVE: {
+                "anchor": "TOP_LEFT",
+                "offset": (0, 0),
+                "size": (162, 11.5)
             }
         }
+
+        speed = SpriteSetting.DRONE_SPEED
+        self.speed_text0 = arcade.Text(
+            text=f"{str(speed)}%", x=0, y=0, anchor_x="center",
+            color=(56, 56, 56, 255), font_size=16, font_name="Aseprite",
+            bold=True
+        )
+        self.speed_text = arcade.Text(
+            text=f"{str(speed)}%", x=0, y=0, anchor_x="center",
+            color=(0, 0, 0, 255), font_size=16, font_name="Aseprite",
+            bold=True
+        )
 
     def get_ui_action(self, mouse_x: float, mouse_y: float) -> Optional[str]:
         for action, data in self.buttons_data.items():
@@ -203,6 +220,16 @@ class WindowInfo(arcade.Sprite):
                     return action
 
         return None
+
+    def draw_ui(self) -> None:
+        self.speed_text0.draw()
+        self.speed_text.draw()
+
+    def update_ui_position(self) -> None:
+        self.speed_text0.x = self.center_x - 75
+        self.speed_text0.y = self.top - 168
+        self.speed_text.x = self.center_x - 76
+        self.speed_text.y = self.top - 167
 
     def debug_draw_hitboxes(self) -> None:
         for data in self.buttons_data.values():
@@ -216,6 +243,10 @@ class WindowInfo(arcade.Sprite):
     def _calculate_hitbox(self, data: Dict[str, Any]) -> Dict[str, float]:
         if data["anchor"] == "TOP_RIGHT":
             ref_x = self.right
+            ref_y = self.top
+
+        elif data["anchor"] == "TOP_LEFT":
+            ref_x = self.left
             ref_y = self.top
 
         else:  # Default value

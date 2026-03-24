@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 15:27:29 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 21:43:32 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -16,11 +16,13 @@ the Arcade library.
 
 import arcade
 import os
+import pyglet
 
 from typing import TYPE_CHECKING, Dict, List, Set, Tuple
 
 from src.graphics.graphics_settings import (WindowSettings, SpritePath,
-                                            SpriteSetting, WindowAction)
+                                            FontPath, SpriteSetting,
+                                            WindowAction)
 from src.object.drones import Drone
 from src.object.zone import Zone
 from src.object.utils.type import ZoneType
@@ -94,7 +96,12 @@ class Renderer(arcade.Window):
         self.camera_zoom = 1.0
         self.default_camera_x, self.default_camera_y = self.camera.position
 
+        self.window_info_state = None
+        self.window_info_offset_x = 0.0
+        self.window_info_offset_y = 0.0
+
         # Call all needed methods
+        self._load_custom_fonts()
         self._init_texts()
         self._load_sprites()
         self._calculate_line_to_draw()
@@ -129,9 +136,6 @@ class Renderer(arcade.Window):
         arcade.draw_texture_rect(self.background, arcade.LBWH(
             0, 0, WindowSettings.WIDTH, WindowSettings.HEIGHT))
 
-        if not self.started:
-            self.starting_text_ui.draw()
-
         # Main camera (affected by the zoom)
         self.camera.use()
 
@@ -148,10 +152,17 @@ class Renderer(arcade.Window):
         self.static_camera.use()
         self.ui_sprites_list.draw()
 
+        for ui_element in self.ui_sprites_list:
+            if isinstance(ui_element, WindowInfo):
+                ui_element.draw_ui()
+
         if self.manager.args.debug:
             for ui_elements in self.ui_sprites_list:
                 if isinstance(ui_elements, WindowInfo):
                     ui_elements.debug_draw_hitboxes()
+
+        if not self.started:
+            self.starting_text_ui.draw()
 
     def on_key_press(self, symbol: int, modifiers: int) -> None:
         if symbol == arcade.key.ESCAPE:
@@ -192,6 +203,23 @@ class Renderer(arcade.Window):
 
             self.camera.position = (update_x, update_y)
 
+        if self.window_info_state:
+            target_x = x - self.window_info_offset_x
+            target_y = y - self.window_info_offset_y
+            half_width = self.window_info_state.width / 2
+            half_height = self.window_info_state.height / 2
+
+            self.window_info_state.center_x = max(
+                half_width,
+                min(target_x, WindowSettings.WIDTH - half_width)
+            )
+            self.window_info_state.center_y = max(
+                half_height,
+                min(target_y, WindowSettings.HEIGHT - half_height)
+            )
+
+            self.window_info_state.update_ui_position()
+
     def on_mouse_press(self, x: int, y: int,
                        button: int, modifiers: int) -> None:
         # Reset camera position
@@ -203,8 +231,18 @@ class Renderer(arcade.Window):
             if isinstance(ui_element, WindowInfo):
                 action = ui_element.get_ui_action(x, y)
 
-                if action == WindowAction.CLOSE:
-                    arcade.exit()
+                match action:
+                    case WindowAction.CLOSE:
+                        arcade.exit()
+                    case WindowAction.MOVE:
+                        self.window_info_state = ui_element
+                        self.window_info_offset_x = x - ui_element.center_x
+                        self.window_info_offset_y = y - ui_element.center_y
+
+    def on_mouse_release(self, x: int, y: int,
+                         button: int, modifiers: int) -> None:
+        if self.window_info_state:
+            self.window_info_state = None
 
     def _init_texts(self) -> None:
         # Text : start simulation
@@ -246,6 +284,7 @@ class Renderer(arcade.Window):
             )
             window_info_sprite.center_x = 155
             window_info_sprite.center_y = self.height - 100
+            window_info_sprite.update_ui_position()
             self.ui_sprites_list.append(window_info_sprite)
 
             self._load_zones_sprites()
@@ -330,6 +369,20 @@ class Renderer(arcade.Window):
                 drone_sprite.center_y = ((drone_y * SpriteSetting.SPACING)
                                          + SpriteSetting.OFFSET_Y)
             self.drone_sprites_list.append(drone_sprite)
+
+    def _load_custom_fonts(self) -> None:
+        try:
+            filename = FontPath.ASEPRITE
+            pyglet.font.add_file(filename)
+
+            font_name = "AsepriteFont"
+            font = pyglet.font.load(font_name)
+
+            print(font.name)
+
+            arcade.load_font(filename)
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"Font not found in PATH {e}")
 
     def _calculate_line_to_draw(self) -> None:
         for zone_a, neighbors in self.connection_map.items():

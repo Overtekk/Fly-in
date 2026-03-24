@@ -6,11 +6,11 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/10 20:01:40 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 14:22:25 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 20:45:17 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
-PATH = "src/graphics/sprites/default/"
+DEFAULT_PATH = "src/graphics/sprites/default/"
 
 
 class WindowSettings():
@@ -20,18 +20,22 @@ class WindowSettings():
 
 
 class SpritePath():
-    BACKGROUND = f"{PATH}background.png"
-    WINDOW_INFO = f"{PATH}window_info.png"
-    DRONE = f"{PATH}drone.png"
-    DRONE_ANIM1 = f"{PATH}drone1.png"
-    DRONE_ANIM2 = f"{PATH}drone2.png"
-    DRONE_FINISH = f"{PATH}drone_finish.png"
-    START_HUB = f"{PATH}start_hub.png"
-    END_HUB = f"{PATH}end_hub.png"
-    DEFAULT_ZONE = f"{PATH}default_zone.png"
-    ZONE_BLOCKED = f"{PATH}zone_blocked.png"
-    ZONE_PRIORITY = f"{PATH}zone_priority.png"
-    ZONE_RESTRICTED = f"{PATH}zone_restricted.png"
+    BACKGROUND = f"{DEFAULT_PATH}background.png"
+    WINDOW_INFO = f"{DEFAULT_PATH}window_info.png"
+    DRONE = f"{DEFAULT_PATH}drone.png"
+    DRONE_ANIM1 = f"{DEFAULT_PATH}drone1.png"
+    DRONE_ANIM2 = f"{DEFAULT_PATH}drone2.png"
+    DRONE_FINISH = f"{DEFAULT_PATH}drone_finish.png"
+    START_HUB = f"{DEFAULT_PATH}start_hub.png"
+    END_HUB = f"{DEFAULT_PATH}end_hub.png"
+    DEFAULT_ZONE = f"{DEFAULT_PATH}default_zone.png"
+    ZONE_BLOCKED = f"{DEFAULT_PATH}zone_blocked.png"
+    ZONE_PRIORITY = f"{DEFAULT_PATH}zone_priority.png"
+    ZONE_RESTRICTED = f"{DEFAULT_PATH}zone_restricted.png"
+
+
+class FontPath():
+    ASEPRITE = "src/graphics/sprites/font/AsepriteFont.ttf"
 
 
 class SpriteSetting():
@@ -46,3 +50,4 @@ class SpriteSetting():
 
 class WindowAction():
     CLOSE = "CLOSE"
+    MOVE = "MOVE"
