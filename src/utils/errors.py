@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 17:42:28 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 11:06:52 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 13:44:10 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -14,6 +14,7 @@ Custom error class to handles errors during the process.
 
 All classes inherits from the Exception class.
 """
+
 
 class ArgumentError(Exception):
     """

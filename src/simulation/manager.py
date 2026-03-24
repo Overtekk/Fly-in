@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 12:19:47 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 13:58:25 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -14,11 +14,13 @@ Simulation orchestrator module.
 
 This module houses the Manager class, the central controller that ties together
 map configuration, pathfinding, object instantiation (zones and drones),
-graphical rendering, and the step-by-step turn execution logic of the simulation.
+graphical rendering, and the step-by-step turn execution logic of the
+simulation.
 """
 
 import re
 import arcade
+import argparse
 
 from typing import Dict, List
 
@@ -66,7 +68,7 @@ class Manager():
 
     def __init__(self, map_config: MapModel,
                  connection_map: Dict[str, List[str]],
-                 args: List[str], map_name: str) -> None:
+                 args: argparse.Namespace, map_name: str) -> None:
         """
         Initializes the simulation manager with the parsed map data.
 

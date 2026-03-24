@@ -6,11 +6,11 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:34:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 13:35:31 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 14:07:13 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import math
 import arcade
@@ -120,8 +120,8 @@ class DroneSprite(arcade.Sprite):
         self.is_moving = False
 
         self.cur_textures = 0
-        self.time_counter = 0
-        self.idle_texture = arcade.load_texture(image_path)
+        self.time_counter = 0.0
+        self.idle_texture = self.texture
         self.finish_texture = drone_sprites_anim[2]
         self.move_textures = drone_sprites_anim
 
@@ -148,14 +148,16 @@ class DroneSprite(arcade.Sprite):
         else:
             angle = math.atan2(dy, dx)
 
-            velocity_x = math.cos(angle) * (SpriteSetting.DRONE_SPEED * delta_time)
-            velocity_y = math.sin(angle) * (SpriteSetting.DRONE_SPEED * delta_time)
+            velocity_x = math.cos(angle) * (SpriteSetting.DRONE_SPEED
+                                            * delta_time)
+            velocity_y = math.sin(angle) * (SpriteSetting.DRONE_SPEED
+                                            * delta_time)
 
             self.center_x += velocity_x
             self.center_y += velocity_y
 
-    def update_animation(self, delta_time: float,
-                         *args: Tuple, **kwargs: Dict[str, Any]):
+    def update_animation(self, delta_time: float = 1 / 60,
+                         *args: Any, **kwargs: Any) -> None:
         if not self.is_moving:
             if self.drone_data.finish:
                 self.texture = self.finish_texture
@@ -163,7 +165,7 @@ class DroneSprite(arcade.Sprite):
                 self.texture = self.idle_texture
 
             self.scale = SpriteSetting.DRONE_SCALE
-            self.cur_textures == 0
+            self.cur_textures = 0
             return
 
         self.time_counter += delta_time

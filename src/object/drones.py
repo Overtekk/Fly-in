@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/05 15:11:21 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 11:51:10 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 13:49:45 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -18,7 +18,7 @@ location, movement state, tracking of visited zones to prevent loops, and
 completion status.
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from src.utils.ui import Colors
 
@@ -51,9 +51,9 @@ class Drone():
                      unique string ID.
         """
         self.id = f"D{id}"
-        self.current_location = None
+        self.current_location: str | None = None
 
-        self.visited_zones = []
+        self.visited_zones: List[Zone] = []
 
         self.is_moving = False
         self.finish = False
@@ -97,7 +97,7 @@ class Drone():
         """
         self.current_location = f"{old_zone}-{next_zone.name}"
 
-    def get_location(self) -> str:
+    def get_location(self) -> str | None:
         """
         Retrieves the current location identifier of the drone.
 

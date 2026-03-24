@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 18:48:26 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 11:12:12 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 13:47:52 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -24,7 +24,7 @@ from src.utils.ui import Colors
 from src.maps_parser.parser import MapModel, Maps
 
 
-def print_menu(maps: Maps) -> Tuple[str, MapModel]:
+def print_menu(maps: Maps) -> Tuple[str, MapModel] | int:
     """Displays an interactive terminal menu for map selection.
 
     Navigates through available map categories, allows the user to inspect

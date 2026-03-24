@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 16:56:39 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 11:03:28 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 13:45:41 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -21,7 +21,7 @@ import sys
 import time
 
 from enum import Enum
-from typing import Set
+from typing import Tuple
 
 from src.utils.x11_colors import X11_NAMES
 
@@ -134,7 +134,7 @@ class Colors(str, Enum):
         return f"\033[38;2;{r};{g};{b}m"
 
     @staticmethod
-    def get_rgb_color(color_name: str) -> Set[int]:
+    def get_rgb_color(color_name: str) -> Tuple[int, int, int]:
         """
         Transforms a CSS/X11 color name into an RGB integer tuple.
 

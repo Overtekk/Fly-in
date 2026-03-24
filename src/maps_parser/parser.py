@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 17:33:05 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 11:28:57 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 13:43:26 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -292,7 +292,7 @@ class MapModel(BaseModel):
 
                             if len(zone_data) == 4:
                                 tmp_error = cls._check_metadata(zone_data[3],
-                                                              "zone")
+                                                                "zone")
                                 if tmp_error:
                                     for e in tmp_error:
                                         errors_list.append(f"Line {i}: {e}")
@@ -327,7 +327,7 @@ class MapModel(BaseModel):
 
                             if len(zone_data) == 2:
                                 tmp_error = cls._check_metadata(zone_data[1],
-                                                              "connection")
+                                                                "connection")
                                 if tmp_error:
                                     for e in tmp_error:
                                         errors_list.append(f"Line {i}: {e}")

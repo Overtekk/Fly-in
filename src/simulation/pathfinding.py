@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/07 22:15:21 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 11:59:30 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 13:55:00 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -21,7 +21,7 @@ facilitating autonomous traffic management.
 
 import heapq
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from src.object.zone import Zone
 from src.object.utils.type import ZoneType
@@ -129,7 +129,7 @@ class PathFinding():
         return []
 
     def _create_node(self, position: str, cost: float = float('inf'),
-                     parent: Dict = None) -> Dict[str, str | float | Dict]:
+                     parent: Dict[str, Any] | None = None) -> Dict[str, Any]:
         """
         Creates a dictionary representing a pathfinding node.
 
@@ -148,7 +148,7 @@ class PathFinding():
             "parent": parent
         }
 
-    def _get_valid_neighbors(self, position: str) -> Dict[str, int]:
+    def _get_valid_neighbors(self, position: str) -> Dict[str, float]:
         """
         Retrieves all traversable neighbors and their specific entry costs.
 
@@ -162,7 +162,7 @@ class PathFinding():
             Dict[str, float]: A dictionary mapping neighbor names to their
                               traversal costs.
         """
-        valid_neighbors = {}
+        valid_neighbors: Dict[str, float] = {}
 
         for neighbor in self.connect_map[position]:
 
@@ -178,7 +178,7 @@ class PathFinding():
 
         return valid_neighbors
 
-    def _calculte_weight(self, position: str, cost: int) -> None:
+    def _calculte_weight(self, position: str, cost: float) -> None:
         """
         Assigns the calculated cumulative cost to the physical Zone object.
 

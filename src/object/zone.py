@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 13:43:53 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 11:47:08 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 13:55:33 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -93,7 +93,7 @@ class Zone():
             self._write_metadata(raw_metadatata)
 
         # Weight of a visited zone used by the algorithm
-        self.weight = 0
+        self.weight = 0.0
 
         # List of drones on the zone
         self.drones_on_it: List[Drone] = []
