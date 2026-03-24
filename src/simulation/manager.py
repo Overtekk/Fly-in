@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 13:58:25 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 15:08:58 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -22,7 +22,7 @@ import re
 import arcade
 import argparse
 
-from typing import Dict, List
+from typing import Dict, List, Optional, Tuple
 
 from src.utils.ui import Colors, Display
 from src.maps_parser.parser import MapModel
@@ -93,15 +93,15 @@ class Manager():
         self.running = False
         self.turns = 0
 
-        self.log_turn = []
-        self.log_output = {}
+        self.log_turn: List[str] = []
+        self.log_output: Dict[int, List[str]] = {}
         self.line = 0
 
         # Init Object
         self.drones: Dict[int, Drone] = {}
         self.zones: Dict[str, Zone] = {}
-        self.start_name = None
-        self.end_name = None
+        self.start_name: str | None = None
+        self.end_name: str | None = None
 
         self._create_drones()
         self._create_zone(self.connection_map)
@@ -118,7 +118,13 @@ class Manager():
 
         self._add_drones_to_spawn()
         path = PathFinding(self.connection_map, self.zones)
-        path.find_path(self.end_name)
+
+        if self.end_name:
+            path.find_path(self.end_name)
+        else:
+            Display.error("Error in pathfinding. Can't find end zone.")
+            return
+
         self._init_renderer()
 
     def simulate_one_turn(self) -> None:
@@ -144,23 +150,23 @@ class Manager():
 
         for drone in sorted_drone_list:
             flag_moving = False
-            zone_to_move = None
-            neighbors_list = []
+            zone_to_move: Optional[Zone] = None
+            neighbors_list: List[Zone] = []
 
             # Skip turn if drone have finish
             if drone.finish:
                 continue
 
-            if drone.is_moving:
-                loc_splitted = drone.current_location.split("-")
+            loc = drone.get_location()
+            if drone.is_moving and loc:
+                loc_splitted = loc.split("-")
                 zone_to_move = self.zones[loc_splitted[1]]
                 flag_moving = True
                 drone.is_moving = False
 
-            if not flag_moving:
+            if not flag_moving and loc:
                 # Check neighbors zone of the drone location and add it to list
-                for neighbors in (self.zones[drone.get_location()]
-                                  .get_next_zones()):
+                for neighbors in self.zones[loc].get_next_zones():
                     # Skip if zone is blocked
                     if (self.zones[neighbors].metadata_zone_type
                             == ZoneType.BLOCKED):
@@ -170,7 +176,7 @@ class Manager():
                         continue
                     # Skip if next have have bigger weight
                     if (self.zones[neighbors].weight
-                            >= self.zones[drone.get_location()].weight):
+                            >= self.zones[loc].weight):
                         continue
 
                     neighbors_list.append(self.zones[neighbors])
@@ -199,28 +205,30 @@ class Manager():
 
                 # Move the drone to a connection
                 if drone.is_moving:
-                    for connection in zone_to_move.connection:
-                        if connection == self.zones[drone.get_location()].name:
-                            (self.zones[drone.get_location()].
-                                remove_drone(drone))
-                            drone.update_connection(connection, zone_to_move)
+                    for conn_name in zone_to_move.connection:
+                        if conn_name == self.zones[loc].name:
+                            self.zones[loc].remove_drone(drone)
+                            drone.update_connection(conn_name, zone_to_move)
                             (self._save_move_in_log(
-                                drone, zone_to_move, connection
+                                drone, zone_to_move, conn_name
                             ))
                             break
                     continue
 
             # Update drone location
             if not flag_moving:
-                self.zones[drone.get_location()].remove_drone(drone)
+                curr_loc = drone.get_location()
+                if curr_loc:
+                    self.zones[curr_loc].remove_drone(drone)
 
-            drone.update_location(zone_to_move)
-            drone.visited_zones.append(zone_to_move)
-            zone_to_move.add_drone(drone)
-            zone_to_move.reserved_slot -= 1
+            if zone_to_move:
+                drone.update_location(zone_to_move)
+                drone.visited_zones.append(zone_to_move)
+                zone_to_move.add_drone(drone)
+                zone_to_move.reserved_slot -= 1
 
-            # Add the move to the log list
-            self._save_move_in_log(drone, self.zones[drone.get_location()])
+                # Add the move to the log list
+                self._save_move_in_log(drone, zone_to_move)
 
         # Store the line once the turn is finished
         if len(self.log_turn) > 0:
@@ -228,7 +236,8 @@ class Manager():
             self.log_output[self.line] = line_log
 
         # Stop the simulation if all drones are on the exit
-        if self.zones[self.end_name].check_if_goal_full(self.raw_nb_drones):
+        if (self.end_name and self.zones[self.end_name]
+                .check_if_goal_full(self.raw_nb_drones)):
             self.running = False
             output_manager = LogOutput(self.map_name, self.log_output)
             output_manager.write_log()
@@ -260,7 +269,7 @@ class Manager():
 
         return map_info
 
-    def _get_drone_weight(self, drone: Drone) -> float:
+    def _get_drone_weight(self, drone: Drone) -> Tuple[float, float]:
         """
         Calculates the sorting priority of a drone for turn resolution.
 
@@ -276,12 +285,16 @@ class Manager():
         """
         location = drone.get_location()
 
-        if "-" in location:
+        if location and "-" in location:
             split_location = location.split("-")
             return (self.zones[split_location[1]].weight,
-                    self._get_drone_waiting(drone))
+                    float(self._get_drone_waiting(drone)))
 
-        return (self.zones[location].weight, self._get_drone_waiting(drone))
+        if location:
+            return (self.zones[location].weight,
+                    float(self._get_drone_waiting(drone)))
+
+        return (0.0, 0.0)
 
     def _get_drone_waiting(self, drone: Drone) -> float:
         """
@@ -297,14 +310,17 @@ class Manager():
         """
         location = drone.get_location()
 
-        if "-" in location:
+        if location and "-" in location:
             split_location = location.split("-")
-            return self.zones[split_location[1]].get_nb_drones()
+            return float(self.zones[split_location[1]].get_nb_drones())
 
-        return self.zones[location].get_nb_drones()
+        if location:
+            return float(self.zones[location].get_nb_drones())
+
+        return 0.0
 
     def _save_move_in_log(self, drone_id: Drone, destination: Zone,
-                          connection: Zone = None) -> None:
+                          connection: Optional[str] = None) -> None:
         """
         Formats and records a drone's movement string into the turn log buffer.
 
@@ -345,9 +361,9 @@ class Manager():
             Renderer(self.zones, self, self.drones, self.connection_map)
             arcade.run()
         except (OSError, FileNotFoundError) as e:
-            Display.error(e)
+            Display.error(str(e))
             arcade.exit()
-            return 1
+            return
         # except Exception as e:
         #     Display.error(e)
         #     arcade.exit()
@@ -385,7 +401,7 @@ class Manager():
             self._add_to_zone(value, connection_map.get(value[0], []), "hub")
 
     def _add_to_zone(self, value: List[str], connection: List[str],
-                     type: str) -> None:
+                     zone_type: str) -> None:
         """
         Helper method to parse zone strings and create a Zone instance.
 
@@ -395,23 +411,24 @@ class Manager():
             type (str): The functional type of the zone
                         (e.g., 'start', 'end', or None).
         """
-        if type not in ["start", "end"]:
-            type = None
+        type_param = zone_type if zone_type in ["start", "end"] else "hub"
+
         if len(value) == 4:
             self.zones[value[0]] = Zone(value[0], int(value[1]), int(value[2]),
-                                        value[3], connection, type)
+                                        value[3], connection, type_param)
         else:
             self.zones[value[0]] = Zone(value[0], int(value[1]), int(value[2]),
-                                        None, connection, type)
+                                        None, connection, type_param)
 
     def _add_drones_to_spawn(self) -> None:
         """
         Places all instantiated drones into the designated starting zone.
         """
-        for drone in self.drones.values():
-            self.zones[self.start_name].add_drone(drone)
-            drone.update_location(self.zones[self.start_name])
-            drone.visited_zones.append(self.start_name)
+        if self.start_name:
+            for drone in self.drones.values():
+                self.zones[self.start_name].add_drone(drone)
+                drone.update_location(self.zones[self.start_name])
+                drone.visited_zones.append(self.zones[self.start_name])
 
     def _debug_get_data(self) -> None:
         """
@@ -428,7 +445,8 @@ class Manager():
         """
         self.turns += 1
         pos = self.drones[1].get_location()
-        next_zone = self.connection_map[pos][0]
-        self.drones[1].update_location(self.zones[next_zone])
-        self.zones[pos].remove_drone(self.drones[1])
-        self.zones[next_zone].add_drone(self.drones[1])
+        if pos:
+            next_zone = self.connection_map[pos][0]
+            self.drones[1].update_location(self.zones[next_zone])
+            self.zones[pos].remove_drone(self.drones[1])
+            self.zones[next_zone].add_drone(self.drones[1])

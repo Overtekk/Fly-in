@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 14:33:53 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 14:47:18 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -331,8 +331,8 @@ class Renderer(arcade.Window):
     def _calculate_line_to_draw(self) -> None:
         for zone_a, neighbors in self.connection_map.items():
             for zone_b in neighbors:
-                nodes = sorted([zone_a, zone_b])
-                connection_draw = (nodes, nodes)
+                node_a, node_b = sorted([zone_a, zone_b])
+                connection_draw = (node_a, node_b)
 
                 if connection_draw not in self.draw_lines:
                     coords_a = self.zone_coords[zone_a]

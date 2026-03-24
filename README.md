@@ -217,5 +217,6 @@ todo
 - **Help with code quality** ⎯ do better readable codes, avoid code repetition, help with some code quality.
 - **As a talking board** ⎯ dicussion over code behavior, design choices (which is better), code refactoring to do better code in the future
 - **Writing docstrings** ⎯ help to write clear and concise docstrings. I tried to write all docstrings but sometimes, I don't know how to write what I want (because docs is very important), so IA can help me do better things
+- **Help with mypy** ⎯ because I hate mypy and sometimes I don't understand the error (too strict.....)
 
 ---
