@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 15:08:58 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 15:16:45 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -28,7 +28,7 @@ from src.utils.ui import Colors, Display
 from src.maps_parser.parser import MapModel
 from src.object.drones import Drone
 from src.object.zone import Zone
-from src.object.zone import ZoneType
+from src.object.utils.type import ZoneType
 from src.simulation.pathfinding import PathFinding
 from src.simulation.output import LogOutput
 from src.graphics.renderer import Renderer
@@ -172,7 +172,7 @@ class Manager():
                             == ZoneType.BLOCKED):
                         continue
                     # Skip if zone is already visited by the drone
-                    if self.zones[neighbors].name in drone.visited_zones:
+                    if self.zones[neighbors] in drone.visited_zones:
                         continue
                     # Skip if next have have bigger weight
                     if (self.zones[neighbors].weight

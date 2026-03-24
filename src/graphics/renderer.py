@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 14:47:18 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 15:24:46 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -73,9 +73,12 @@ class Renderer(arcade.Window):
         self.connection_map = connection_map
         self.manager = manager
 
-        self.zone_sprites_list: arcade.SpriteList = arcade.SpriteList()
-        self.drone_sprites_list: arcade.SpriteList = arcade.SpriteList()
-        self.ui_sprites_list: arcade.SpriteList = arcade.SpriteList()
+        self.zone_sprites_list: arcade.SpriteList[ZoneSprite] = (
+                                                        arcade.SpriteList())
+        self.drone_sprites_list: arcade.SpriteList[DroneSprite] = (
+                                                        arcade.SpriteList())
+        self.ui_sprites_list: arcade.SpriteList[arcade.Sprite] = (
+                                                        arcade.SpriteList())
 
         self.zone_coords: Dict[str, Tuple[float, float]] = {}
         self.line_to_draw: List[Tuple[Tuple[float, float],
