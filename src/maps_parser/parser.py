@@ -6,22 +6,24 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 17:33:05 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/16 09:54:11 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 11:28:57 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 """
-This function does two things at a time.
-Every map in the "maps" folder will be scanned and added to two dictionnaries.
-If a map is valid, meaning all data are clean, it will be stored in the main
-dictionnary used by the program. Otherwise, invalid maps are stored elsewhere
-but all data errors are stocked to fix it later.
+Map parsing and validation module.
+
+This module scans the "maps" folder, processes map configuration files, and
+categorizes them. Valid maps are parsed into Pydantic models and stored for
+the simulation, while invalid maps are isolated with their specific parsing
+errors preserved for user correction.
 """
 
 import re
 
 from pathlib import Path
-from typing import Any, Dict, List, Self, Set
+from typing import Any, Dict, List, Set
+from typing_extensions import Self
 
 from pydantic import BaseModel, Field, ValidationError, model_validator
 
@@ -31,12 +33,16 @@ from src.utils.errors import MapError
 
 class Maps():
     """
-    Class validating and stocking maps for the program.
+    Manager class responsible for locating, validating, and storing maps.
     """
+
     def __init__(self) -> None:
         """
-        Initialize "maps" folders and extension for maps, dictionnary for valid
-        and invalids maps and launch the process of validation.
+        Initializes the map manager.
+
+        Sets up the root directory path, file extension filters, and internal
+        dictionaries for categorizing valid and invalid maps. Automatically
+        triggers the map processing routine upon instantiation.
         """
         self.root = Path("maps")
         self.extension = "*.txt"
@@ -47,14 +53,15 @@ class Maps():
         self._add_maps_to_list()
 
     def _process_map(self, file_path: Path, category: str) -> None:
-        """ Internal helper to validate a map and add it to the correct
-            dictionary.
+        """
+        Internal helper to validate a map and assign it to the correct
+        category.
 
         Args:
-            file_path (Path): path of the file to validate.
-            category (str): category of the map.
+            file_path (Path): The absolute or relative path to the map file.
+            category (str): The folder name acting as the map's category.
         """
-
+        # Create list for the dictionnary if not exist
         if category not in self.maps_dict:
             self.maps_dict[category] = []
         if category not in self.invalid_maps_dict:
@@ -66,17 +73,20 @@ class Maps():
             self.maps_dict[category].append(file_path.stem)
             self.connection_map[file_path.stem] = parsed
         # If map is invalid, we add it to the "invalid_maps_dict" with
-        # errors list
+        # all errors listed
         except MapError as e:
             self.invalid_maps_dict[category].append((file_path.stem, str(e)))
-        # Catch weird errors
+
         except Exception as e:
             raise MapError(f"Error processing {file_path}: {e}")
 
     def _cleanup_dictionaries(self) -> None:
         """
-        Removes categories that don't contain any maps (valid or invalid) to
-        keep the UI menu clean.
+        Removes empty categories from the dictionaries.
+
+        Iterates through both valid and invalid map dictionaries to delete
+        any category keys that do not contain any parsed maps, ensuring a
+        clean state for the user interface menu.
         """
         all_categories = (set(list(self.maps_dict.keys()) +
                               list(self.invalid_maps_dict.keys())))
@@ -92,13 +102,18 @@ class Maps():
                 del self.invalid_maps_dict[category]
 
     def _add_maps_to_list(self) -> None:
-        """Add all maps found in the "maps" folder into a dictionnary. Valid
-           maps goes to the main dictionnary used by the program, invalids
-           goes to an other dictionnary to know errors.
+        """
+        Scans the maps directory and processes all discovered text files.
+
+        Iterates through subdirectories to categorize maps, and processes
+        root-level text files under an "other" category. Sorts the results
+        alphabetically and cleans up empty categories.
 
         Raises:
-            MapError: "maps" folder is not found.
-            MapError: "maps" folder can't be read (permission error).
+            MapError: If the "maps" directory does not exist or is not a
+                      directory.
+            MapError: If there are permission issues reading the directory.
+            MapError: If an unexpected critical error occurs during traversal.
         """
         if not self.root.exists() or not self.root.is_dir():
             raise MapError(f"The maps directory '{self.root}' was not found. "
@@ -150,13 +165,17 @@ class Maps():
 
 class MapModel(BaseModel):
     """
-    Class for validating data of map.
+    Data validation model representing a fully parsed simulation map.
 
-    nb_drones: number of drones (positive int, need at least 1).
-    start_hub: start where drones will spawn.
-    end_hub: end where drones will finish their journey.
-    hub: list of hubs where drones can pass.
-    connection: list of connections between zones.
+    Attributes:
+        nb_drones (int): The total number of drones to spawn (must be >= 1).
+        start_hub (str): The raw string definition of the starting zone.
+        end_hub (str): The raw string definition of the destination zone.
+        hub (List[str]): A list of raw string definitions for intermediate
+                         zones.
+        connection (List[str]): A list of raw string definitions for paths.
+        connection_map (Dict[str, List[str]]): A parsed adjacency list mapping
+                                               zones to their neighbors.
     """
     nb_drones: int = Field(ge=1)
     start_hub: str
@@ -167,23 +186,25 @@ class MapModel(BaseModel):
 
     @classmethod
     def is_map_valid(cls, file: Path) -> "MapModel":
-        """Check if a map is valid by checking all informations. If a map is
-        not valid, the method will store the error and the line to tell the
-        user what was wrong.
+        """
+        Parses a map text file and validates its content line by line.
+
+        Extracts keys and values, checks formatting syntax, ensures unique
+        zones, and validates raw metadata strings before instantiating the
+        Pydantic model.
 
         Args:
-            file (Path): the path to the file containing informations about the
-                         map.
+            file (Path): The file path to the map configuration text file.
 
         Raises:
-            MapError: if the file is not found.
-            MapError: if the permissions are wrong.
-            MapError: unexpected error.
+            MapError: If the file extension is not '.txt'.
+            MapError: If the file is not found or lacks read permissions.
+            MapError: If parsing fails due to invalid syntax, duplicates, or
+                      missing required parameters.
 
         Returns:
-            MapModel: the map with all verified data.
+            MapModel: A validated instance of the map configuration.
         """
-        # Check if file extension is '.txt' if user manually launch the script.
         if file.suffix != ".txt":
             raise MapError(f"Invalid file extension '{file.suffix}'. Map must "
                            "be a '.txt' file.")
@@ -191,8 +212,9 @@ class MapModel(BaseModel):
         valid_map_key: Set[str] = {
             "nb_drones", "start_hub", "end_hub", "hub", "connection"
         }
-        list_key: Set[str] = {"hub", "connection"}
-
+        list_key: Set[str] = {
+            "hub", "connection"
+        }
         valid_zones = []
         existing_connection: List[str] = []
 
@@ -269,7 +291,7 @@ class MapModel(BaseModel):
                                                    "that is a valid int.")
 
                             if len(zone_data) == 4:
-                                tmp_error = cls._check_metada(zone_data[3],
+                                tmp_error = cls._check_metadata(zone_data[3],
                                                               "zone")
                                 if tmp_error:
                                     for e in tmp_error:
@@ -304,7 +326,7 @@ class MapModel(BaseModel):
                                 existing_connection.append(inversed)
 
                             if len(zone_data) == 2:
-                                tmp_error = cls._check_metada(zone_data[1],
+                                tmp_error = cls._check_metadata(zone_data[1],
                                                               "connection")
                                 if tmp_error:
                                     for e in tmp_error:
@@ -340,8 +362,10 @@ class MapModel(BaseModel):
 
         except FileNotFoundError:
             raise MapError(f"File not found: {file}")
+
         except PermissionError:
             raise MapError(f"Can't read file, check permissions: {file}")
+
         except Exception as e:
             raise MapError(f"Critical error reading file {file.name}: {e}")
 
@@ -381,15 +405,18 @@ class MapModel(BaseModel):
     @model_validator(mode='after')
     def _validate_coords(self) -> Self:
         """
-        Check if coordinates are not duplicated between start and end. Also,
-        check if a hub don't have the same coordinates than the start.
+        Validates the logical placement of zones on the grid.
+
+        Ensures that the start and end hubs do not share the same coordinates,
+        and that no intermediate hub overlaps with the entry or exit points.
 
         Raises:
-            MapError: if start and end are not unique.
-            MapError: if a hub have the same coordinates that the start.
+            MapError: If start and end coordinates are identical.
+            MapError: If any hub shares coordinates with the start or end
+                      zones.
 
         Returns:
-            Self: the MapModel verified.
+            MapModel: The validated MapModel instance.
         """
         seen_coords: set[tuple[int, int]] = set()
 
@@ -433,15 +460,21 @@ class MapModel(BaseModel):
 
     @model_validator(mode='after')
     def _validate_connection(self) -> Self:
-        """Check all connections to know if the start or the end are not
-        missing. Also check if a path between start and end exist.
+        """
+        Validates the overall pathfinding integrity of the mapped connections.
+
+        Populates the connection_map dictionary, checks if start and end zones
+        are linked to the network, verifies they are not defined as blocked,
+        and runs a BFS traversal to ensure a viable path exists from
+        start to end.
 
         Raises:
-            MapError: If start or end does not exist.
-            MapError: If there is no connectio between start and end.
+            MapError: If no start or end connection is found.
+            MapError: If the start or end hub is explicitly blocked.
+            MapError: If no continuous path exists between start and end.
 
         Returns:
-            Self: the MapModel verified.
+            MapModel: The validated MapModel instance.
         """
         all_connections = self.connection
 
@@ -507,13 +540,15 @@ class MapModel(BaseModel):
 
     @staticmethod
     def _check_valid_zones(valid_zones: str) -> bool:
-        """Method to check if a zone does not have an error in its name.
+        """
+        Validates the string formatting of a zone name.
 
         Args:
-            valid_zones (str): the name of the zone.
+            valid_zones (str): The raw string identifier for the zone.
 
         Returns:
-            bool: True if no error is found.
+            bool: True if the string is well-formed (no spaces or dashes),
+                  False otherwise.
         """
         if (" " in valid_zones or "-" in valid_zones or
                 not isinstance(valid_zones, str)):
@@ -522,13 +557,14 @@ class MapModel(BaseModel):
 
     @staticmethod
     def _check_zone_coords(coord: str) -> bool:
-        """Method to check if coordinates are of type int.
+        """
+        Validates that a coordinate string can be converted to an integer.
 
         Args:
-            coords (str): the coordinate to check.
+            coord (str): The coordinate string to evaluate.
 
         Returns:
-            bool: True if no error is found.
+            bool: True if it can be safely cast to int, False otherwise.
         """
         try:
             int(coord)
@@ -537,18 +573,23 @@ class MapModel(BaseModel):
             return False
 
     @staticmethod
-    def _check_metada(metada: str, type: str) -> List[str]:
-        """Check if metada is correct (good syntax, value, etc...)
+    def _check_metadata(metada: str, type: str) -> List[str]:
+        """
+        Checks if metadata string is correctly formatted and contains valid
+        values.
+
+        Parses a raw metadata string (e.g., '[color=red max_drones=5]') and
+        validates the keys and values based on the component type ('zone' or
+        'connection').
 
         Args:
-            metada (str): the metada to check.
-            definition (str): the type of metadata to check.
-
-        Raises:
-            ValueError: if int are negatives.
+            metada (str): The raw metadata string to parse.
+            type (str): The context of the metadata ('zone' or 'connection').
 
         Returns:
-            List: a list with all errors found.
+            List[str]: A list containing all error messages found during
+                       parsing. Returns an empty list if the metadata is
+                       fully valid.
         """
         error_list = []
         valid_zone_metadata = {"zone", "color", "max_drones"}
@@ -608,16 +649,23 @@ class MapModel(BaseModel):
     @staticmethod
     def _check_connection(connection_name: str, existing_connection: List[str],
                           valid_zones: List[str]) -> List[str]:
-        """Method to check if a connection is valid (good syntax,
-        no duplication, etc...)
+        """
+        Validates the syntax and referential integrity of a connection string.
+
+        Checks if the connection string correctly links two existing zones
+        using a dash separator, and ensures no duplicate links are formed.
 
         Args:
-            connection_name (str): the connection to check.
-            existing_connection (List[str]): a list of all connections.
-            valid_zones (List[str]): a list of all zones.
+            connection_name (str): The raw connection string
+                                   (e.g., 'hub1-hub2').
+            existing_connection (List[str]): A list of already established
+                                             connection names.
+            valid_zones (List[str]): A list of previously validated zone names.
 
         Returns:
-            List: a list with all errors found.
+            List[str]: A list containing all error messages found during
+                       parsing. Returns an empty list if the connection string
+                       is fully valid.
         """
         error_list = []
 

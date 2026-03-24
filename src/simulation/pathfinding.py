@@ -6,9 +6,18 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/07 22:15:21 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/19 15:05:30 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 11:59:30 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
+"""
+Pathfinding and distance field calculation module.
+
+This module implements a Dijkstra-based algorithm that calculates a
+distance field (or heat map) from the destination hub backwards to all
+other reachable zones. This allows drones to navigate dynamically by
+always choosing the neighboring zone with the lowest cost weight,
+facilitating autonomous traffic management.
+"""
 
 import heapq
 
@@ -19,12 +28,50 @@ from src.object.utils.type import ZoneType
 
 
 class PathFinding():
+    """
+    Pathfinding manager to calculate movement weights across the map.
+
+    Instead of calculating a single fixed path for one drone, this class
+    evaluates the entire map from the goal outwards, assigning a traversal
+    cost (weight) to each zone based on distance and zone types.
+
+    Attributes:
+        connect_map (Dict[str, List[str]]): An adjacency list of the map's
+                                            connections.
+        zones (Dict[str, Zone]): A dictionary of all Zone objects mapped by
+                                 their names.
+    """
+
     def __init__(self, connect_map: Dict[str, List[str]],
                  zones: Dict[str, Zone]) -> None:
+        """
+        Initializes the PathFinding instance.
+
+        Args:
+            connect_map (Dict[str, List[str]]): Adjacency list mapping zones to
+                                                neighbors.
+            zones (Dict[str, Zone]): Dictionary of instantiated Zone objects.
+        """
         self.connect_map = connect_map
         self.zones = zones
 
-    def find_path(self, start: str, goal: str) -> List[str]:
+    def find_path(self, goal: str) -> List[str]:
+        """
+        Generates a distance field by assigning cost weights to all zones.
+
+        Uses a priority queue to explore the map starting from the goal node
+        and radiating outwards. It updates the internal `weight` attribute of
+        each Zone object, which the drones will later use to make routing
+        decisions.
+
+        Args:
+            goal (str): The destination zone name acting as the origin of the
+                        gradient.
+
+        Returns:
+            List[str]: Currently returns an empty list, as the primary purpose
+                       is side-effecting the Zone weights for the flow field.
+        """
         goal_node = self._create_node(
             position=goal,
             cost=0
@@ -83,6 +130,18 @@ class PathFinding():
 
     def _create_node(self, position: str, cost: float = float('inf'),
                      parent: Dict = None) -> Dict[str, str | float | Dict]:
+        """
+        Creates a dictionary representing a pathfinding node.
+
+        Args:
+            position (str): The name of the zone.
+            cost (float): The cumulative cost to reach this node.
+            parent (Dict[str, Any] | None): The preceding node in the path
+                                            structure.
+
+        Returns:
+            Dict[str, Any]: A structured dictionary containing node data.
+        """
         return {
             "position": position,
             "cost": cost,
@@ -90,6 +149,19 @@ class PathFinding():
         }
 
     def _get_valid_neighbors(self, position: str) -> Dict[str, int]:
+        """
+        Retrieves all traversable neighbors and their specific entry costs.
+
+        Filters out blocked zones and applies specific cost modifiers based
+        on the zone's metadata type (e.g., restricted, priority).
+
+        Args:
+            position (str): The name of the current zone being evaluated.
+
+        Returns:
+            Dict[str, float]: A dictionary mapping neighbor names to their
+                              traversal costs.
+        """
         valid_neighbors = {}
 
         for neighbor in self.connect_map[position]:
@@ -107,14 +179,11 @@ class PathFinding():
         return valid_neighbors
 
     def _calculte_weight(self, position: str, cost: int) -> None:
+        """
+        Assigns the calculated cumulative cost to the physical Zone object.
+
+        Args:
+            position (str): The name of the zone to update.
+            cost (float): The final calculated distance weight from the goal.
+        """
         self.zones[position].weight = cost
-
-    # def _reconstruct_path(self, goal_node: Dict) -> List[str]:
-    #     path = []
-    #     current = goal_node
-
-    #     while current is not None:
-    #         path.append(current["position"])
-    #         current = current["parent"]
-
-    #     return path[::-1]

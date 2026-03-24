@@ -6,10 +6,9 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:28:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 10:49:11 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 10:55:42 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
-
 """
 Entry point for the program. It will check arguments and parse it. Call the
 needeed class to check if the map is valid and launch the simulation.

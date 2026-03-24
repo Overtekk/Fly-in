@@ -6,10 +6,9 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/02 11:44:46 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/17 18:43:47 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 10:55:48 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
-
 """
 Dictionary mapping lowercase color names to their Hex representation.
 

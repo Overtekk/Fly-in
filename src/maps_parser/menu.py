@@ -6,9 +6,13 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 18:48:26 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/21 15:20:45 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 11:12:12 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
+"""
+Function to show a menu to the user with all maps availables and also maps
+that containts errors so the user can correct them.
+"""
 
 import re
 import os
@@ -21,7 +25,27 @@ from src.maps_parser.parser import MapModel, Maps
 
 
 def print_menu(maps: Maps) -> Tuple[str, MapModel]:
+    """Displays an interactive terminal menu for map selection.
+
+    Navigates through available map categories, allows the user to inspect
+    parsing errors from invalid map files, and handles the final selection
+    of a valid map for the simulation.
+
+    Args:
+        maps (Maps): An object containing categorized valid maps and a
+                     dictionary of invalid maps with their respective
+                     parsing errors.
+
+    Returns:
+        Tuple[str, MapModel]: A tuple containing the file name of the
+                              selected map and its parsed MapModel object.
+                              (Note: Returns the integer 0 if the user
+                              chooses to exit the application).
+    """
+
+    # Constant to defines the width of the menu
     WIDTH = 40
+    # Define the order of categories
     order = ["easy", "medium", "hard", "other", "custom", "challenger"]
 
     available_categories = list(maps.maps_dict.keys())
@@ -102,6 +126,7 @@ def print_menu(maps: Maps) -> Tuple[str, MapModel]:
 
     curr_category = None
 
+    # Main loop the show the menu until a map is selected or the user leave
     while True:
         user_input = None
         choice = None

@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/21 16:37:09 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 12:01:49 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -29,19 +29,20 @@ class Manager():
     def __init__(self, map_config: MapModel,
                  connection_map: Dict[str, List[str]],
                  args: List[str], map_name: str) -> None:
-        # Init Raw
-        self.cfg = map_config
+        # Init from map_config
         self.raw_nb_drones = map_config.nb_drones
         self.raw_start_hub = map_config.start_hub
         self.raw_end_hub = map_config.end_hub
         self.raw_hubs = map_config.hub
         self.raw_connections = map_config.connection
+
         self.connection_map = connection_map
         self.args = args
         self.map_name = map_name
 
         self.running = False
         self.turns = 0
+
         self.log_turn = []
         self.log_output = {}
         self.line = 0
@@ -51,14 +52,16 @@ class Manager():
         self.zones: Dict[str, Zone] = {}
         self.start_name = None
         self.end_name = None
+
         self._create_drones()
         self._create_zone(self.connection_map)
 
     def run(self) -> None:
-        print("=== Starting Simulation ===")
+        print(f"{Colors.LIGHT_CYAN}=== Starting Simulation ==={Colors.END}\n")
+
         self._add_drones_to_spawn()
         path = PathFinding(self.connection_map, self.zones)
-        path.find_path(self.start_name, self.end_name)
+        path.find_path(self.end_name)
         self._init_renderer()
 
     def simulate_one_turn(self) -> None:
@@ -86,7 +89,7 @@ class Manager():
 
             if not flag_moving:
                 # Check neighbors zone of the drone location and add it to a list
-                for neighbors in self.zones[drone.get_location()].get_next_zone():
+                for neighbors in self.zones[drone.get_location()].get_next_zones():
                     if (self.zones[neighbors].metadata_zone_type == ZoneType.BLOCKED):
                         continue
                     if self.zones[neighbors].name in drone.visited_zones:

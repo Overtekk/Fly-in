@@ -6,10 +6,11 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/01 18:03:34 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 10:44:50 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 10:55:39 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
-"""Runtime dependency verification utility.
+"""
+Runtime dependency verification utility.
 
 This module provides a mechanism to check for the existence of required
 third-party libraries before the main application attempts to import them,

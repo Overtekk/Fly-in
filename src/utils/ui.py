@@ -6,9 +6,16 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/24 16:56:39 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/19 14:26:57 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 11:03:28 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
+"""
+User Interface utility module for terminal output formatting.
+
+This module provides classes and methods to facilitate the display of colored
+messages, error logging, and loading animations within the terminal interface,
+improving the overall user experience.
+"""
 
 import sys
 import time
@@ -20,12 +27,22 @@ from src.utils.x11_colors import X11_NAMES
 
 
 class Display():
+    """
+    Utility class for standardizing terminal outputs.
+
+    Provides static methods to output formatted error messages to the standard
+    error stream and to display a visual loading animation in the standard
+    output stream.
+    """
+
     @staticmethod
     def error(message: str) -> None:
-        """Print an error message to stderr.
+        """
+        Outputs a formatted and colored error message to the standard error
+        stream.
 
-        Arguments:
-            message (str): message to print.
+        Args:
+            message (str): The specific error description to be displayed.
         """
         prefix = f"{Colors.BOLD}{Colors.RED}Error: {Colors.END}"
         content = f"{Colors.RED}{message}{Colors.END}"
@@ -33,6 +50,17 @@ class Display():
 
     @staticmethod
     def loading(wait_time: float) -> None:
+        """
+        Displays a spinning loading animation in the terminal for a specific
+        duration.
+
+        This method blocks the main execution thread while the animation is
+        playing.
+
+        Args:
+            wait_time (float): The duration in tenths of a second (iterations)
+                               to run the loading animation.
+        """
         animation = "|/-\\"
         index = 0
 
@@ -45,7 +73,12 @@ class Display():
 
 class Colors(str, Enum):
     """
-    Enumeration of ANSI color codes for terminal text coloring.
+    Enumeration of ANSI color codes and text formatting styles.
+
+    This class maps human-readable color names and styling options (like bold
+    or italic) to their corresponding ANSI escape sequences for terminal usage.
+    It also provides utility methods to convert standard X11/CSS color names
+    into TrueColor ANSI sequences or RGB tuples.
     """
 
     WHITE = "\033[37m"
@@ -76,14 +109,17 @@ class Colors(str, Enum):
     @staticmethod
     def get_rgb_code(color_name: str) -> str:
         """
-        Transform a CSS color name (ex: 'lime') in ANSI TrueColor. If a color
-        does not exist, return white.
+        Transforms a CSS/X11 color name into an ANSI TrueColor escape sequence.
+
+        If the provided color name is not found in the X11_NAMES dictionary,
+        it defaults to returning the standard ANSI white sequence.
 
         Args:
-            color_name (str): name of the color
+            color_name (str): The standard name of the target color
+                              (e.g., 'lime').
 
         Returns:
-            str: ANSI color sequence
+            str: The corresponding ANSI TrueColor escape sequence.
         """
         name = color_name.lower()
         if name not in X11_NAMES:
@@ -97,16 +133,21 @@ class Colors(str, Enum):
 
         return f"\033[38;2;{r};{g};{b}m"
 
+    @staticmethod
     def get_rgb_color(color_name: str) -> Set[int]:
         """
-        Transform a CSS color name (ex: 'lime') in rgb code. If a color
-        does not exist, return white.
+        Transforms a CSS/X11 color name into an RGB integer tuple.
+
+        If the provided color name is not found in the X11_NAMES dictionary,
+        it defaults to returning pure white (255, 255, 255).
 
         Args:
-            color_name (str): name of the color
+            color_name (str): The standard name of the target color
+                              (e.g., 'lime').
 
         Returns:
-            set: set of rgb code
+            Tuple[int, int, int]: A tuple containing the Red, Green, and Blue
+                                  integer values.
         """
         name = color_name.lower()
         if name not in X11_NAMES:
@@ -122,7 +163,7 @@ class Colors(str, Enum):
 
     def __str__(self) -> str:
         """
-        Returns the ANSI escape sequence.
+        Returns the raw ANSI escape sequence for the enumeration member.
 
         Returns:
             str: The raw ANSI color code.
