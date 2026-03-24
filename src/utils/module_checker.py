@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/01 18:03:34 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/11 11:48:49 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 10:44:50 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """Runtime dependency verification utility.
@@ -16,7 +16,7 @@ third-party libraries before the main application attempts to import them,
 ensuring a clean error message instead of an import crash.
 """
 
-import importlib.util
+import importlib.metadata
 
 
 def module_checker() -> None:
@@ -31,7 +31,7 @@ def module_checker() -> None:
                              environment.
     """
 
-    required = ['pydantic', 'pygame-ce']
+    required = ['pydantic', 'arcade']
     missing: list[str] = []
 
     for package_name in required:
