@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 15:24:46 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 15:27:29 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -89,8 +89,8 @@ class Renderer(arcade.Window):
         self.drones_moving = False
         self.started = False
 
-        self.camera: arcade.camera.Camera2D
-        self.static_camera: arcade.camera.Camera2D
+        self.camera: arcade.camera.Camera2D = arcade.camera.Camera2D()
+        self.static_camera: arcade.camera.Camera2D = arcade.camera.Camera2D()
         self.camera_zoom = 1.0
         self.default_camera_x, self.default_camera_y = self.camera.position
 
