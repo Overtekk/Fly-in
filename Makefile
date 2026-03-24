@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:22:36 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/19 14:39:39 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 10:39:37 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -19,10 +19,11 @@ FLAKE8		=	uv run flake8
 MYPY 		=	uv run mypy
 MYPY_FLAGS	=	--warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 SRC_MODULE	=	src
-PY_FILE		=	run.py
 INSTALL_UV	=	curl -LsSf https://astral.sh/uv/install.sh | sh
 CHECK_UV	=	command -v uv
-ARGS		=	maps/easy/01_linear_path.txt
+
+# Launch with a custom map. Use "make run M=<path to map>"
+M			=
 
 # ===================
 # =		RULES		=
@@ -42,12 +43,11 @@ install:
 			uv sync
 
 run:
-			$(PYTHON) -m $(SRC_MODULE)
+			$(PYTHON) -m $(SRC_MODULE) $(M)
 
-run-script:
-			$(PYTHON) run.py $(ARGS)
 run-debug:
-			$(PYTHON) run.py $(ARGS) --debug
+			$(PYTHON) -m $(SRC_MODULE) $(M) --debug
+
 debug:		install
 			@echo "$(BGREEN)Running the main script in debug mode...$(RESET)"
 			$(PDB) -m $(SRC_MODULE)
@@ -64,16 +64,16 @@ lint:
 			@clear
 			@echo "$(BMAGENTA)Running standard linting...$(RESET)"
 			@status=0; \
-			$(FLAKE8) $(SRC_MODULE) $(PY_FILES) || status=$$?; \
-			$(MYPY) $(SRC_MODULE) $(PY_FILES) $(MYPY_FLAGS) || status=$$?; \
+			$(FLAKE8) $(SRC_MODULE) || status=$$?; \
+			$(MYPY) $(SRC_MODULE) $(MYPY_FLAGS) || status=$$?; \
 			exit $$status
 
 lint-strict:
 			@clear
 			@echo "$(BMAGENTA)Running strict linting...$(RESET)"
 			@status=0; \
-			$(FLAKE8) $(SRC_MODULE) $(PY_FILES) || status=$$?; \
-			$(MYPY) $(SRC_MODULE) $(PY_FILES) $(MYPY_FLAGS) --strict || status=$$?; \
+			$(FLAKE8) $(SRC_MODULE) || status=$$?; \
+			$(MYPY) $(SRC_MODULE) $(MYPY_FLAGS) --strict || status=$$?; \
 			exit $$status
 
 delete-uv:

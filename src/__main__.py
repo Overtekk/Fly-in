@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:28:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/21 17:12:33 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 10:49:11 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -23,13 +23,12 @@ from pathlib import Path
 from src.utils.ui import Display
 from src.utils.errors import ArgumentError, MapError
 from src.utils.module_checker import module_checker
-from src.simulation.manager import Manager
 
 
 def main() -> int:
     try:
 
-        # Check if a module is missing
+        # Check if a module is missing if user don't use make or uv
         try:
             module_checker()
         except ModuleNotFoundError as e:
@@ -38,7 +37,9 @@ def main() -> int:
 
         from src.maps_parser.parser import Maps, MapModel
         from src.maps_parser.menu import print_menu
+        from src.simulation.manager import Manager
 
+        # Init the paser and add arguments to it
         parser = argparse.ArgumentParser(
             prog="Fly-in",
             description=("Design an efficient drone routing system that "
@@ -46,7 +47,6 @@ def main() -> int:
                          "while minimizing simulation turns and handling "
                          "movement constraints.")
         )
-
         parser.add_argument(
             "filepath",
             nargs="?",
@@ -60,18 +60,21 @@ def main() -> int:
             action="store_true",
             help="Launch the program with the debug mode, used to test things."
         )
-
         args = parser.parse_args()
 
         # If a map is provided in the argument call validator for only this
-        # map.
+        # map
         if args.filepath is not None:
             map = MapModel.is_map_valid(Path(args.filepath))
             map_name = args.filepath.split("/")
             map_name = map_name[-1]
+        # Otherwise, check the Maps folder and check all maps
         else:
             map_model = Maps()
             map_tuple = print_menu(map_model)
+
+            if not isinstance(map_tuple, tuple):
+                return 0
 
             map_name, map = map_tuple
             map_name += ".txt"
@@ -89,7 +92,6 @@ def main() -> int:
     except (ArgumentError, MapError) as e:
         Display.error(f"{e}")
         return 1
-
     return 0
 
 
