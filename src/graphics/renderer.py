@@ -6,10 +6,9 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/23 18:38:29 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 13:34:58 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
-
 """
 Rendering module for the visual representation of the drones's journey using
 the Arcade library.
@@ -25,7 +24,7 @@ from src.graphics.graphics_settings import (WindowSettings, SpritePath,
 from src.object.drones import Drone
 from src.object.zone import Zone
 from src.object.utils.type import ZoneType
-from src.graphics.sprites import ZoneSprite, DroneSprite, TurnText, WindowInfo
+from src.graphics.sprites import ZoneSprite, DroneSprite, WindowInfo
 
 
 if TYPE_CHECKING:
@@ -107,17 +106,12 @@ class Renderer(arcade.Window):
     def on_draw(self) -> None:
         self.clear()
 
-        # Static camera (no affected by the zoom)
         self.static_camera.use()
         arcade.draw_texture_rect(self.background, arcade.LBWH(
             0, 0, WindowSettings.WIDTH, WindowSettings.HEIGHT))
 
         if not self.started:
             self.starting_text_ui.draw()
-
-        if self.turn_text.turn != self.manager.turns:
-            self.turn_text.update_turn()
-        self.turn_text.draw_ui()
 
         # Main camera (affected by the zoom)
         self.camera.use()
@@ -219,9 +213,6 @@ class Renderer(arcade.Window):
             font_size=22, color=arcade.color.WHITE_SMOKE, font_name="arial"
         )
 
-        # Text : number of turns
-        self.turn_text = TurnText(self.manager)
-
     def _load_sprites(self) -> None:
         if not os.path.exists("src/graphics/sprites/"):
             raise OSError("PATH 'src/graphics/sprites/' does snot exist.")
@@ -256,21 +247,24 @@ class Renderer(arcade.Window):
             window_info_sprite.center_y = self.height - 100
             self.ui_sprites_list.append(window_info_sprite)
 
-            # Create sprites for zones
-            for zone in self.zones_dict.values():
+            self._load_zones_sprites()
+            self._load_drones_sprites()
 
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"Sprite not found in PATH {e}")
+
+    def _load_zones_sprites(self) -> None:
+        for zone in self.zones_dict.values():
                 if zone.is_start:
                     zone_sprite = ZoneSprite(
                         SpritePath.START_HUB, SpriteSetting.ZONE_SCALE, zone,
                         self.manager
                     )
-
                 elif zone.is_end:
                     zone_sprite = ZoneSprite(
                         SpritePath.END_HUB, SpriteSetting.ZONE_SCALE, zone,
                         self.manager
                     )
-
                 else:
                     match zone.metadata_zone_type:
                         case ZoneType.NORMAL:
@@ -298,6 +292,7 @@ class Renderer(arcade.Window):
                                         + SpriteSetting.OFFSET_X)
                 zone_sprite.center_y = ((zone.y * SpriteSetting.SPACING)
                                         + SpriteSetting.OFFSET_Y)
+
                 zone_sprite.label_name_text.x = zone_sprite.center_x
                 zone_sprite.label_name_text.y = zone_sprite.center_y - 30
                 zone_sprite.label_count_text.x = zone_sprite.center_x + 20
@@ -313,15 +308,14 @@ class Renderer(arcade.Window):
                 self.zone_coords[zone.name] = (zone_sprite.center_x,
                                                zone_sprite.center_y)
 
-            # Create sprites for drones
-
-            drone_sprites_anim = [
+    def _load_drones_sprites(self) -> None:
+        drone_sprites_anim = [
                 arcade.load_texture(SpritePath.DRONE_ANIM1),
                 arcade.load_texture(SpritePath.DRONE_ANIM2),
                 arcade.load_texture(SpritePath.DRONE_FINISH)
             ]
 
-            for (id, drone) in self.drones_dict.items():
+        for (id, drone) in self.drones_dict.items():
                 drone_sprite = DroneSprite(SpritePath.DRONE,
                                            SpriteSetting.DRONE_SCALE,
                                            drone, id, drone_sprites_anim)
@@ -334,9 +328,6 @@ class Renderer(arcade.Window):
                 drone_sprite.center_y = ((drone_y * SpriteSetting.SPACING)
                                          + SpriteSetting.OFFSET_Y)
                 self.drone_sprites_list.append(drone_sprite)
-
-        except FileNotFoundError as e:
-            raise FileNotFoundError(f"Sprite not found in PATH {e}")
 
     def _calculate_line_to_draw(self) -> None:
         for zone_a, neighbors in self.connection_map.items():

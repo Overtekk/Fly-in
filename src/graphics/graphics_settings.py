@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/10 20:01:40 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/23 17:50:50 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 13:38:06 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -40,7 +40,7 @@ class SpriteSetting():
     SPACING = 120
     OFFSET_X = 100
     OFFSET_Y = 100
-    DRONE_SPEED = 200.0
+    DRONE_SPEED = 100.0
     ANIM_SPEED = 5
 
 

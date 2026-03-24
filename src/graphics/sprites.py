@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:34:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/23 19:06:27 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/24 13:35:31 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -19,8 +19,7 @@ from arcade.types import PathOrTexture
 from src.object.drones import Drone
 from src.object.zone import Zone
 from src.utils.ui import Colors
-from src.graphics.graphics_settings import (SpriteSetting, WindowSettings,
-                                            WindowAction)
+from src.graphics.graphics_settings import (SpriteSetting, WindowAction)
 
 
 if TYPE_CHECKING:
@@ -175,28 +174,6 @@ class DroneSprite(arcade.Sprite):
             self.texture = self.move_textures[self.cur_textures]
 
             self.time_counter = 0.0
-
-
-class TurnText():
-    def __init__(self, manager: 'Manager') -> None:
-        self.manager = manager
-        self.turn = manager.turns
-
-        self.label_turn_text = arcade.Text(
-            text=f"Turn: {str(self.turn)}", bold=True, italic=False,
-            x=WindowSettings.WIDTH - 125, y=WindowSettings.HEIGHT - 50,
-            anchor_x="center", anchor_y="center",
-            color=arcade.color.WILD_BLUE_YONDER,
-            font_name="arial", font_size=24
-        )
-
-    def update_turn(self) -> None:
-        self.turn = self.manager.turns
-
-        self.label_turn_text.text = f"Turn: {str(self.turn)}"
-
-    def draw_ui(self) -> None:
-        self.label_turn_text.draw()
 
 
 class WindowInfo(arcade.Sprite):
