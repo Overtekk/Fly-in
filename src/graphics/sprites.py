@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:34:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 21:33:46 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/25 11:06:09 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -19,7 +19,8 @@ from arcade.types import PathOrTexture
 from src.object.drones import Drone
 from src.object.zone import Zone
 from src.utils.ui import Colors
-from src.graphics.graphics_settings import (SpriteSetting, WindowAction)
+from src.graphics.graphics_settings import (SpriteSetting, WindowAction,
+                                            FontSettings)
 
 
 if TYPE_CHECKING:
@@ -43,18 +44,16 @@ class ZoneSprite(arcade.Sprite):
 
         # Write zone name
         self.label_name_text = arcade.Text(
-            text=self.zone_name, bold=True, italic=True,
-            x=0, y=0, anchor_x="center", anchor_y="top",
+            text=self.zone_name, x=0, y=0, anchor_x="center", anchor_y="top",
             color=Colors.get_rgb_color(self.zone_data.metadata_color),
-            font_name="arial", font_size=10
+            font_name=FontSettings.PIXELOGIST_NAME, font_size=10
             )
 
         # Write drones count
         self.label_count_text = arcade.Text(
-            text="", bold=True, italic=False,
-            x=0, y=0, anchor_x="left", anchor_y="baseline",
+            text="", x=0, y=0, anchor_x="left", anchor_y="baseline",
             color=arcade.color.FLORAL_WHITE,
-            font_name="arial", font_size=13
+            font_name=FontSettings.PIXELOGIST_NAME, font_size=13
         )
 
         # Write zone weight (for debug mode)
@@ -71,30 +70,28 @@ class ZoneSprite(arcade.Sprite):
                 font_name="arial", font_size=18
             )
 
-    def update_drone_count(self) -> None:
-        nb_drones = len(self.zone_data.drones_on_it)
-
+    def update_drone_count(self, visual_count: int) -> None:
         if self.zone_data.is_start:
-            text_drone = f"{nb_drones}"
+            text_drone = f"{visual_count}"
         elif self.zone_data.is_end:
-            text_drone = f"{nb_drones}"
+            text_drone = f"{visual_count}"
         else:
-            text_drone = f"{nb_drones}/{self.max_drones}"
+            text_drone = f"{visual_count}/{self.max_drones}"
 
         self.label_count_text.text = text_drone
 
     def draw_ui(self) -> None:
 
-        text_width = self.label_name_text.content_width
-        text_height = self.label_name_text.content_height
-        text_x = self.label_name_text.x
-        text_y = self.label_name_text.y
+        # text_width = self.label_name_text.content_width
+        # text_height = self.label_name_text.content_height
+        # text_x = self.label_name_text.x
+        # text_y = self.label_name_text.y
 
-        arcade.draw.draw_lbwh_rectangle_filled(
-            text_x - (text_width / 2) - 1, text_y - text_height - 2.5,
-            text_width + 3, text_height + 0.6,
-            (0, 0, 0, 190)
-            )
+        # arcade.draw.draw_lbwh_rectangle_filled(
+        #     text_x - (text_width / 2) - 1, text_y - text_height - 2.5,
+        #     text_width + 3, text_height + 0.6,
+        #     (0, 0, 0, 190)
+        #     )
 
         self.label_name_text.draw()
         self.label_count_text.draw()
@@ -117,6 +114,7 @@ class DroneSprite(arcade.Sprite):
 
         self.target_x = 0.0
         self.target_y = 0.0
+        self.departure_timer = 0.0
         self.is_moving = False
 
         self.cur_textures = 0
@@ -127,6 +125,10 @@ class DroneSprite(arcade.Sprite):
 
     def on_update(self, delta_time: float) -> None:
         if not self.is_moving:
+            return
+
+        if self.departure_timer > 0.0:
+            self.departure_timer -= delta_time
             return
 
         dx = self.target_x - self.center_x
@@ -195,19 +197,33 @@ class WindowInfo(arcade.Sprite):
                 "anchor": "TOP_LEFT",
                 "offset": (0, 0),
                 "size": (162, 11.5)
+            },
+            WindowAction.SPEED_MINUS: {
+                "anchor": "BOTTOM_LEFT",
+                "offset": (0, 20),
+                "size": (20, 15)
+            },
+            WindowAction.SPEED_PLUS: {
+                "anchor": "BOTTOM_LEFT",
+                "offset": (79, 20),
+                "size": (20, 15)
             }
         }
 
-        speed = SpriteSetting.DRONE_SPEED
-        self.speed_text0 = arcade.Text(
-            text=f"{str(speed)}%", x=0, y=0, anchor_x="center",
-            color=(56, 56, 56, 255), font_size=16, font_name="Aseprite",
-            bold=True
-        )
         self.speed_text = arcade.Text(
-            text=f"{str(speed)}%", x=0, y=0, anchor_x="center",
-            color=(0, 0, 0, 255), font_size=16, font_name="Aseprite",
-            bold=True
+            text=f"{str(SpriteSetting.DRONE_SPEED)}%", x=0, y=0, anchor_x="center",
+            color=(0, 0, 0, 255), font_size=19,
+            font_name=FontSettings.PIXELOGIST_NAME,
+        )
+        self.speed_plus = arcade.Text(
+            text="+", x=0, y=0, anchor_x="left",
+            color=(0, 0, 0, 255), font_size=30,
+            font_name=FontSettings.PIXELOGIST_NAME,
+        )
+        self.speed_minus = arcade.Text(
+            text="-", x=0, y=0, anchor_x="center",
+            color=(0, 0, 0, 255), font_size=30,
+            font_name=FontSettings.PIXELOGIST_NAME,
         )
 
     def get_ui_action(self, mouse_x: float, mouse_y: float) -> Optional[str]:
@@ -222,14 +238,29 @@ class WindowInfo(arcade.Sprite):
         return None
 
     def draw_ui(self) -> None:
-        self.speed_text0.draw()
+        arcade.draw.draw_lbwh_rectangle_filled(
+            left=self.left + 5, bottom=self.bottom + 6,
+            width=145, height=30, color=(192, 192, 192, 255)
+            )
+
         self.speed_text.draw()
+        self.speed_plus.draw()
+        self.speed_minus.draw()
 
     def update_ui_position(self) -> None:
-        self.speed_text0.x = self.center_x - 75
-        self.speed_text0.y = self.top - 168
-        self.speed_text.x = self.center_x - 76
-        self.speed_text.y = self.top - 167
+        self.speed_text.x = self.center_x - 77
+        self.speed_text.y = self.top - 170
+
+        self.speed_minus.x = self.center_x - 135
+        self.speed_minus.y = self.top - 172
+
+        self.speed_plus.x = self.center_x - 30
+        self.speed_plus.y = self.top - 172
+
+    def update_info(self, action: str) -> None:
+        if (action == WindowAction.SPEED_PLUS or
+                action == WindowAction.SPEED_MINUS):
+            self.speed_text.text = f"{str(SpriteSetting.DRONE_SPEED)}%"
 
     def debug_draw_hitboxes(self) -> None:
         for data in self.buttons_data.values():
@@ -248,6 +279,10 @@ class WindowInfo(arcade.Sprite):
         elif data["anchor"] == "TOP_LEFT":
             ref_x = self.left
             ref_y = self.top
+
+        elif data["anchor"] == "BOTTOM_LEFT":
+            ref_x = self.left
+            ref_y = self.bottom
 
         else:  # Default value
             ref_x = self.left

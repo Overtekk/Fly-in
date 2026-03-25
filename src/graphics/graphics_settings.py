@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/10 20:01:40 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 20:45:17 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/25 10:16:29 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -34,8 +34,11 @@ class SpritePath():
     ZONE_RESTRICTED = f"{DEFAULT_PATH}zone_restricted.png"
 
 
-class FontPath():
-    ASEPRITE = "src/graphics/sprites/font/AsepriteFont.ttf"
+class FontSettings():
+    PIXELOGIST_PATH = "src/graphics/sprites/font/Pixelogist.ttf"
+    PIXELOGIST_NAME = "Pixelogist"
+    PIXELMANIA_PATH = "src/graphics/sprites/font/Pixelmania.ttf"
+    PIXELMANIA_NAME = "Pixelmania"
 
 
 class SpriteSetting():
@@ -51,3 +54,5 @@ class SpriteSetting():
 class WindowAction():
     CLOSE = "CLOSE"
     MOVE = "MOVE"
+    SPEED_MINUS = "SPEED_MINUS"
+    SPEED_PLUS = "SPEED_PLUS"

@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 21:43:32 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/25 11:03:29 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -16,12 +16,11 @@ the Arcade library.
 
 import arcade
 import os
-import pyglet
 
 from typing import TYPE_CHECKING, Dict, List, Set, Tuple
 
 from src.graphics.graphics_settings import (WindowSettings, SpritePath,
-                                            FontPath, SpriteSetting,
+                                            FontSettings, SpriteSetting,
                                             WindowAction)
 from src.object.drones import Drone
 from src.object.zone import Zone
@@ -108,14 +107,8 @@ class Renderer(arcade.Window):
 
     def on_update(self, delta_time: float) -> None:
         for drone_sprite in self.drone_sprites_list:
-            was_moving = drone_sprite.is_moving
             drone_sprite.on_update(delta_time)
             drone_sprite.update_animation(delta_time, None, None)
-
-            if was_moving and not drone_sprite.is_moving:
-                for zone_sprite in self.zone_sprites_list:
-                    if zone_sprite.zone_data.name == drone_sprite.location:
-                        zone_sprite.update_drone_count()
 
         if self.started and not self.pause and self.manager.running:
             self.drones_moving = False
@@ -128,6 +121,8 @@ class Renderer(arcade.Window):
             if not self.drones_moving:
                 self.manager.simulate_one_turn()
                 self._update_drone_sprite()
+
+        self._update_visual_counts()
 
     def on_draw(self) -> None:
         self.clear()
@@ -175,16 +170,10 @@ class Renderer(arcade.Window):
                 self._update_drone_sprite()
 
         elif symbol in [arcade.key.PLUS, arcade.key.NUM_ADD, arcade.key.EQUAL]:
-            if SpriteSetting.DRONE_SPEED < 800:
-                SpriteSetting.DRONE_SPEED += 100
-                if self.manager.args.debug:
-                    print(f"Speed up: {SpriteSetting.DRONE_SPEED}")
+            self._update_speed_animation(WindowAction.SPEED_PLUS)
 
         elif symbol in [arcade.key.MINUS, arcade.key.NUM_SUBTRACT]:
-            if SpriteSetting.DRONE_SPEED > 100:
-                SpriteSetting.DRONE_SPEED -= 100
-                if self.manager.args.debug:
-                    print(f"Speed down: {SpriteSetting.DRONE_SPEED}")
+            self._update_speed_animation(WindowAction.SPEED_MINUS)
 
     def on_mouse_scroll(self, x: int, y: int,
                         scroll_x: float, scroll_y: float) -> None:
@@ -198,8 +187,8 @@ class Renderer(arcade.Window):
         # Allow camera movement
         if buttons == arcade.MOUSE_BUTTON_RIGHT:
             curr_x, curr_y = self.camera.position
-            update_x = curr_x - (dx * self.camera_zoom)
-            update_y = curr_y - (dy * self.camera_zoom)
+            update_x = curr_x - (dx /self.camera_zoom)
+            update_y = curr_y - (dy / self.camera_zoom)
 
             self.camera.position = (update_x, update_y)
 
@@ -238,6 +227,12 @@ class Renderer(arcade.Window):
                         self.window_info_state = ui_element
                         self.window_info_offset_x = x - ui_element.center_x
                         self.window_info_offset_y = y - ui_element.center_y
+                    case WindowAction.SPEED_MINUS:
+                        self._update_speed_animation(WindowAction.SPEED_MINUS,
+                                                     ui_element)
+                    case WindowAction.SPEED_PLUS:
+                        self._update_speed_animation(WindowAction.SPEED_PLUS,
+                                                     ui_element)
 
     def on_mouse_release(self, x: int, y: int,
                          button: int, modifiers: int) -> None:
@@ -247,9 +242,10 @@ class Renderer(arcade.Window):
     def _init_texts(self) -> None:
         # Text : start simulation
         self.starting_text_ui = arcade.Text(
-            text="Press SPACE to start", anchor_x="center", anchor_y="bottom",
-            x=(WindowSettings.WIDTH / 2), y=(20 / 2),
-            font_size=22, color=arcade.color.WHITE_SMOKE, font_name="arial"
+            text="PRESS SPACE TO START", anchor_x="center", anchor_y="bottom",
+            x=(WindowSettings.WIDTH / 2), y=(12 / 2),
+            font_size=22, color=arcade.color.WHITE_SMOKE,
+            font_name=FontSettings.PIXELMANIA_NAME
         )
 
     def _load_sprites(self) -> None:
@@ -334,7 +330,7 @@ class Renderer(arcade.Window):
                                     + SpriteSetting.OFFSET_Y)
 
             zone_sprite.label_name_text.x = zone_sprite.center_x
-            zone_sprite.label_name_text.y = zone_sprite.center_y - 30
+            zone_sprite.label_name_text.y = zone_sprite.center_y - 35
             zone_sprite.label_count_text.x = zone_sprite.center_x + 20
             zone_sprite.label_count_text.y = zone_sprite.center_y + 30
 
@@ -343,7 +339,7 @@ class Renderer(arcade.Window):
                 zone_sprite.label_weight_text.y = zone_sprite.center_y + 30
 
             self.zone_sprites_list.append(zone_sprite)
-            zone_sprite.update_drone_count()
+            zone_sprite.update_drone_count(len(zone.drones_on_it))
 
             self.zone_coords[zone.name] = (zone_sprite.center_x,
                                            zone_sprite.center_y)
@@ -372,15 +368,8 @@ class Renderer(arcade.Window):
 
     def _load_custom_fonts(self) -> None:
         try:
-            filename = FontPath.ASEPRITE
-            pyglet.font.add_file(filename)
-
-            font_name = "AsepriteFont"
-            font = pyglet.font.load(font_name)
-
-            print(font.name)
-
-            arcade.load_font(filename)
+            arcade.load_font(FontSettings.PIXELOGIST_PATH)
+            arcade.load_font(FontSettings.PIXELMANIA_PATH)
         except FileNotFoundError as e:
             raise FileNotFoundError(f"Font not found in PATH {e}")
 
@@ -398,6 +387,8 @@ class Renderer(arcade.Window):
                     self.draw_lines.add(connection_draw)
 
     def _update_drone_sprite(self) -> None:
+        departure_delays: Dict[str, float] = {}
+
         for drone_sprite in self.drone_sprites_list:
             drone_obj = self.drones_dict[drone_sprite.id]
 
@@ -405,10 +396,11 @@ class Renderer(arcade.Window):
             if (new_location is not None and
                     new_location != drone_sprite.location):
 
-                for zone_sprite in self.zone_sprites_list:
-                    if (zone_sprite.zone_data.name == drone_sprite.location and
-                            isinstance(zone_sprite, ZoneSprite)):
-                        zone_sprite.update_drone_count()
+                if new_location not in departure_delays:
+                    departure_delays[new_location] = 0.0
+
+                drone_sprite.departure_timer = departure_delays[new_location]
+                departure_delays[new_location] += 0.1
 
                 if "-" in new_location:
                     next_zone = new_location.split("-")
@@ -424,3 +416,42 @@ class Renderer(arcade.Window):
                 drone_sprite.target_x = loc_x
                 drone_sprite.target_y = loc_y
                 drone_sprite.is_moving = True
+
+    def _update_visual_counts(self) -> None:
+        current_counts: Dict[str, int] = {}
+
+        for zone_name in self.zones_dict.keys():
+            current_counts[zone_name] = 0
+
+        for drone_sprite in self.drone_sprites_list:
+            if not drone_sprite.is_moving:
+                if drone_sprite.location in current_counts:
+                    current_counts[drone_sprite.location] += 1
+
+        for zone_sprite in self.zone_sprites_list:
+            if isinstance(zone_sprite, ZoneSprite):
+                zone_sprite.update_drone_count(
+                    current_counts.get(zone_sprite.zone_data.name, 0)
+                )
+
+    def _update_speed_animation(self, action: str,
+                                ui_element: WindowInfo = None) -> None:
+        if action == WindowAction.SPEED_PLUS:
+            if SpriteSetting.DRONE_SPEED < 1000:
+                SpriteSetting.DRONE_SPEED += 100
+
+                if ui_element:
+                    ui_element.update_info(WindowAction.SPEED_PLUS)
+
+                if self.manager.args.debug:
+                    print(f"Speed up: {SpriteSetting.DRONE_SPEED}")
+
+        elif action == WindowAction.SPEED_MINUS:
+            if SpriteSetting.DRONE_SPEED > 100:
+                SpriteSetting.DRONE_SPEED -= 100
+
+                if ui_element:
+                    ui_element.update_info(WindowAction.SPEED_MINUS)
+
+                if self.manager.args.debug:
+                    print(f"Speed down: {SpriteSetting.DRONE_SPEED}")
