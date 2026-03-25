@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:34:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/25 15:50:04 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/25 16:26:39 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -21,7 +21,7 @@ from src.object.drones import Drone
 from src.object.zone import Zone
 from src.utils.ui import Colors
 from src.graphics.graphics_settings import (SpriteSetting, WindowAction,
-                                            FontSettings)
+                                            FontSettings, WindowSettings)
 
 
 if TYPE_CHECKING:
@@ -187,8 +187,10 @@ class WindowInfo(arcade.Sprite):
         super().__init__(image_path, scale)
 
         self.manager = manager
+        self.end_name = self.manager.end_name
         self.is_imploding = False
         self.is_ejected = False
+        self.ratio = 0.0
 
         self.buttons_data = {
             WindowAction.CLOSE: {
@@ -256,6 +258,11 @@ class WindowInfo(arcade.Sprite):
             text="RESUME", x=0, y=0, anchor_x="center", color=(0, 0, 0, 255),
             font_size=24, font_name=FontSettings.PIXELOGIST_NAME
         )
+        self.big_pause_text = arcade.Text(
+            text="PAUSE", x=0, y=0, anchor_x="center",
+            color=arcade.color.WHITE_SMOKE, font_size=40,
+            font_name=FontSettings.PIXELMANIA_NAME
+        )
 
     def get_ui_action(self, mouse_x: float, mouse_y: float) -> Optional[str]:
         for action, data in self.buttons_data.items():
@@ -281,6 +288,23 @@ class WindowInfo(arcade.Sprite):
             width=12, height=29, color=(192, 192, 192, 255)
             )
 
+        arcade.draw.draw_lbwh_rectangle_outline(
+            left=self.left + 5, bottom=self.top - 120,
+            width=290, height=29, color=(160, 159, 158, 255), border_width=4
+            )
+
+        arcade.draw.draw_lbwh_rectangle_outline(
+            left=self.left + 5, bottom=self.top - 120,
+            width=289, height=28.9, color=(29, 31, 33, 255), border_width=1
+            )
+
+        if self.ratio > 0:
+            arcade.draw.draw_lbwh_rectangle_filled(
+                left=self.left + 6, bottom=self.top - 120,
+                width=289 * self.ratio, height=29,
+                color=arcade.color.BUD_GREEN
+                )
+
         self.speed_text.draw()
         self.speed_plus.draw()
         self.speed_minus.draw()
@@ -289,6 +313,7 @@ class WindowInfo(arcade.Sprite):
             self.pause_text.draw()
         else:
             self.resume_text.draw()
+            self.big_pause_text.draw()
 
     def update_ui_position(self) -> None:
         self.speed_text.x = self.center_x - 73
@@ -308,6 +333,9 @@ class WindowInfo(arcade.Sprite):
 
         self.resume_text.x = self.right - 73
         self.resume_text.y = self.bottom + 9
+
+        self.big_pause_text.x = WindowSettings.WIDTH / 2
+        self.big_pause_text.y = WindowSettings.HEIGHT / 2
 
     def update_info(self, action: str) -> None:
         if (action == WindowAction.SPEED_PLUS or
@@ -362,6 +390,11 @@ class WindowInfo(arcade.Sprite):
         }
 
     def on_update(self, delta_time: float) -> None:
+        if self.end_name:
+            nb_drones = self.manager.raw_nb_drones
+            drone_finished = self.manager.zones[self.end_name].drones_on_it
+            self.ratio = len(drone_finished) / nb_drones
+
         if not self.is_imploding and not self.is_ejected:
             return
 
