@@ -6,12 +6,13 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:34:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/25 15:30:35 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/25 15:50:04 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
+import random
 import math
 import arcade
 from arcade.types import PathOrTexture
@@ -187,6 +188,7 @@ class WindowInfo(arcade.Sprite):
 
         self.manager = manager
         self.is_imploding = False
+        self.is_ejected = False
 
         self.buttons_data = {
             WindowAction.CLOSE: {
@@ -266,7 +268,7 @@ class WindowInfo(arcade.Sprite):
         return None
 
     def draw_ui(self, state_pause: bool) -> None:
-        if self.is_imploding:
+        if self.is_imploding or self.is_ejected:
             return
 
         arcade.draw.draw_lbwh_rectangle_filled(
@@ -360,15 +362,30 @@ class WindowInfo(arcade.Sprite):
         }
 
     def on_update(self, delta_time: float) -> None:
-        if not self.is_imploding:
+        if not self.is_imploding and not self.is_ejected:
             return
 
-        new_scale_x, new_scale_y = self.scale
+        if self.is_imploding:
+            new_scale_x, new_scale_y = self.scale
 
-        new_scale_x -= 10 * delta_time
-        new_scale_y -= 10 * delta_time
+            new_scale_x -= 5 * delta_time
+            new_scale_y -= 5 * delta_time
 
-        self.scale = (new_scale_x, new_scale_y)
+            self.scale = (new_scale_x, new_scale_y)
 
-        if self.scale <= (0.05, 0.05):
-            self.kill()
+            if self.scale <= (0.05, 0.05):
+                self.kill()
+
+        elif self.is_ejected:
+            self.center_x += random.randint(-10, 10)
+            self.center_y += random.randint(-10, 10)
+
+            new_scale_x, new_scale_y = self.scale
+
+            new_scale_x -= 1 * delta_time
+            new_scale_y -= 1 * delta_time
+
+            self.scale = (new_scale_x, new_scale_y)
+
+            if self.scale <= (0.05, 0.05):
+                self.kill()

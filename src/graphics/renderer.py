@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/25 15:34:02 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/25 15:39:45 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -188,10 +188,12 @@ class Renderer(arcade.Window):
                 self.manager.simulate_one_turn()
                 self._update_drone_sprite()
 
-        elif symbol in [arcade.key.PLUS, arcade.key.NUM_ADD, arcade.key.EQUAL]:
+        elif (symbol in [arcade.key.PLUS, arcade.key.NUM_ADD, arcade.key.EQUAL]
+                and self.started):
             self._update_speed_animation(WindowAction.SPEED_PLUS)
 
-        elif symbol in [arcade.key.MINUS, arcade.key.NUM_SUBTRACT]:
+        elif (symbol in [arcade.key.MINUS, arcade.key.NUM_SUBTRACT]
+                and self.started):
             self._update_speed_animation(WindowAction.SPEED_MINUS)
 
     def on_mouse_scroll(self, x: int, y: int,
@@ -243,18 +245,28 @@ class Renderer(arcade.Window):
                     match action:
                         case WindowAction.CLOSE:
                             arcade.exit()
+
                         case WindowAction.REMOVE:
                             ui_element.is_imploding = True
                             self.pause = False
                             self._create_window_info_sprite()
-                        case WindowAction.SPEED_MINUS:
+
+                        case WindowAction.COPY:
+                            ui_element.is_ejected = True
+                            self.pause = False
+                            self._create_window_info_sprite()
+
+                        case WindowAction.SPEED_MINUS if self.started:
                             self._update_speed_animation(
                                 WindowAction.SPEED_MINUS, ui_element)
-                        case WindowAction.SPEED_PLUS:
+
+                        case WindowAction.SPEED_PLUS if self.started:
                             self._update_speed_animation(
                                 WindowAction.SPEED_PLUS, ui_element)
+
                         case WindowAction.TOGGLE_PAUSE if self.started:
                             self.pause = not self.pause
+
                         case WindowAction.MOVE:
                             self.window_info_state = ui_element
                             self.window_info_offset_x = x - ui_element.center_x
