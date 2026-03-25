@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/10 20:01:40 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/25 10:16:29 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/25 15:04:10 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -53,6 +53,10 @@ class SpriteSetting():
 
 class WindowAction():
     CLOSE = "CLOSE"
+    COPY = "COPY"
+    REMOVE = "REMOVE"
     MOVE = "MOVE"
     SPEED_MINUS = "SPEED_MINUS"
     SPEED_PLUS = "SPEED_PLUS"
+    TURN = "TURN"
+    TOGGLE_PAUSE = "PAUSE"

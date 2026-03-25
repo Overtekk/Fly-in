@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/25 11:03:29 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/25 15:34:02 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -106,9 +106,10 @@ class Renderer(arcade.Window):
         self._calculate_line_to_draw()
 
     def on_update(self, delta_time: float) -> None:
-        for drone_sprite in self.drone_sprites_list:
-            drone_sprite.on_update(delta_time)
-            drone_sprite.update_animation(delta_time, None, None)
+        if not self.pause:
+            for drone_sprite in self.drone_sprites_list:
+                drone_sprite.on_update(delta_time)
+                drone_sprite.update_animation(delta_time, None, None)
 
         if self.started and not self.pause and self.manager.running:
             self.drones_moving = False
@@ -121,6 +122,11 @@ class Renderer(arcade.Window):
             if not self.drones_moving:
                 self.manager.simulate_one_turn()
                 self._update_drone_sprite()
+
+        for ui_elem in self.ui_sprites_list:
+            if isinstance(ui_elem, WindowInfo):
+                ui_elem.update_info(WindowAction.TURN)
+                ui_elem.on_update(delta_time)
 
         self._update_visual_counts()
 
@@ -145,11 +151,18 @@ class Renderer(arcade.Window):
         self.drone_sprites_list.draw()
 
         self.static_camera.use()
+
+        if self.pause:
+            arcade.draw_lrbt_rectangle_filled(
+                0, WindowSettings.WIDTH, 0, WindowSettings.HEIGHT,
+                color=(0, 0, 0, 150)
+            )
+
         self.ui_sprites_list.draw()
 
         for ui_element in self.ui_sprites_list:
             if isinstance(ui_element, WindowInfo):
-                ui_element.draw_ui()
+                ui_element.draw_ui(self.pause)
 
         if self.manager.args.debug:
             for ui_elements in self.ui_sprites_list:
@@ -164,7 +177,13 @@ class Renderer(arcade.Window):
             arcade.exit()
 
         elif symbol == arcade.key.SPACE:
-            if not self.started:
+            if self.started:
+                self.pause = not self.pause
+                for ui_element in self.ui_sprites_list:
+                    if isinstance(ui_element, WindowInfo):
+                        ui_element.draw_ui(self.pause)
+
+            elif not self.started:
                 self.started = True
                 self.manager.simulate_one_turn()
                 self._update_drone_sprite()
@@ -216,23 +235,31 @@ class Renderer(arcade.Window):
             self.camera.position = (self.default_camera_x,
                                     self.default_camera_y)
 
-        for ui_element in self.ui_sprites_list:
+        for ui_element in reversed(self.ui_sprites_list):
             if isinstance(ui_element, WindowInfo):
                 action = ui_element.get_ui_action(x, y)
 
-                match action:
-                    case WindowAction.CLOSE:
-                        arcade.exit()
-                    case WindowAction.MOVE:
-                        self.window_info_state = ui_element
-                        self.window_info_offset_x = x - ui_element.center_x
-                        self.window_info_offset_y = y - ui_element.center_y
-                    case WindowAction.SPEED_MINUS:
-                        self._update_speed_animation(WindowAction.SPEED_MINUS,
-                                                     ui_element)
-                    case WindowAction.SPEED_PLUS:
-                        self._update_speed_animation(WindowAction.SPEED_PLUS,
-                                                     ui_element)
+                if action:
+                    match action:
+                        case WindowAction.CLOSE:
+                            arcade.exit()
+                        case WindowAction.REMOVE:
+                            ui_element.is_imploding = True
+                            self.pause = False
+                            self._create_window_info_sprite()
+                        case WindowAction.SPEED_MINUS:
+                            self._update_speed_animation(
+                                WindowAction.SPEED_MINUS, ui_element)
+                        case WindowAction.SPEED_PLUS:
+                            self._update_speed_animation(
+                                WindowAction.SPEED_PLUS, ui_element)
+                        case WindowAction.TOGGLE_PAUSE if self.started:
+                            self.pause = not self.pause
+                        case WindowAction.MOVE:
+                            self.window_info_state = ui_element
+                            self.window_info_offset_x = x - ui_element.center_x
+                            self.window_info_offset_y = y - ui_element.center_y
+                    break
 
     def on_mouse_release(self, x: int, y: int,
                          button: int, modifiers: int) -> None:
@@ -247,6 +274,13 @@ class Renderer(arcade.Window):
             font_size=22, color=arcade.color.WHITE_SMOKE,
             font_name=FontSettings.PIXELMANIA_NAME
         )
+
+    def _load_custom_fonts(self) -> None:
+        try:
+            arcade.load_font(FontSettings.PIXELOGIST_PATH)
+            arcade.load_font(FontSettings.PIXELMANIA_PATH)
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"Font not found in PATH {e}")
 
     def _load_sprites(self) -> None:
         if not os.path.exists("src/graphics/sprites/"):
@@ -274,15 +308,7 @@ class Renderer(arcade.Window):
             # Load background
             self.background = arcade.load_texture(SpritePath.BACKGROUND)
 
-            # Load window informations
-            window_info_sprite = WindowInfo(
-                SpritePath.WINDOW_INFO, 1.5, self.manager
-            )
-            window_info_sprite.center_x = 155
-            window_info_sprite.center_y = self.height - 100
-            window_info_sprite.update_ui_position()
-            self.ui_sprites_list.append(window_info_sprite)
-
+            self._create_window_info_sprite()
             self._load_zones_sprites()
             self._load_drones_sprites()
 
@@ -366,12 +392,14 @@ class Renderer(arcade.Window):
                                          + SpriteSetting.OFFSET_Y)
             self.drone_sprites_list.append(drone_sprite)
 
-    def _load_custom_fonts(self) -> None:
-        try:
-            arcade.load_font(FontSettings.PIXELOGIST_PATH)
-            arcade.load_font(FontSettings.PIXELMANIA_PATH)
-        except FileNotFoundError as e:
-            raise FileNotFoundError(f"Font not found in PATH {e}")
+    def _create_window_info_sprite(self) -> None:
+        window_info_sprite = WindowInfo(
+                SpritePath.WINDOW_INFO, 1.5, self.manager
+            )
+        window_info_sprite.center_x = 155
+        window_info_sprite.center_y = self.height - 100
+        window_info_sprite.update_ui_position()
+        self.ui_sprites_list.append(window_info_sprite)
 
     def _calculate_line_to_draw(self) -> None:
         for zone_a, neighbors in self.connection_map.items():
@@ -442,6 +470,10 @@ class Renderer(arcade.Window):
 
                 if ui_element:
                     ui_element.update_info(WindowAction.SPEED_PLUS)
+                else:
+                    for ui_elem in self.ui_sprites_list:
+                        if isinstance(ui_elem, WindowInfo):
+                            ui_elem.update_info(WindowAction.SPEED_PLUS)
 
                 if self.manager.args.debug:
                     print(f"Speed up: {SpriteSetting.DRONE_SPEED}")
@@ -452,6 +484,11 @@ class Renderer(arcade.Window):
 
                 if ui_element:
                     ui_element.update_info(WindowAction.SPEED_MINUS)
+                else:
+                    for ui_elem in self.ui_sprites_list:
+                        if isinstance(ui_elem, WindowInfo):
+                            ui_elem.update_info(WindowAction.SPEED_MINUS)
 
                 if self.manager.args.debug:
                     print(f"Speed down: {SpriteSetting.DRONE_SPEED}")
+

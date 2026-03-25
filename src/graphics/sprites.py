@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:34:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/25 11:06:09 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/25 15:30:35 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -186,11 +186,22 @@ class WindowInfo(arcade.Sprite):
         super().__init__(image_path, scale)
 
         self.manager = manager
+        self.is_imploding = False
 
         self.buttons_data = {
             WindowAction.CLOSE: {
                 "anchor": "TOP_RIGHT",
                 "offset": (-11, 0),
+                "size": (10, 10)
+            },
+            WindowAction.COPY: {
+                "anchor": "TOP_RIGHT",
+                "offset": (-23, 0),
+                "size": (10, 10)
+            },
+            WindowAction.REMOVE: {
+                "anchor": "TOP_RIGHT",
+                "offset": (-36, 0),
                 "size": (10, 10)
             },
             WindowAction.MOVE: {
@@ -207,12 +218,17 @@ class WindowInfo(arcade.Sprite):
                 "anchor": "BOTTOM_LEFT",
                 "offset": (79, 20),
                 "size": (20, 15)
-            }
+            },
+            WindowAction.TOGGLE_PAUSE: {
+                "anchor": "BOTTOM_RIGHT",
+                "offset": (-94, 25),
+                "size": (90, 22)
+            },
         }
 
         self.speed_text = arcade.Text(
-            text=f"{str(SpriteSetting.DRONE_SPEED)}%", x=0, y=0, anchor_x="center",
-            color=(0, 0, 0, 255), font_size=19,
+            text=f"{str(SpriteSetting.DRONE_SPEED)}%", x=0, y=0,
+            anchor_x="center", color=(0, 0, 0, 255), font_size=19,
             font_name=FontSettings.PIXELOGIST_NAME,
         )
         self.speed_plus = arcade.Text(
@@ -225,6 +241,19 @@ class WindowInfo(arcade.Sprite):
             color=(0, 0, 0, 255), font_size=30,
             font_name=FontSettings.PIXELOGIST_NAME,
         )
+        self.turn_text = arcade.Text(
+            text=f"TURN {int(self.manager.turns)}", x=0, y=0,
+            anchor_x="center", color=(0, 0, 0, 255), font_size=24,
+            font_name=FontSettings.PIXELOGIST_NAME
+        )
+        self.pause_text = arcade.Text(
+            text="PAUSE", x=0, y=0, anchor_x="center", color=(0, 0, 0, 255),
+            font_size=24, font_name=FontSettings.PIXELOGIST_NAME
+        )
+        self.resume_text = arcade.Text(
+            text="RESUME", x=0, y=0, anchor_x="center", color=(0, 0, 0, 255),
+            font_size=24, font_name=FontSettings.PIXELOGIST_NAME
+        )
 
     def get_ui_action(self, mouse_x: float, mouse_y: float) -> Optional[str]:
         for action, data in self.buttons_data.items():
@@ -234,21 +263,33 @@ class WindowInfo(arcade.Sprite):
             if hitbox["left"] <= mouse_x <= hitbox["right"]:
                 if hitbox["bottom"] <= mouse_y <= hitbox["top"]:
                     return action
-
         return None
 
-    def draw_ui(self) -> None:
+    def draw_ui(self, state_pause: bool) -> None:
+        if self.is_imploding:
+            return
+
         arcade.draw.draw_lbwh_rectangle_filled(
             left=self.left + 5, bottom=self.bottom + 6,
             width=145, height=30, color=(192, 192, 192, 255)
             )
 
+        arcade.draw.draw_lbwh_rectangle_filled(
+            left=self.right - 29, bottom=self.bottom + 5,
+            width=12, height=29, color=(192, 192, 192, 255)
+            )
+
         self.speed_text.draw()
         self.speed_plus.draw()
         self.speed_minus.draw()
+        self.turn_text.draw()
+        if not state_pause:
+            self.pause_text.draw()
+        else:
+            self.resume_text.draw()
 
     def update_ui_position(self) -> None:
-        self.speed_text.x = self.center_x - 77
+        self.speed_text.x = self.center_x - 73
         self.speed_text.y = self.top - 170
 
         self.speed_minus.x = self.center_x - 135
@@ -257,10 +298,22 @@ class WindowInfo(arcade.Sprite):
         self.speed_plus.x = self.center_x - 30
         self.speed_plus.y = self.top - 172
 
+        self.turn_text.x = self.center_x
+        self.turn_text.y = self.top - 58
+
+        self.pause_text.x = self.right - 73
+        self.pause_text.y = self.bottom + 9
+
+        self.resume_text.x = self.right - 73
+        self.resume_text.y = self.bottom + 9
+
     def update_info(self, action: str) -> None:
         if (action == WindowAction.SPEED_PLUS or
                 action == WindowAction.SPEED_MINUS):
             self.speed_text.text = f"{str(SpriteSetting.DRONE_SPEED)}%"
+
+        elif action == WindowAction.TURN:
+            self.turn_text.text = f"TURN {int(self.manager.turns)}"
 
     def debug_draw_hitboxes(self) -> None:
         for data in self.buttons_data.values():
@@ -284,6 +337,10 @@ class WindowInfo(arcade.Sprite):
             ref_x = self.left
             ref_y = self.bottom
 
+        elif data["anchor"] == "BOTTOM_RIGHT":
+            ref_x = self.right
+            ref_y = self.bottom
+
         else:  # Default value
             ref_x = self.left
             ref_y = self.bottom
@@ -301,3 +358,17 @@ class WindowInfo(arcade.Sprite):
             "top": button_top,
             "bottom": button_bottom
         }
+
+    def on_update(self, delta_time: float) -> None:
+        if not self.is_imploding:
+            return
+
+        new_scale_x, new_scale_y = self.scale
+
+        new_scale_x -= 10 * delta_time
+        new_scale_y -= 10 * delta_time
+
+        self.scale = (new_scale_x, new_scale_y)
+
+        if self.scale <= (0.05, 0.05):
+            self.kill()
