@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/26 09:35:39 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/26 14:43:10 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -16,6 +16,7 @@ the Arcade library.
 
 import arcade
 import os
+import random
 
 from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
 
@@ -84,7 +85,7 @@ class Renderer(arcade.Window):
         self.zone_coords: Dict[str, Tuple[float, float]] = {}
         self.line_to_draw: List[Tuple[Tuple[float, float],
                                       Tuple[float, float]]] = []
-        self.draw_lines: Set[Tuple[str, str]] = set()
+        self.draw_lines: Set[Tuple[str, str, str]] = set()
 
         self.pause = False
         self.drones_moving = False
@@ -106,6 +107,15 @@ class Renderer(arcade.Window):
         self._calculate_line_to_draw()
 
     def on_update(self, delta_time: float) -> None:
+        """
+        Updates the visual simulation state at each frame.
+
+        Handles drone animations, triggers the logical simulation turns when
+        drones finish their movements, and updates the UI elements' logic.
+
+        Args:
+            delta_time (float): Time interval since the last frame.
+        """
         if not self.pause:
             for drone_sprite in self.drone_sprites_list:
                 drone_sprite.on_update(delta_time)
@@ -131,8 +141,15 @@ class Renderer(arcade.Window):
         self._update_visual_counts()
 
     def on_draw(self) -> None:
+        """
+        Renders all visual elements to the screen.
+
+        Draws the background, connection lines zone sprites, drone sprites,
+        and the user interface including the pause overlay.
+        """
         self.clear()
 
+        # Draw the background
         self.static_camera.use()
         arcade.draw_texture_rect(self.background, arcade.LBWH(
             0, 0, WindowSettings.WIDTH, WindowSettings.HEIGHT))
@@ -140,39 +157,55 @@ class Renderer(arcade.Window):
         # Main camera (affected by the zoom)
         self.camera.use()
 
+        # Draw connections lines
         for (start_x, start_y), (end_x, end_y) in self.line_to_draw:
-            arcade.draw_line(start_x, start_y, end_x, end_y,
-                             arcade.color.WHITE, 1.5)
+            for drone_sprite in self.drone_sprites_list:
+                arcade.draw_line(start_x, start_y, end_x, end_y,
+                                 arcade.color.WHITE, 1.5)
 
+        # Draw sprites for zones and drones
         self.zone_sprites_list.draw()
         for sprite in self.zone_sprites_list:
             sprite.draw_ui()
-
         self.drone_sprites_list.draw()
 
+        # Draw pause screen (gray font, pause button)
         self.static_camera.use()
-
         if self.pause:
             arcade.draw_lrbt_rectangle_filled(
                 0, WindowSettings.WIDTH, 0, WindowSettings.HEIGHT,
                 color=(0, 0, 0, 150)
             )
-
         self.ui_sprites_list.draw()
 
+        # Draw window informations
         for ui_element in self.ui_sprites_list:
             if isinstance(ui_element, WindowInfo):
                 ui_element.draw_ui(self.pause)
 
+        # Draw zones weights
         if self.manager.args.debug:
             for ui_elements in self.ui_sprites_list:
                 if isinstance(ui_elements, WindowInfo):
                     ui_elements.debug_draw_hitboxes()
 
+        # Draw start and finish text
         if not self.started:
             self.starting_text_ui.draw()
+        if not self.manager.running and self.started:
+            self.finished_text_ui.draw()
 
     def on_key_press(self, symbol: int, modifiers: int) -> None:
+        """
+        Handles keyboard input events.
+
+        Manages the exit action, simulation start/pause toggle, and simulation
+        speed adjustments (+ / -).
+
+        Args:
+            symbol (int): The pressed key symbol.
+            modifiers (int): Bitwise 'and' of all modifier keys pressed.
+        """
         if symbol == arcade.key.ESCAPE:
             arcade.exit()
 
@@ -198,6 +231,15 @@ class Renderer(arcade.Window):
 
     def on_mouse_scroll(self, x: int, y: int,
                         scroll_x: float, scroll_y: float) -> None:
+        """
+        Handles mouse scroll events to control camera zoom.
+
+        Args:
+            x (int): X-coordinate of the mouse.
+            y (int): Y-coordinate of the mouse.
+            scroll_x (float): Horizontal scroll amount.
+            scroll_y (float): Vertical scroll amount.
+        """
         self.camera_zoom *= 0.9 if scroll_y < 0 else 1.1
 
         self.camera_zoom = max(0.1, min(2.0, self.camera_zoom))
@@ -205,6 +247,20 @@ class Renderer(arcade.Window):
 
     def on_mouse_drag(self, x: int, y: int, dx: int, dy: int,
                       buttons: int, modifiers: int) -> None:
+        """
+        Handles mouse drag events for camera panning and UI interaction.
+
+        Allows the user to pan the main camera using the right mouse button
+        or drag the UI window across the screen.
+
+        Args:
+            x (int): Current X-coordinate of the mouse.
+            y (int): Current Y-coordinate of the mouse.
+            dx (int): Change in X-coordinate.
+            dy (int): Change in Y-coordinate.
+            buttons (int): Buttons being pressed during the drag.
+            modifiers (int): Modifier keys pressed.
+        """
         # Allow camera movement
         if buttons == arcade.MOUSE_BUTTON_RIGHT:
             curr_x, curr_y = self.camera.position
@@ -232,6 +288,18 @@ class Renderer(arcade.Window):
 
     def on_mouse_press(self, x: int, y: int,
                        button: int, modifiers: int) -> None:
+        """
+        Handles mouse press events for UI interactions and camera reset.
+
+        Resets the camera to default on middle click and processes clicks
+        on the UI window's hitboxes to trigger specific actions.
+
+        Args:
+            x (int): X-coordinate of the mouse click.
+            y (int): Y-coordinate of the mouse click.
+            button (int): The mouse button that was pressed.
+            modifiers (int): Modifier keys pressed.
+        """
         # Reset camera position
         if button == arcade.MOUSE_BUTTON_MIDDLE:
             self.camera.position = (self.default_camera_x,
@@ -275,10 +343,27 @@ class Renderer(arcade.Window):
 
     def on_mouse_release(self, x: int, y: int,
                          button: int, modifiers: int) -> None:
+        """
+        Handles mouse release events.
+
+        Clears the currently dragged UI window state to stop movement.
+
+        Args:
+            x (int): X-coordinate of the mouse release.
+            y (int): Y-coordinate of the mouse release.
+            button (int): The mouse button that was released.
+            modifiers (int): Modifier keys pressed.
+        """
         if self.window_info_state:
             self.window_info_state = None
 
     def _init_texts(self) -> None:
+        """
+        Initializes static textual UI elements.
+
+        Sets up the 'start' and 'finished' texts used before and after the
+        simulation.
+        """
         # Text : start simulation
         self.starting_text_ui = arcade.Text(
             text="PRESS SPACE TO START", anchor_x="center", anchor_y="bottom",
@@ -287,7 +372,22 @@ class Renderer(arcade.Window):
             font_name=FontSettings.PIXELMANIA_NAME
         )
 
+        # Text : simulation finished
+        self.finished_text_ui = arcade.Text(
+            text="SIMULATION FINISHED", anchor_x="center", anchor_y="top",
+            x=(WindowSettings.WIDTH / 2), y=(WindowSettings.HEIGHT - 40),
+            font_size=12, color=arcade.color.WHITE_SMOKE,
+            font_name=FontSettings.PIXELMANIA_NAME
+        )
+
     def _load_custom_fonts(self) -> None:
+        """
+        Loads the required custom pixel fonts into the Arcade engine.
+
+        Raises:
+            FileNotFoundError: If the font files are not found at the
+                               specified path.
+        """
         try:
             arcade.load_font(FontSettings.PIXELOGIST_PATH)
             arcade.load_font(FontSettings.PIXELMANIA_PATH)
@@ -295,6 +395,17 @@ class Renderer(arcade.Window):
             raise FileNotFoundError(f"Font not found in PATH {e}")
 
     def _load_sprites(self) -> None:
+        """
+        Calculates map offsets and orchestrates the loading of all sprites.
+
+        Determines the logical center of the map to align the camera and calls
+        the initialization methods for the background, window, zones, and
+        drones.
+
+        Raises:
+            OSError: If the base sprite directory does not exist.
+            FileNotFoundError: If a specific sprite image file is missing.
+        """
         if not os.path.exists("src/graphics/sprites/"):
             raise OSError("PATH 'src/graphics/sprites/' does snot exist.")
 
@@ -328,6 +439,13 @@ class Renderer(arcade.Window):
             raise FileNotFoundError(f"Sprite not found in PATH {e}")
 
     def _load_zones_sprites(self) -> None:
+        """
+        Instantiates and positions sprites for every zone in the simulation.
+
+        Maps the logical Zone objects to visual ZoneSprite objects based on
+        their type (start, end, normal, blocked, etc.) and calculates their
+        exact pixel coordinates.
+        """
         for zone in self.zones_dict.values():
             if zone.is_start:
                 zone_sprite = ZoneSprite(
@@ -383,6 +501,13 @@ class Renderer(arcade.Window):
                                            zone_sprite.center_y)
 
     def _load_drones_sprites(self) -> None:
+        """
+        Instantiates and positions sprites for every drone in the simulation.
+
+        Maps the logical Drone objects to visual DroneSprite objects, setting
+        their initial coordinates with a slight random offset to create a
+        swarming effect.
+        """
         drone_sprites_anim = [
                 arcade.load_texture(SpritePath.DRONE_ANIM1),
                 arcade.load_texture(SpritePath.DRONE_ANIM2),
@@ -399,12 +524,17 @@ class Renderer(arcade.Window):
                 drone_y = self.zones_dict[drone_location].y
 
                 drone_sprite.center_x = ((drone_x * SpriteSetting.SPACING)
-                                         + SpriteSetting.OFFSET_X)
+                                         + SpriteSetting.OFFSET_X +
+                                         random.randint(-5, 5))
                 drone_sprite.center_y = ((drone_y * SpriteSetting.SPACING)
-                                         + SpriteSetting.OFFSET_Y)
+                                         + SpriteSetting.OFFSET_Y +
+                                         random.randint(-5, 5))
             self.drone_sprites_list.append(drone_sprite)
 
     def _create_window_info_sprite(self) -> None:
+        """
+        Initializes and positions the interactive UI window sprite.
+        """
         window_info_sprite = WindowInfo(
                 SpritePath.WINDOW_INFO, 1.5, self.manager
             )
@@ -414,6 +544,12 @@ class Renderer(arcade.Window):
         self.ui_sprites_list.append(window_info_sprite)
 
     def _calculate_line_to_draw(self) -> None:
+        """
+        Pre-calculates drawing data for all zone connections.
+
+        Creates unique identifiers and stores start/end coordinates for every
+        edge in the connection map to optimize the rendering loop.
+        """
         for zone_a, neighbors in self.connection_map.items():
             for zone_b in neighbors:
                 node_a, node_b = sorted([zone_a, zone_b])
@@ -422,11 +558,18 @@ class Renderer(arcade.Window):
                 if connection_draw not in self.draw_lines:
                     coords_a = self.zone_coords[zone_a]
                     coords_b = self.zone_coords[zone_b]
+                    id = f"{node_a}-{node_b}"
 
-                    self.line_to_draw.append((coords_a, coords_b))
+                    self.line_to_draw.append((id ,coords_a, coords_b))
                     self.draw_lines.add(connection_draw)
 
     def _update_drone_sprite(self) -> None:
+        """
+        Synchronizes the visual drone sprites with logical simulation data.
+
+        Calculates new target coordinates (with offsets) and delays for drones
+        that have changed location in the backend Manager.
+        """
         departure_delays: Dict[str, float] = {}
 
         for drone_sprite in self.drone_sprites_list:
@@ -453,11 +596,20 @@ class Renderer(arcade.Window):
                 else:
                     loc_x, loc_y = self.zone_coords[new_location]
 
+                    loc_x += random.randint(-15, 15)
+                    loc_y += random.randint(-15, 15)
+
                 drone_sprite.target_x = loc_x
                 drone_sprite.target_y = loc_y
                 drone_sprite.is_moving = True
 
     def _update_visual_counts(self) -> None:
+        """
+        Updates the displayed drone count on every zone sprite.
+
+        Counts the number of stationary visual drones currently occupying each
+        zone and updates the zone's UI text label.
+        """
         current_counts: Dict[str, int] = {}
 
         for zone_name in self.zones_dict.keys():
@@ -477,6 +629,15 @@ class Renderer(arcade.Window):
     def _update_speed_animation(self, action: str,
                                 ui_element: Optional[WindowInfo]
                                 = None) -> None:
+        """
+        Modifies the global drone movement speed and updates the UI.
+
+        Args:
+            action (str): The specific speed action triggered
+                          (SPEED_PLUS or SPEED_MINUS).
+            ui_element (Optional[WindowInfo]): The UI window to update.
+                                               Defaults to None.
+        """
         if action == WindowAction.SPEED_PLUS:
             if SpriteSetting.DRONE_SPEED < 1000:
                 SpriteSetting.DRONE_SPEED += 100

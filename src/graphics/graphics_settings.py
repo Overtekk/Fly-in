@@ -6,20 +6,34 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/10 20:01:40 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/25 15:04:10 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/26 14:58:28 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
+"""
+Configuration settings and constants for the graphical interface.
+
+This module centrally manages all hardcoded values related to the Arcade
+window, file paths for assets (sprites and fonts), rendering scales,
+and UI action identifiers.
+"""
 
 DEFAULT_PATH = "src/graphics/sprites/default/"
 
 
 class WindowSettings():
+    """
+    Defines core properties for the main Arcade simulation window.
+    """
     WIDTH = 1280
     HEIGHT = 720
     NAME = "Fly-in"
 
 
 class SpritePath():
+    """
+    Provides relative file paths to all image assets used for rendering
+    sprites.
+    """
     BACKGROUND = f"{DEFAULT_PATH}background.png"
     WINDOW_INFO = f"{DEFAULT_PATH}window_info.png"
     DRONE = f"{DEFAULT_PATH}drone.png"
@@ -35,6 +49,9 @@ class SpritePath():
 
 
 class FontSettings():
+    """
+    Stores paths and reference names for custom typography loaded into Arcade.
+    """
     PIXELOGIST_PATH = "src/graphics/sprites/font/Pixelogist.ttf"
     PIXELOGIST_NAME = "Pixelogist"
     PIXELMANIA_PATH = "src/graphics/sprites/font/Pixelmania.ttf"
@@ -42,6 +59,9 @@ class FontSettings():
 
 
 class SpriteSetting():
+    """
+    Defines numeric constants for sprite scaling, grid positioning, and speeds.
+    """
     ZONE_SCALE = 1
     DRONE_SCALE = 0.9
     SPACING = 120
@@ -52,6 +72,9 @@ class SpriteSetting():
 
 
 class WindowAction():
+    """
+    Enumerates string identifiers for interactive UI button actions.
+    """
     CLOSE = "CLOSE"
     COPY = "COPY"
     REMOVE = "REMOVE"

@@ -6,9 +6,16 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:34:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/26 09:52:17 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/26 14:56:12 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
+"""
+Graphical sprites and UI components for the Arcade simulation.
+
+This module defines the visual representations of the core simulation
+entities (zones and drones) as well as the interactive graphical user
+interface (UI) elements used to control and monitor the simulation state.
+"""
 
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
@@ -29,8 +36,28 @@ if TYPE_CHECKING:
 
 
 class ZoneSprite(arcade.Sprite):
+    """
+    Visual representation of a simulation zone.
+
+    This sprite handles the display of a physical hub/node on the map,
+    including its name, the number of drones currently occupying it,
+    and its pathfinding weight (in debug mode).
+    """
+
     def __init__(self, image_path: PathOrTexture,
                  scale: float, zone_data: Zone, manager: 'Manager') -> None:
+        """
+        Initializes a visual representation of a simulation zone.
+
+        Sets up the sprite image, scales it, and prepares the text labels for
+        displaying the zone's name, current drone count, and pathfinding weight.
+
+        Args:
+            image_path (PathOrTexture): The path to the zone's sprite asset.
+            scale (float): The scaling factor for the sprite.
+            zone_data (Zone): The logical Zone object containing backend data.
+            manager (Manager): The core simulation manager.
+        """
         super().__init__(image_path, scale)
 
         self.zone_data = zone_data
@@ -72,6 +99,15 @@ class ZoneSprite(arcade.Sprite):
             )
 
     def update_drone_count(self, visual_count: int) -> None:
+        """
+        Updates the textual display of the drone count on the zone.
+
+        Formats the text differently depending on whether the zone is a start
+        hub, end hub, or a regular zone with a maximum capacity.
+
+        Args:
+            visual_count (int): The current number of drones occupying the zone.
+        """
         if self.zone_data.is_start:
             text_drone = f"{visual_count}"
         elif self.zone_data.is_end:
@@ -82,7 +118,12 @@ class ZoneSprite(arcade.Sprite):
         self.label_count_text.text = text_drone
 
     def draw_ui(self) -> None:
+        """
+        Renders the UI overlays for the zone sprite.
 
+        Draws the zone's name, current capacity count, and debug information
+        (pathfinding weight) directly above or below the sprite.
+        """
         # text_width = self.label_name_text.content_width
         # text_height = self.label_name_text.content_height
         # text_x = self.label_name_text.x
@@ -102,21 +143,42 @@ class ZoneSprite(arcade.Sprite):
 
 
 class DroneSprite(arcade.Sprite):
+    """
+    Visual representation of a drone.
+
+    This sprite manages its own movement interpolation between zones
+    and idle animations (swarming effect) when stationary.
+    """
+
     def __init__(self, image_path: PathOrTexture, scale: float,
                  drone_data: Drone, id: int,
                  drone_sprites_anim: List[arcade.Texture]) -> None:
+        """
+        Initializes a visual representation of a drone.
+
+        Sets up the sprite, its animation frames, and initializes state
+        tracking variables for movement and idle swarming (oscillation).
+
+        Args:
+            image_path (PathOrTexture): The path to the drone's default sprite.
+            scale (float): The scaling factor for the sprite.
+            drone_data (Drone): The logical Drone object containing backend
+                                data.
+            id (int): The unique identifier of the drone.
+            drone_sprites_anim (List[arcade.Texture]): A list of textures for
+                                                       movement animation.
+        """
         super().__init__(image_path, scale)
 
         self.drone_data = drone_data
-
         self.id = id
         self.location = self.drone_data.get_location()
         self.finish = drone_data.finish
 
         self.target_x = 0.0
         self.target_y = 0.0
-        self.departure_timer = 0.0
         self.is_moving = False
+        self.active_connection = ""
 
         self.cur_textures = 0
         self.time_counter = 0.0
@@ -125,6 +187,15 @@ class DroneSprite(arcade.Sprite):
         self.move_textures = drone_sprites_anim
 
     def on_update(self, delta_time: float) -> None:
+        """
+        Handles the movement and positional logic of the drone.
+
+        If the drone is moving, it calculates the velocity vector towards its
+        target and updates its coordinates.
+
+        Args:
+            delta_time (float): Time interval since the last frame.
+        """
         if not self.is_moving:
             return
 
@@ -161,6 +232,18 @@ class DroneSprite(arcade.Sprite):
 
     def update_animation(self, delta_time: float = 1 / 60,
                          *args: Any, **kwargs: Any) -> None:
+        """
+        Cycles through the drone's textures to create an animation.
+
+        Switches textures based on the elapsed time if the drone is moving.
+        Resets to the idle or finished texture when stationary.
+
+        Args:
+            delta_time (float): Time interval since the last frame.
+                                Defaults to 1/60.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+        """
         if not self.is_moving:
             if self.drone_data.finish:
                 self.texture = self.finish_texture
@@ -182,8 +265,28 @@ class DroneSprite(arcade.Sprite):
 
 
 class WindowInfo(arcade.Sprite):
+    """
+    Interactive UI control window.
+
+    A draggable, self-contained UI element that displays the simulation
+    progress, speed controls, and handles interaction hitboxes.
+    """
+
     def __init__(self, image_path: PathOrTexture,
                  scale: float, manager: 'Manager'):
+        """
+        Initializes the interactive UI control window.
+
+        Sets up the window's sprite, initializes the progress bar ratio,
+        prepares all textual elements, and defines the local coordinates for
+        clickable hitboxes.
+
+        Args:
+            image_path (PathOrTexture): The path to the window's sprite asset.
+            scale (float): The scaling factor for the sprite.
+            manager (Manager): The core simulation manager to access simulation
+                               state.
+        """
         super().__init__(image_path, scale)
 
         self.manager = manager
@@ -265,6 +368,17 @@ class WindowInfo(arcade.Sprite):
         )
 
     def get_ui_action(self, mouse_x: float, mouse_y: float) -> Optional[str]:
+        """
+        Determines which UI button was clicked based on mouse coordinates.
+
+        Args:
+            mouse_x (float): The X-coordinate of the mouse click.
+            mouse_y (float): The Y-coordinate of the mouse click.
+
+        Returns:
+            Optional[str]: The action string corresponding to the clicked
+                           button, or None if no button was clicked.
+        """
         for action, data in self.buttons_data.items():
             hitbox = self._calculate_hitbox(data)
 
@@ -275,6 +389,17 @@ class WindowInfo(arcade.Sprite):
         return None
 
     def draw_ui(self, state_pause: bool) -> None:
+        """
+        Renders the UI window, its progress bar, and textual elements.
+
+        Skips rendering if the window is currently playing a destruction
+        animation. Draws the dynamic progress bar based on the calculated
+        completion ratio.
+
+        Args:
+            state_pause (bool): The current pause state of the simulation to
+                                toggle text.
+        """
         if self.is_imploding or self.is_ejected:
             return
 
@@ -316,6 +441,13 @@ class WindowInfo(arcade.Sprite):
             self.big_pause_text.draw()
 
     def update_ui_position(self) -> None:
+        """
+        Recalculates and updates the positions of all internal textual
+        elements.
+
+        Ensures that text labels stay anchored correctly to the window sprite
+        when the user drags it across the screen.
+        """
         self.speed_text.x = self.center_x - 73
         self.speed_text.y = self.top - 170
 
@@ -338,6 +470,13 @@ class WindowInfo(arcade.Sprite):
         self.big_pause_text.y = WindowSettings.HEIGHT / 2
 
     def update_info(self, action: str) -> None:
+        """
+        Updates the values displayed on the dynamic text elements.
+
+        Args:
+            action (str): The specific information to update
+                          (e.g., speed or turn count).
+        """
         if (action == WindowAction.SPEED_PLUS or
                 action == WindowAction.SPEED_MINUS):
             self.speed_text.text = f"{str(SpriteSetting.DRONE_SPEED)}%"
@@ -346,6 +485,10 @@ class WindowInfo(arcade.Sprite):
             self.turn_text.text = f"TURN {int(self.manager.turns)}"
 
     def debug_draw_hitboxes(self) -> None:
+        """
+        Draws red outlines around all defined UI hitboxes for debugging
+        purposes.
+        """
         for data in self.buttons_data.values():
             hitbox = self._calculate_hitbox(data)
 
@@ -355,6 +498,21 @@ class WindowInfo(arcade.Sprite):
             )
 
     def _calculate_hitbox(self, data: Dict[str, Any]) -> Dict[str, float]:
+        """
+        Calculates the absolute screen coordinates for a UI element's hitbox.
+
+        Resolves the bounding box based on the specified anchor point on the
+        main sprite, the defined pixel offset, and the element's size.
+
+        Args:
+            data (Dict[str, Any]): A dictionary containing the anchor, offset,
+                                  and size.
+
+        Returns:
+            Dict[str, float]: A dictionary containing the absolute 'left',
+                              'right', 'top', and 'bottom' coordinates of the
+                              hitbox.
+        """
         if data["anchor"] == "TOP_RIGHT":
             ref_x = self.right
             ref_y = self.top
@@ -390,6 +548,16 @@ class WindowInfo(arcade.Sprite):
         }
 
     def on_update(self, delta_time: float) -> None:
+        """
+        Updates the UI logic and handles destruction animations at each frame.
+
+        Calculates the simulation completion ratio based on drones at the end
+        hub. Applies mathematical transformations to scale down (implosion) or
+        shake (ejection) the window before destroying it entirely.
+
+        Args:
+            delta_time (float): Time interval since the last frame.
+        """
         if self.end_name:
             nb_drones = self.manager.raw_nb_drones
             drone_finished = self.manager.zones[self.end_name].drones_on_it
