@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/26 14:43:10 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/26 15:08:30 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -26,7 +26,9 @@ from src.graphics.graphics_settings import (WindowSettings, SpritePath,
 from src.object.drones import Drone
 from src.object.zone import Zone
 from src.object.utils.type import ZoneType
-from src.graphics.sprites import ZoneSprite, DroneSprite, WindowInfo
+from src.graphics.sprites.zone_sprite import ZoneSprite
+from src.graphics.sprites.drone_sprite import DroneSprite
+from src.graphics.sprites.window_sprite import WindowInfo
 
 
 if TYPE_CHECKING:
@@ -85,7 +87,7 @@ class Renderer(arcade.Window):
         self.zone_coords: Dict[str, Tuple[float, float]] = {}
         self.line_to_draw: List[Tuple[Tuple[float, float],
                                       Tuple[float, float]]] = []
-        self.draw_lines: Set[Tuple[str, str, str]] = set()
+        self.draw_lines: Set[Tuple[str, str]] = set()
 
         self.pause = False
         self.drones_moving = False
@@ -558,9 +560,8 @@ class Renderer(arcade.Window):
                 if connection_draw not in self.draw_lines:
                     coords_a = self.zone_coords[zone_a]
                     coords_b = self.zone_coords[zone_b]
-                    id = f"{node_a}-{node_b}"
 
-                    self.line_to_draw.append((id ,coords_a, coords_b))
+                    self.line_to_draw.append((coords_a, coords_b))
                     self.draw_lines.add(connection_draw)
 
     def _update_drone_sprite(self) -> None:
