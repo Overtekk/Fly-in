@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:34:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/25 16:26:39 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/26 08:19:09 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -288,6 +288,13 @@ class WindowInfo(arcade.Sprite):
             width=12, height=29, color=(192, 192, 192, 255)
             )
 
+        if self.ratio > 0:
+            arcade.draw.draw_lbwh_rectangle_filled(
+                left=self.left + 6, bottom=self.top - 120,
+                width=289 * self.ratio, height=29,
+                color=arcade.color.BUD_GREEN
+            )
+
         arcade.draw.draw_lbwh_rectangle_outline(
             left=self.left + 5, bottom=self.top - 120,
             width=290, height=29, color=(160, 159, 158, 255), border_width=4
@@ -297,13 +304,6 @@ class WindowInfo(arcade.Sprite):
             left=self.left + 5, bottom=self.top - 120,
             width=289, height=28.9, color=(29, 31, 33, 255), border_width=1
             )
-
-        if self.ratio > 0:
-            arcade.draw.draw_lbwh_rectangle_filled(
-                left=self.left + 6, bottom=self.top - 120,
-                width=289 * self.ratio, height=29,
-                color=arcade.color.BUD_GREEN
-                )
 
         self.speed_text.draw()
         self.speed_plus.draw()

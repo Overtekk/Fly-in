@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 15:16:45 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/26 08:48:16 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -232,13 +232,25 @@ class Manager():
 
         # Store the line once the turn is finished
         if len(self.log_turn) > 0:
+            if self.args.show_more_logs:
+                log = (f"\nDrones remaining: "
+                       f"{self.raw_nb_drones - len(
+                           self.zones[self.end_name].drones_on_it)}")
+                self.log_turn.append(log)
+
             line_log = self.log_turn.copy()
             self.log_output[self.line] = line_log
+
+            if self.args.show_logs or self.args.show_more_logs:
+                print(f"{Colors.CYAN}Turn: {self.turns}{Colors.END}")
+                print(self._print_log())
 
         # Stop the simulation if all drones are on the exit
         if (self.end_name and self.zones[self.end_name]
                 .check_if_goal_full(self.raw_nb_drones)):
             self.running = False
+            print(f"{Colors.BLUE}All drones have reached {self.end_name}"
+                  f"{Colors.END}")
             output_manager = LogOutput(self.map_name, self.log_output)
             output_manager.write_log()
 
@@ -331,10 +343,21 @@ class Manager():
                                          the drone is mid-transit. Defaults to
                                          None.
         """
-        if connection:
-            log = f"{drone_id.id}-{connection}-{destination.name}"
+        if self.args.show_more_logs:
+            if connection:
+                log = f"{drone_id.id}-{connection}-{destination.name}"
+            else:
+                if destination.name == self.end_name:
+                    log = f"{drone_id.id}-{destination.name}"
+                else:
+                    log = (f"{drone_id.id}-{destination.name} "
+                        f"({len(destination.drones_on_it)}/"
+                        f"{destination.metadata_max_drones})")
         else:
-            log = f"{drone_id.id}-{destination.name}"
+            if connection:
+                log = f"{drone_id.id}-{connection}-{destination.name}"
+            else:
+                log = f"{drone_id.id}-{destination.name}"
         self.log_turn.append(log)
 
     def _print_log(self) -> str:
@@ -346,7 +369,7 @@ class Manager():
         """
         text_log = ""
         for item in self.log_turn:
-            text_log += f"{item} "
+                text_log += f"{item} "
 
         return text_log
 

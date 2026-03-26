@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/02/23 18:28:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 10:55:42 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/26 08:46:31 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -50,14 +50,27 @@ def main() -> int:
             "filepath",
             nargs="?",
             default=None,
-            help=("Launch the main program script. You can specify a map to "
+            help=("launch the main program script. You can specify a map to "
                   "use instead of having the whole menu. (Maps are stored in "
-                  "the folder 'maps')")
+                  "the folder 'maps').")
         )
         parser.add_argument(
             "--debug",
             action="store_true",
-            help="Launch the program with the debug mode, used to test things."
+            help="Launch the program with the debug mode."
+        )
+        parser.add_argument(
+            "--show_logs",
+            action="store_true",
+            help=("show the logs output directly in the console while the "
+                  "simulation is running.")
+        )
+        parser.add_argument(
+            "--show_more_logs",
+            action="store_true",
+            help=("show more informations in the logs output (number of drones"
+                  " still in progress, zones capacity etc...). If this "
+                  "argument is added, '--show_logs' isn't needeed.")
         )
         args = parser.parse_args()
 
