@@ -24,8 +24,14 @@
 ## ✏️ Quick Start
 
 ```bash
-todo
+make  # install all dependencies and run the script. It will show a menu with all maps available in the 'maps' folder
+
+make run  # launch the script with the menu
+
+make run M=<pathToMap>  # launch the script with a specific map
 ```
+> [!NOTE]
+> If you don't have `uv` installed, run `make install`
 
 ---
 ## 📂 Description
@@ -143,19 +149,86 @@ Optional metadata:
 git clone https://github.com/Overtekk/Fly-in.git
 ```
 
+> [!NOTE]
+> If you don't have `uv` installed, run `make install`
+
 ### 2. Run:
+#### Using the Makefile
 ```bash
-todo
+make  # install all dependencies and run the script. It will show a menu with all maps available in the 'maps' folder
+
+make run  # launch the script with the menu
+
+make run M=<pathToMap>  # launch the script with a specific map
 ```
+#### Using UV
+```bash
+uv run python -m src # launch the script with the menu
+
+uv run python -m src <pathToMap>  # launch the script with a specific map
+```
+
+### You can specify custom arguments:
+#### Using the Makefile *(only available for `debug` mode)*
+```bash
+make run-debug --debug # launch the script with the debug mode
+
+make run-debug M=<pathToMap> --debug # launch the script with the debug mode with a specific map
+```
+
+|Argument|Description|
+|:------:|:---------:|
+|--debug| Debug mode intended to be use while developping. Show more informations on the screen|
+|--show_logs | Show the log output directly in the terminal output|
+|----show_more_logs| Show more logs informations (number of drones remaining, zone capacity) in the terminal output AND in the output file|
+
+You can use those arguments like this:
+`uv run python -m src <map> --show_logs`
+
 ---
 ## ⚙️ The Algorithm:
 
-todo
+To navigate the drones efficiently, this project implements a **Reverse Dijkstra Algorithm**.
+
+Standard pathfinding algorithms typically calculate the shortest route from point A to point B. However managing 1000 independent drones would require recalculating paths constantly, which is highly inefficient.
+And I wanted to try to optimize this project.
+
+So, instead, the algorithm starts from the End Hub and propagates outward to every other connected zone, calculating the lowest cumulative cost to reach the destination.
+
+The cost to traverse a connection is not uniform. It accounts for the specific constraints of the zones (e.g., Normal, Priority, Restricted, or Blocked). A Blocked zone represents an impassable wall (infinite cost), while a Restricted zone might impose movement delays.
+
+This reverse calculation creates a comprehensive **"cost map"** *(or heatmap)*. Once generated, any drone, regardless of its current location, simply queries its neighbors and moves to the node with the lowest remaining cost to the exit. It transforms complex individual pathfinding into a simple, global flow.
+
+While the algorithm dictates the ideal path, the Manager dictates the reality of the simulation. It acts as the central state machine and orchestrator.
+
+Its primary responsibilities include:
+
+- **Process the turn:** The Manager processes the environment turn by turn. It decides which drone is allowed to move and which must wait.
+
+- **Constraint Enforcement:** It strictly applies the network's physical rules. If a zone has a max_drones capacity of 20, the Manager acts as a gatekeeper, blocking the 21st drone and forcing it to wait or reroute, overriding the algorithm's optimal path to prevent collisions.
+
+- **Multi-Turn Resolution:** It handles complex transit states, such as drones taking multiple turns to cross Restricted zones, keeping track of their exact status between two discrete locations.
+
+- **Data Synchronization:** It feeds the sanitized, turn-resolved data to the visual Renderer, ensuring the graphical interface (Arcade) strictly reflects the underlying logical truth.
 
 ---
 ## 🖥️ Visual representation
 
-todo
+The visual representation use the `Arcade` library. A powerfull library used to makes visual and games.
+
+Once you launch the script, a window will appear with custom sprites.\
+Use **SPACE** to start the simulation.
+
+A window in the top left can be used to control the simulation:
+- You can pause anytime you want (the use of the **SPACE** key also works)
+- You can control the speed (the use of the **+** and **-** keys also works). Minimum is 100% (default), and maximum is 1000% speed
+- You can close the program by using **ESCAPE** key or the cross of each windows
+- You can move the window anywhere on the screen
+- A progress bar will show the completion of the simulation (a drone that have finished will make the bar progress)
+
+<br>
+
+Funny things can be done by clicking somewhere on the window. Find them!
 
 ---
 
@@ -218,5 +291,6 @@ todo
 - **As a talking board** ⎯ dicussion over code behavior, design choices (which is better), code refactoring to do better code in the future
 - **Writing docstrings** ⎯ help to write clear and concise docstrings. I tried to write all docstrings but sometimes, I don't know how to write what I want (because docs is very important), so IA can help me do better things
 - **Help with mypy** ⎯ because I hate mypy and sometimes I don't understand the error (too strict.....)
+- **Help with writing README** ⎯ the README is an important part. So, to make sure everything is clear, I ask the IA to make my text more clear and adapt it for non-coder user. My base text is upgraded but almost everything is writing by me.
 
 ---
