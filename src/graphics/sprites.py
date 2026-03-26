@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:34:19 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/26 09:32:27 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/26 09:52:17 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 
@@ -347,7 +347,6 @@ class WindowInfo(arcade.Sprite):
 
     def debug_draw_hitboxes(self) -> None:
         for data in self.buttons_data.values():
-            print(data)
             hitbox = self._calculate_hitbox(data)
 
             arcade.draw_lrbt_rectangle_outline(
