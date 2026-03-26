@@ -180,7 +180,7 @@ make run-debug M=<pathToMap> --debug # launch the script with the debug mode wit
 |:------:|:---------:|
 |--debug| Debug mode intended to be use while developping. Show more informations on the screen|
 |--show_logs | Show the log output directly in the terminal output|
-|----show_more_logs| Show more logs informations (number of drones remaining, zone capacity) in the terminal output AND in the output file|
+|--show_more_logs| Show more logs informations (number of drones remaining, zone capacity) in the terminal output AND in the output file|
 
 You can use those arguments like this:
 `uv run python -m src <map> --show_logs`
@@ -195,7 +195,7 @@ And I wanted to try to optimize this project.
 
 So, instead, the algorithm starts from the End Hub and propagates outward to every other connected zone, calculating the lowest cumulative cost to reach the destination.
 
-The cost to traverse a connection is not uniform. It accounts for the specific constraints of the zones (e.g., Normal, Priority, Restricted, or Blocked). A Blocked zone represents an impassable wall (infinite cost), while a Restricted zone might impose movement delays.
+The cost to traverse a connection is not uniform. It accounts for the specific constraints of the zones (e.g., Normal, Priority, Restricted, or Blocked). A Blocked zone represents an impassable wall (ignored from the explorable graph), while a Restricted zone might impose movement delays.
 
 This reverse calculation creates a comprehensive **"cost map"** *(or heatmap)*. Once generated, any drone, regardless of its current location, simply queries its neighbors and moves to the node with the lowest remaining cost to the exit. It transforms complex individual pathfinding into a simple, global flow.
 
