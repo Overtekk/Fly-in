@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/25 15:39:45 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/26 09:35:39 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -17,7 +17,7 @@ the Arcade library.
 import arcade
 import os
 
-from typing import TYPE_CHECKING, Dict, List, Set, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
 
 from src.graphics.graphics_settings import (WindowSettings, SpritePath,
                                             FontSettings, SpriteSetting,
@@ -95,7 +95,7 @@ class Renderer(arcade.Window):
         self.camera_zoom = 1.0
         self.default_camera_x, self.default_camera_y = self.camera.position
 
-        self.window_info_state = None
+        self.window_info_state: WindowInfo | None = None
         self.window_info_offset_x = 0.0
         self.window_info_offset_y = 0.0
 
@@ -208,7 +208,7 @@ class Renderer(arcade.Window):
         # Allow camera movement
         if buttons == arcade.MOUSE_BUTTON_RIGHT:
             curr_x, curr_y = self.camera.position
-            update_x = curr_x - (dx /self.camera_zoom)
+            update_x = curr_x - (dx / self.camera_zoom)
             update_y = curr_y - (dy / self.camera_zoom)
 
             self.camera.position = (update_x, update_y)
@@ -475,7 +475,8 @@ class Renderer(arcade.Window):
                 )
 
     def _update_speed_animation(self, action: str,
-                                ui_element: WindowInfo = None) -> None:
+                                ui_element: Optional[WindowInfo]
+                                = None) -> None:
         if action == WindowAction.SPEED_PLUS:
             if SpriteSetting.DRONE_SPEED < 1000:
                 SpriteSetting.DRONE_SPEED += 100
@@ -503,4 +504,3 @@ class Renderer(arcade.Window):
 
                 if self.manager.args.debug:
                     print(f"Speed down: {SpriteSetting.DRONE_SPEED}")
-

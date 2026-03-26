@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/26 09:04:16 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/26 09:37:00 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -233,9 +233,10 @@ class Manager():
         # Store the line once the turn is finished
         if len(self.log_turn) > 0:
             if self.args.show_more_logs:
-                log = (f"\nDrones remaining: "
-                       f"{self.raw_nb_drones - len(
-                           self.zones[self.end_name].drones_on_it)}")
+                if self.end_name:
+                    log = (f"\nDrones remaining: "
+                           f"{self.raw_nb_drones - len(
+                              self.zones[self.end_name].drones_on_it)}")
                 self.log_turn.append(log)
 
             line_log = self.log_turn.copy()
@@ -351,8 +352,8 @@ class Manager():
                     log = f"{drone_id.id}-{destination.name}"
                 else:
                     log = (f"{drone_id.id}-{destination.name} "
-                        f"({len(destination.drones_on_it)}/"
-                        f"{destination.metadata_max_drones})")
+                           f"({len(destination.drones_on_it)}/"
+                           f"{destination.metadata_max_drones})")
         else:
             if connection:
                 log = f"{drone_id.id}-{connection}-{destination.name}"
@@ -369,7 +370,7 @@ class Manager():
         """
         text_log = ""
         for item in self.log_turn:
-                text_log += f"{item} "
+            text_log += f"{item} "
 
         return text_log
 
