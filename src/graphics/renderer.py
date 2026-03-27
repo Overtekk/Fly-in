@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/26 15:08:30 by roandrie        ###   ########.fr        #
+#  Updated: 2026/03/27 09:29:18 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -29,6 +29,7 @@ from src.object.utils.type import ZoneType
 from src.graphics.sprites.zone_sprite import ZoneSprite
 from src.graphics.sprites.drone_sprite import DroneSprite
 from src.graphics.sprites.window_sprite import WindowInfo
+from src.graphics.sprites.icon_sprite import Icon
 
 
 if TYPE_CHECKING:
@@ -82,6 +83,8 @@ class Renderer(arcade.Window):
         self.drone_sprites_list: arcade.SpriteList[DroneSprite] = (
                                                         arcade.SpriteList())
         self.ui_sprites_list: arcade.SpriteList[arcade.Sprite] = (
+                                                        arcade.SpriteList())
+        self.legend_sprites_list: arcade.SpriteList[Icon] = (
                                                         arcade.SpriteList())
 
         self.zone_coords: Dict[str, Tuple[float, float]] = {}
@@ -171,8 +174,13 @@ class Renderer(arcade.Window):
             sprite.draw_ui()
         self.drone_sprites_list.draw()
 
-        # Draw pause screen (gray font, pause button)
         self.static_camera.use()
+        # Draw legend
+        self.legend_sprites_list.draw()
+        for sprite_icon in self.legend_sprites_list:
+            sprite_icon.draw_text()
+
+        # Draw pause screen (gray font, pause button)
         if self.pause:
             arcade.draw_lrbt_rectangle_filled(
                 0, WindowSettings.WIDTH, 0, WindowSettings.HEIGHT,
@@ -436,6 +444,32 @@ class Renderer(arcade.Window):
             self._create_window_info_sprite()
             self._load_zones_sprites()
             self._load_drones_sprites()
+
+            # Legend
+            list_sprites_legends = {
+                "START": SpritePath.START_HUB,
+                "END": SpritePath.END_HUB,
+                "NORMAL ZONE": SpritePath.DEFAULT_ZONE,
+                "BLOCKED ZONE": SpritePath.ZONE_BLOCKED,
+                "PRIORITY ZONE": SpritePath.ZONE_PRIORITY,
+                "RESTRICTED ZONE": SpritePath.ZONE_RESTRICTED
+            }
+
+            legend_x = WindowSettings.WIDTH - 166
+            legend_y = 168
+            legend_step = 30
+
+            for name, path in list_sprites_legends.items():
+                icon = Icon(path, 0.4, name)
+
+                icon.center_x = legend_x
+                icon.center_y = legend_y
+                icon.label_legend.x = legend_x + 15
+                icon.label_legend.y = legend_y - 5
+
+                self.legend_sprites_list.append(icon)
+
+                legend_y -= legend_step
 
         except FileNotFoundError as e:
             raise FileNotFoundError(f"Sprite not found in PATH {e}")
