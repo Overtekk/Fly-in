@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/10 20:01:40 by roandrie        #+#    #+#               #
-#  Updated: 2026/04/01 18:38:25 by roandrie        ###   ########.fr        #
+#  Updated: 2026/04/01 19:20:46 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -45,7 +45,7 @@ class SpritePath():
     Provides relative file paths to all image assets used for rendering
     sprites.
     """
-    BACKGROUND = "src/graphics/sprites/default/background.png"
+    BACKGROUND = f"{PATH}background.png"
     WINDOW_INFO = "src/graphics/sprites/default/window_info.png"
     DRONE = f"{PATH}drone.png"
     DRONE_ANIM1 = f"{PATH}drone1.png"
