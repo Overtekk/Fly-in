@@ -349,7 +349,7 @@ The code is a bit messy. I'm still learning and I need to works on other project
 
 ### Assets
 
-All the defaults sprites was made by me used **Aseprite**.\
+All the defaults sprites was made by me using **Aseprite**.\
 **The seagull theme** was made by my girlfriend.
 
 #### [Background for the default theme](https://craftpix.net/freebies/free-city-backgrounds-pixel-art/)
