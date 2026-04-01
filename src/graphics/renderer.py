@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/04/01 20:40:42 by roandrie        ###   ########.fr        #
+#  Updated: 2026/04/01 21:52:46 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -87,7 +87,9 @@ class Renderer(arcade.Window):
                                                         arcade.SpriteList())
         self.legend_sprites_list: arcade.SpriteList[Icon] = (
                                                         arcade.SpriteList())
-        self.connection_lines = arcade.shape_list.ShapeElementList()
+        self.connection_lines: (arcade.shape_list.
+                                ShapeElementList[arcade.shape_list.Shape]) = (
+            arcade.shape_list.ShapeElementList())
 
         self.zone_coords: Dict[str, Tuple[float, float]] = {}
         self.line_to_draw: List[Tuple[Tuple[float, float],

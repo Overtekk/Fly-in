@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/04/01 20:37:14 by roandrie        ###   ########.fr        #
+#  Updated: 2026/04/01 21:52:06 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -179,11 +179,11 @@ class Manager():
                     if self.zones[neighbors] in drone.visited_zones:
                         continue
                     # Skip if next have have bigger weight
-                    if (self.zones[neighbors].weight
-                            >= self.zones[loc].weight):
-                        continue
-
-                    neighbors_list.append(self.zones[neighbors])
+                    if (self.zones[neighbors].weight < self.zones[loc].weight
+                            or (self.zones[neighbors].weight ==
+                                self.zones[loc].weight
+                                and not self.zones[neighbors].is_occuped())):
+                        neighbors_list.append(self.zones[neighbors])
 
                 # Sort the list based on the weight of a zone
                 sorted_neighbors = sorted(
@@ -193,7 +193,7 @@ class Manager():
 
                 # Check if a zone have the capacity to acquiere the drone
                 for zone in sorted_neighbors:
-                    link_key = tuple(sorted((loc, zone.name)))
+                    link_key = (min(loc, zone.name), max(loc, zone.name))
                     link_count = current_link_usage.get(link_key, 0)
                     link_max = self.link_capacities.get(link_key, 1)
 
@@ -454,6 +454,30 @@ class Manager():
             self.zones[value[0]] = Zone(value[0], int(value[1]), int(value[2]),
                                         None, connection, type_param)
 
+    def _parse_link_metadata(self) -> None:
+        """
+        Parses raw connection strings to extract maximum link capacities.
+
+        Iterates through the raw connection data, identifies the linked zones,
+        and extracts the 'max_link_capacity' metadata. If no capacity is
+        specified, it defaults to 1. Links are stored as sorted tuples to
+        ensure bidirectional consistency.
+        """
+        for raw_connection in self.raw_connections:
+            parts = re.findall(r"\[[^\]]*\]|\S+", raw_connection)
+            zones = parts[0].split("-")
+
+            sorted_keys = sorted((zones[0], zones[1]))
+            link_key = (sorted_keys[0], sorted_keys[1])
+
+            capacity = 1
+            if len(parts) > 1:
+                meta = parts[1].strip("[]")
+                if "max_link_capacity=" in meta:
+                    capacity = int(meta.split("=")[1])
+
+            self.link_capacities[link_key] = capacity
+
     def _add_drones_to_spawn(self) -> None:
         """
         Places all instantiated drones into the designated starting zone.
@@ -484,26 +508,3 @@ class Manager():
             self.drones[1].update_location(self.zones[next_zone])
             self.zones[pos].remove_drone(self.drones[1])
             self.zones[next_zone].add_drone(self.drones[1])
-
-    def _parse_link_metadata(self) -> None:
-        """
-        Parses raw connection strings to extract maximum link capacities.
-
-        Iterates through the raw connection data, identifies the linked zones,
-        and extracts the 'max_link_capacity' metadata. If no capacity is
-        specified, it defaults to 1. Links are stored as sorted tuples to
-        ensure bidirectional consistency.
-        """
-        for raw_connection in self.raw_connections:
-            parts = re.findall(r"\[[^\]]*\]|\S+", raw_connection)
-            zones = parts[0].split("-")
-
-            link_key = tuple(sorted((zones[0], zones[1])))
-
-            capacity = 1
-            if len(parts) > 1:
-                meta = parts[1].strip("[]")
-                if "max_link_capacity=" in meta:
-                    capacity = int(meta.split("=")[1])
-
-            self.link_capacities[link_key] = capacity
