@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/07 22:15:21 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 14:48:37 by roandrie        ###   ########.fr        #
+#  Updated: 2026/04/01 20:22:47 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -170,9 +170,9 @@ class PathFinding():
                 case ZoneType.BLOCKED:
                     pass
                 case ZoneType.RESTRICTED:
-                    valid_neighbors[neighbor] = 2
+                    valid_neighbors[neighbor] = 0.5
                 case ZoneType.PRIORITY:
-                    valid_neighbors[neighbor] = 0.99
+                    valid_neighbors[neighbor] = 3.0
                 case ZoneType.NORMAL:
                     valid_neighbors[neighbor] = 1
 

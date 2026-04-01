@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/04/01 19:53:34 by roandrie        ###   ########.fr        #
+#  Updated: 2026/04/01 20:40:42 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -15,6 +15,7 @@ the Arcade library.
 """
 
 import arcade
+import arcade.shape_list
 import os
 import random
 
@@ -86,6 +87,7 @@ class Renderer(arcade.Window):
                                                         arcade.SpriteList())
         self.legend_sprites_list: arcade.SpriteList[Icon] = (
                                                         arcade.SpriteList())
+        self.connection_lines = arcade.shape_list.ShapeElementList()
 
         self.zone_coords: Dict[str, Tuple[float, float]] = {}
         self.line_to_draw: List[Tuple[Tuple[float, float],
@@ -110,6 +112,7 @@ class Renderer(arcade.Window):
         self._init_texts()
         self._load_sprites()
         self._calculate_line_to_draw()
+        self._create_static_lines()
 
     def on_update(self, delta_time: float) -> None:
         """
@@ -163,10 +166,7 @@ class Renderer(arcade.Window):
         self.camera.use()
 
         # Draw connections lines
-        for (start_x, start_y), (end_x, end_y) in self.line_to_draw:
-            for drone_sprite in self.drone_sprites_list:
-                arcade.draw_line(start_x, start_y, end_x, end_y,
-                                 arcade.color.WHITE, 1.5)
+        self.connection_lines.draw()
 
         # Draw sprites for zones and drones
         self.zone_sprites_list.draw()
@@ -597,6 +597,22 @@ class Renderer(arcade.Window):
 
                     self.line_to_draw.append((coords_a, coords_b))
                     self.draw_lines.add(connection_draw)
+
+    def _create_static_lines(self) -> None:
+        """
+        Generates static line shapes for the GPU.
+
+        Compiles all connection coordinates into a single ShapeElementList.
+        This drastically reduces CPU overhead during the draw cycle.
+        """
+        for (start_x, start_y), (end_x, end_y) in self.line_to_draw:
+            line = arcade.shape_list.create_line(
+                start_x, start_y,
+                end_x, end_y,
+                arcade.color.WHITE,
+                1.5
+            )
+            self.connection_lines.append(line)
 
     def _update_drone_sprite(self) -> None:
         """
