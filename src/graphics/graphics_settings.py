@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/10 20:01:40 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/26 14:58:28 by roandrie        ###   ########.fr        #
+#  Updated: 2026/04/01 18:38:25 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -17,7 +17,18 @@ window, file paths for assets (sprites and fonts), rendering scales,
 and UI action identifiers.
 """
 
-DEFAULT_PATH = "src/graphics/sprites/default/"
+from random import random
+
+
+DEFAULT_THEME = "src/graphics/sprites/default/"
+SEAGULL_THEME = "src/graphics/sprites/seagull_theme/"
+
+if random() < 0.3:
+    PATH = SEAGULL_THEME
+    ANIM_SPEED = 1
+else:
+    PATH = DEFAULT_THEME
+    ANIM_SPEED = 5
 
 
 class WindowSettings():
@@ -34,18 +45,18 @@ class SpritePath():
     Provides relative file paths to all image assets used for rendering
     sprites.
     """
-    BACKGROUND = f"{DEFAULT_PATH}background.png"
-    WINDOW_INFO = f"{DEFAULT_PATH}window_info.png"
-    DRONE = f"{DEFAULT_PATH}drone.png"
-    DRONE_ANIM1 = f"{DEFAULT_PATH}drone1.png"
-    DRONE_ANIM2 = f"{DEFAULT_PATH}drone2.png"
-    DRONE_FINISH = f"{DEFAULT_PATH}drone_finish.png"
-    START_HUB = f"{DEFAULT_PATH}start_hub.png"
-    END_HUB = f"{DEFAULT_PATH}end_hub.png"
-    DEFAULT_ZONE = f"{DEFAULT_PATH}default_zone.png"
-    ZONE_BLOCKED = f"{DEFAULT_PATH}zone_blocked.png"
-    ZONE_PRIORITY = f"{DEFAULT_PATH}zone_priority.png"
-    ZONE_RESTRICTED = f"{DEFAULT_PATH}zone_restricted.png"
+    BACKGROUND = "src/graphics/sprites/default/background.png"
+    WINDOW_INFO = "src/graphics/sprites/default/window_info.png"
+    DRONE = f"{PATH}drone.png"
+    DRONE_ANIM1 = f"{PATH}drone1.png"
+    DRONE_ANIM2 = f"{PATH}drone2.png"
+    DRONE_FINISH = f"{PATH}drone_finish.png"
+    START_HUB = f"{PATH}start_hub.png"
+    END_HUB = f"{PATH}end_hub.png"
+    DEFAULT_ZONE = f"{PATH}default_zone.png"
+    ZONE_BLOCKED = f"{PATH}zone_blocked.png"
+    ZONE_PRIORITY = f"{PATH}zone_priority.png"
+    ZONE_RESTRICTED = f"{PATH}zone_restricted.png"
 
 
 class FontSettings():
@@ -68,7 +79,7 @@ class SpriteSetting():
     OFFSET_X = 100.0
     OFFSET_Y = 100.0
     DRONE_SPEED = 100.0
-    ANIM_SPEED = 5
+    ANIM_SPEED = ANIM_SPEED
 
 
 class WindowAction():
