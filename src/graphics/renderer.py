@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/16 14:08:32 by roandrie        #+#    #+#               #
-#  Updated: 2026/04/01 18:27:45 by roandrie        ###   ########.fr        #
+#  Updated: 2026/04/01 19:53:34 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -52,7 +52,7 @@ class Renderer(arcade.Window):
 
         super().__init__(width=WindowSettings.WIDTH, antialiasing=True,
                          height=WindowSettings.HEIGHT, fullscreen=False,
-                         title=WindowSettings.NAME, resizable=True,
+                         title=WindowSettings.NAME, resizable=False,
                          center_window=True)
         """
         Initializes the simulation window and its graphical components.
