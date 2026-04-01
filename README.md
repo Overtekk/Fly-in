@@ -186,6 +186,7 @@ You can use those arguments like this:
 `uv run python -m src <map> --show_logs`
 
 ---
+
 ## ⚙️ The Algorithm:
 
 To navigate the drones efficiently, this project implements a **Reverse Dijkstra Algorithm**.
@@ -212,9 +213,42 @@ Its primary responsibilities include:
 - **Data Synchronization:** It feeds the sanitized, turn-resolved data to the visual Renderer, ensuring the graphical interface (Arcade) strictly reflects the underlying logical truth.
 
 ---
+
+## 🔋 Software Architecture (OOP)
+
+The project follows a strict **Object-Oriented** hierarchy to ensure modularity and type safety:
+
+- Parsing (`src/maps_parser/parser.py`): Parsing logic. Validate only a map, or the whole folders and give instructions if a map isn't valid.
+
+- Simulation Manager (`src/simulation/manager.py`): Core of the program. Create all drones and zones. Call the algorithm. It orchestrates the clock, moves the drones each turns, and ensures that no rules are broken, that drones can move, where to go.
+
+- Drone Agent (`src/object/drones.py`): Represents an individual unit. It tracks its own state (moving, waiting, finished, current location).
+
+- Network Components:
+
+    - Zones (`src/object/zone.py`): Nodes in our graph. They hold metadata like max_drones, zone type, drones on it and weight.
+
+    - Connections: Edges between zones. They manage max_link_capacity.
+
+- Renderer (`src/graphics/renderer.py`): Decoupled from the logic, it only consumes the state provided by the Manager to update the UI each turn.
+
+
+#### The Parsing
+
+The parser act as a gatekeeper. You can provides a specific map as an argument. In this case, only this map will be checked. In the other hand, if no arguments are provided, the all `maps` folder will be scanned. Each folder will be a category, and files will be checked. All of this gave a menu with maps selection and even a category to see which maps can't be use and why (to fix them!).
+
+#### The Simulation Engine (Manager)
+
+While the algorithm dictates the ideal path, the Manager enforces the reality:
+
+- **Collision Avoidance**: If a zone reaches its `max_drones` capacity, the Manager acts as a gatekeeper. Drones are forced to wait or take a detour, even if their algorithm wants them to move forward.
+
+- **Multi-Turn Resolution**: In a restricted zone, a drone is "busy" for 2 turns. The Manager handles this intermediate state, ensuring the drone is neither at the start nor the end of its move during the transition.
+
+---
 ## 🖥️ Visual representation
 
-The visual representation use the `Arcade` library. A powerfull library used to makes visual and games.
+The visual representation use the `Arcade` library. A powerfull library used to makes visual and games, providing a high-performance OpenGL-accelerated view of the simulation.
 
 Once you launch the script, a window will appear with custom sprites.\
 Use **SPACE** to start the simulation.
@@ -225,10 +259,28 @@ A window in the top left can be used to control the simulation:
 - You can close the program by using **ESCAPE** key or the cross of each windows
 - You can move the window anywhere on the screen
 - A progress bar will show the completion of the simulation (a drone that have finished will make the bar progress)
+- Visual legend to know which icon is what.
+
+<br>
+
+The rendering is performed in **real-time**.
+Why ? For two reasons:
+- When I was building the algorithm and the manager, it was more easy for me to see whats goes wrong, what works.
+- I feel like it's better to see in real-time what going on even if it's a bit more chaotic to code (like the progress bar is updated when a drone goes to the end_hub and not when its on it.)
 
 <br>
 
 Funny things can be done by clicking somewhere on the window. Find them!
+
+---
+
+### ✨ Optimization
+
+I tried my best to optimize this program. The sprites are loaded once (also ensuring that the path exist), all the visual is well optimize (and I'm sure that it can be better).
+
+For the algorithm, I tried to have something that launch once and then, drones and/or the manager will do the rest **(O(V²))**. In this case, everything works clean and it's not too heavy for the computer.
+
+The code is a bit messy. I'm still learning and I need to works on other projects. I can rewrite everything in a better way but it not be efficient and other projects will be more readable. Sorry for that.
 
 ---
 
@@ -293,4 +345,13 @@ Funny things can be done by clicking somewhere on the window. Find them!
 - **Help with mypy** ⎯ because I hate mypy and sometimes I don't understand the error (too strict.....)
 - **Help with writing README** ⎯ the README is an important part. So, to make sure everything is clear, I ask the IA to make my text more clear and adapt it for non-coder user. My base text is upgraded but almost everything is writing by me.
 
+<br>
+
+### Assets
+
+All the defaults sprites was made by me used **Aseprite**.\
+**The seagull theme** was made by my girlfriend.
+
+#### [Background for the default theme](https://craftpix.net/freebies/free-city-backgrounds-pixel-art/)
+#### [Background for the seagull theme](https://www.freepik.com/free-vector/pixel-art-rural-landscape-background_49661326.htm#fromView=search&page=1&position=6&uuid=b62ad4a9-5f0c-4330-b875-771f79047e3e&query=Beach+background+pixel)
 ---
