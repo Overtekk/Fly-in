@@ -238,8 +238,9 @@ The project follows a strict **Object-Oriented** hierarchy to ensure modularity 
 The parser act as a gatekeeper. You can provides a specific map as an argument. In this case, only this map will be checked. In the other hand, if no arguments are provided, the all `maps` folder will be scanned. Each folder will be a category, and files will be checked. All of this gave a menu with maps selection and even a category to see which maps can't be use and why (to fix them!).
 
 ### Menu: choose your map, see errors
+
 <p align="center">
-  <video src="assets/menu.mp4" width="500" autoplay loop muted playsinline></video>
+  <video src="https://github.com/Overtekk/Fly-in/main/assets/menu.mp4" width="500" autoplay loop muted playsinline></video>
 </p>
 
 #### The Simulation Engine (Manager)
@@ -278,6 +279,7 @@ Why ? For two reasons:
 Funny things can be done by clicking somewhere on the window. Find them!
 
 🌟
+
 <p align="center">
   <video src="assets/visual.mp4" width="800" autoplay loop muted playsinline></video>
 </p>
@@ -360,7 +362,7 @@ The code is a bit messy. I'm still learning and I need to works on other project
 ### Assets
 
 All the defaults sprites was made by me using **Aseprite**.\
-**The seagull theme** was made by my girlfriend. 
+**The seagull theme** was made by my girlfriend.
 
 #### [Background for the default theme](https://craftpix.net/freebies/free-city-backgrounds-pixel-art/)
 #### [Background for the seagull theme](https://www.freepik.com/free-vector/pixel-art-rural-landscape-background_49661326.htm#fromView=search&page=1&position=6&uuid=b62ad4a9-5f0c-4330-b875-771f79047e3e&query=Beach+background+pixel)
