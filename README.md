@@ -237,6 +237,11 @@ The project follows a strict **Object-Oriented** hierarchy to ensure modularity 
 
 The parser act as a gatekeeper. You can provides a specific map as an argument. In this case, only this map will be checked. In the other hand, if no arguments are provided, the all `maps` folder will be scanned. Each folder will be a category, and files will be checked. All of this gave a menu with maps selection and even a category to see which maps can't be use and why (to fix them!).
 
+### Menu: choose your map, see errors
+<p align="center">
+  <video src="assets/menu.mp4" width="500" autoplay loop muted playsinline></video>
+</p>
+
 #### The Simulation Engine (Manager)
 
 While the algorithm dictates the ideal path, the Manager enforces the reality:
@@ -271,6 +276,10 @@ Why ? For two reasons:
 <br>
 
 Funny things can be done by clicking somewhere on the window. Find them!
+
+<p align="center">
+  <video src="assets/visual.mp4" width="800" autoplay loop muted playsinline></video>
+</p>
 
 ---
 
