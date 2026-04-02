@@ -239,7 +239,7 @@ The parser act as a gatekeeper. You can provides a specific map as an argument. 
 
 ### Menu: choose your map, see errors
 
-<video src="https://github.com/Overtekk/Fly-in/blob/main/assets/menu.mp4" controls width="600"></video>
+![Menu demo](assets/menu.gif)
 
 
 #### The Simulation Engine (Manager)
@@ -277,11 +277,8 @@ Why ? For two reasons:
 
 Funny things can be done by clicking somewhere on the window. Find them!
 
-🌟
 
-<p align="center">
-  <video src="assets/visual.mp4" width="800" autoplay loop muted playsinline></video>
-</p>
+![Menu demo](assets/visual.gif)
 
 ---
 
