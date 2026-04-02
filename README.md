@@ -239,9 +239,7 @@ The parser act as a gatekeeper. You can provides a specific map as an argument. 
 
 ### Menu: choose your map, see errors
 
-<p align="center">
-  <video src="https://github.com/Overtekk/Fly-in/main/assets/menu.mp4" width="500" autoplay loop muted playsinline></video>
-</p>
+<video src="assets/menu.mp4" controls width="600"></video>
 
 #### The Simulation Engine (Manager)
 
