@@ -277,6 +277,7 @@ Why ? For two reasons:
 
 Funny things can be done by clicking somewhere on the window. Find them!
 
+🌟
 <p align="center">
   <video src="assets/visual.mp4" width="800" autoplay loop muted playsinline></video>
 </p>
@@ -359,7 +360,7 @@ The code is a bit messy. I'm still learning and I need to works on other project
 ### Assets
 
 All the defaults sprites was made by me using **Aseprite**.\
-**The seagull theme** was made by my girlfriend.
+**The seagull theme** was made by my girlfriend. 
 
 #### [Background for the default theme](https://craftpix.net/freebies/free-city-backgrounds-pixel-art/)
 #### [Background for the seagull theme](https://www.freepik.com/free-vector/pixel-art-rural-landscape-background_49661326.htm#fromView=search&page=1&position=6&uuid=b62ad4a9-5f0c-4330-b875-771f79047e3e&query=Beach+background+pixel)
