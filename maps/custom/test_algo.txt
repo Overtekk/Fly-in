@@ -1,4 +1,4 @@
-nb_drones: 10
+nb_drones: 100
 
 hub: rock -1 0 [color=black zone=blocked]
 start_hub: start 0 0 [color=green]
