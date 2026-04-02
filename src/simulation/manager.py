@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/06 07:50:25 by roandrie        #+#    #+#               #
-#  Updated: 2026/04/01 21:52:06 by roandrie        ###   ########.fr        #
+#  Updated: 2026/04/02 12:26:55 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -244,9 +244,9 @@ class Manager():
         if len(self.log_turn) > 0:
             if self.args.show_more_logs:
                 if self.end_name:
-                    log = (f"\nDrones remaining: "
-                           f"{self.raw_nb_drones - len(
-                              self.zones[self.end_name].drones_on_it)}")
+                    remain = self.zones[self.end_name].drones_on_it
+                    log = ("\nDrones remaining: "
+                           f"{self.raw_nb_drones - len(remain)}")
                 self.log_turn.append(log)
 
             line_log = self.log_turn.copy()
