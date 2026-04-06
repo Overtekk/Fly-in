@@ -8,9 +8,9 @@
 ---
 
 <div align="center">
-  <img src="https://img.shields.io/badge/SCORE-None-%235CB338?style=for-the-badge&logo=42&logoColor=white"/>
-  <img src="https://img.shields.io/badge/BONUS-None-%235CB338?style=for-the-badge&logo=starship&logoColor=white"/>
-  <img src="https://img.shields.io/badge/COMPLETED-No-%23007ACC?style=for-the-badge&logo=calendar&logoColor=white"/>
+  <img src="https://img.shields.io/badge/SCORE-125-%235CB338?style=for-the-badge&logo=42&logoColor=white"/>
+  <img src="https://img.shields.io/badge/BONUS-YES-%235CB338?style=for-the-badge&logo=starship&logoColor=white"/>
+  <img src="https://img.shields.io/badge/COMPLETED-06/04/2026-%23007ACC?style=for-the-badge&logo=calendar&logoColor=white"/>
 </div>
 
 ## ⚠️ Disclaimer
