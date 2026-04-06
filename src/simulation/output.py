@@ -6,7 +6,7 @@
 #  By: roandrie <roandrie@student.42lehavre.fr   +#+  +:+       +#+         #
 #                                              +#+#+#+#+#+   +#+            #
 #  Created: 2026/03/21 14:35:34 by roandrie        #+#    #+#               #
-#  Updated: 2026/03/24 11:56:26 by roandrie        ###   ########.fr        #
+#  Updated: 2026/04/06 09:43:03 by roandrie        ###   ########.fr        #
 #                                                                           #
 # ************************************************************************* #
 """
@@ -69,8 +69,8 @@ class LogOutput():
 
                     for log in log_list:
                         log_line += f"{log} "
-                        f.write(f"{log_line}")
 
+                    f.write(f"{log_line}")
                     f.write("\n")
 
         except PermissionError:
